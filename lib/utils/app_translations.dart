@@ -3,45 +3,17 @@ import 'package:get/get.dart';
 class AppTranslations extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
-        'ar_IQ': {
-          // home
-          'app_name': 'متجري!',
-          'items': 'البضاعة',
-          'Invoices': 'قوائم المشتريات',
-          'Transactions': 'الحركات والمشتريات',
-          'customers': 'العملاء',
-
-          // splash screen
-          'view and manage items in your store': 'معاينة وادارة العناصر',
-          'welcoming': 'مرحباً بك في تطبيق إدارة المبيعات!',
-          'Sales Management App': 'تطبيق إدارة المبيعات',
-          'Manage your store easily and efficiently':
-              'إدارة متجرك بسهولة وكفاءة',
-          'Please enter your store information': 'الرجاء إدخال معلومات متجرك',
-          'Store Information': 'معلومات المتجر',
-          'Store Name': 'اسم المتجر',
-          'Please enter store name': 'الرجاء إدخال اسم المتجر',
-          'Currency Settings': 'اعدادات العملة',
-          'Currency name': 'اسم العملة',
-          'Example: Iraqi dinar': 'مثال: دينار عراقي',
-          'Please enter the currency name': 'الرجاء إدخال اسم العملة',
-          'currency symbol': 'رمز العملة',
-          'Example: IQD': 'مثال: IQD',
-          'Please enter the currency code': 'الرجاء إدخال رمز العملة',
-          'Number of decimal places:': 'عدد الأرقام العشرية:',
-          'Save settings and get started': 'حفظ الإعدادات وبدء الاستخدام',
-
-          // customers pages
-          'Item Name': 'اسم المادة',
-        },
         'en_US': {
           // home
           'app_name': 'My Store!',
           'items': 'Items',
           'Invoices': 'Invoices',
           'Transactions': 'Transactions',
-          'customers': 'Customers',
           'Expenses': 'Expenses',
+          'customers': 'Customers',
+          'Profits': 'Profits',
+          'Suppliers': 'Suppliers',
+          'Vouchers': 'Vouchers',
           'Total Sales': 'Total Sales',
           'Last Month Sales': 'Last Month Sales',
           'Net revenue': 'Net revenue',
@@ -51,7 +23,8 @@ class AppTranslations extends Translations {
           'Items less 5 in stocks': 'Items less 5 in stocks',
           'Total Amount of Outstanding Debt':
               'Total Amount of Outstanding Debt',
-
+          'Last Invoices': 'Last Invoices',
+          'Last Payments': 'Last Payments',
           'Paid-up capital': 'Paid-up capital',
 
           ' view and edit store information': 'view and edit store information',
@@ -88,7 +61,7 @@ class AppTranslations extends Translations {
           'Total Unpaid Amounts': 'Total Unpaid Amounts:',
 
           //  Expense
-          'New Expense': 'New Expense',
+
           'Expense Amount': 'Expense Amount',
           'Expense description': 'Expense description',
           'Total Expenses': 'Total Expenses',
@@ -96,11 +69,84 @@ class AppTranslations extends Translations {
           // buttons &7 shared
           'save': 'Save',
           'edit': 'Edit',
+          'Add': 'Add',
           'required': 'this row is required!',
           'number': 'number only',
           'name': 'Name',
           'phone': 'Phone',
           'Amount': 'Amount',
+          'Create Invoice': 'Create Invoice',
+          'New Transactions': 'New Transactions',
+          'New Expense': 'New Expense',
+        },
+        'ar_SA': {
+          // home
+          'app_name': 'متجري!',
+          'items': 'العناصر',
+          'Invoices': 'الفواتير',
+          'Transactions': 'المعاملات',
+          'Expenses': 'المصروفات',
+          'customers': 'العملاء',
+          'Profits': 'الأرباح',
+          'Suppliers': 'الموردين',
+          'Vouchers': 'السندات',
+          'Total Sales': 'إجمالي المبيعات',
+          'Last Month Sales': 'مبيعات الشهر الماضي',
+          'Net revenue': 'صافي الإيرادات',
+          'Total Expense': 'إجمالي المصروفات',
+          'Available Items Count': 'عدد العناصر المتوفرة',
+          'Not Available Items Count': 'عدد العناصر غير المتوفرة',
+          'Items less 5 in stocks': 'العناصر الأقل من 5 في المخزون',
+          'Total Amount of Outstanding Debt': 'إجمالي قيمة الديون المستحقة',
+          'Last Invoices': 'آخر الفواتير',
+          'Last Payments': 'آخر المدفوعات',
+          'Paid-up capital': 'رأس المال المدفوع',
+          ' view and edit store information': 'عرض وتعديل معلومات المتجر',
+          // splash screen
+          'view and manage items': 'عرض وإدارة العناصر في متجرك',
+          'welcoming': 'مرحبًا بك في تطبيق إدارة المبيعات!',
+          'Sales Management App': 'تطبيق إدارة المبيعات',
+          'Manage your store easily and efficiently':
+              'إدارة متجرك بسهولة وكفاءة',
+          'Please enter your store information': 'يرجى إدخال معلومات متجرك',
+          'Store Information': 'معلومات المتجر',
+          'Store Name': 'اسم المتجر',
+          'Please enter store name': 'يرجى إدخال اسم المتجر',
+          'Currency name': 'اسم العملة',
+          'Example: Iraqi dinar': 'مثال: الدينار العراقي',
+          'Please enter the currency name': 'يرجى إدخال اسم العملة',
+          'currency symbol': 'رمز العملة',
+          'Example: IQD': 'مثال: IQD',
+          'Please enter the currency code': 'يرجى إدخال رمز العملة',
+          'Number of decimal places:': 'عدد المنازل العشرية:',
+          'Save settings and get started': 'حفظ الإعدادات والبدء',
+          'Edit Store Information': 'تعديل معلومات المتجر',
+          'Change Logo': 'تغيير الشعار',
+          'Select Store Logo': 'اختر شعار المتجر',
+          // customers pages
+          'Item Name': 'اسم العنصر',
+          'Customer Balance:': 'رصيد العميل:',
+          'add_new_custommer': 'إضافة عميل جديد @name',
+          'update_customer': 'تحديث معلومات @name',
+          'Print Customer full invoice': 'طباعة فاتورة العميل الكاملة',
+          'customer_name': 'اسم العميل: @name',
+          'Total Unpaid Amounts': 'إجمالي المبالغ غير المدفوعة:',
+          //  Expense
+          'Expense Amount': 'مبلغ المصروفات',
+          'Expense description': 'وصف المصروفات',
+          'Total Expenses': 'إجمالي المصروفات',
+          // buttons &7 shared
+          'save': 'حفظ',
+          'Add': 'اضافة',
+          'edit': 'تعديل',
+          'required': 'هذا الحقل مطلوب!',
+          'number': 'أرقام فقط',
+          'name': 'الاسم',
+          'phone': 'الهاتف',
+          'Amount': 'المبلغ',
+          'Create Invoice': 'إنشاء فاتورة',
+          'New Transactions': 'معاملات جديدة',
+          'New Expense': 'مصروفات جديدة',
         },
       };
 }

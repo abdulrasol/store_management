@@ -65,7 +65,7 @@ class CustomersPage extends StatelessWidget {
           data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
           child: Row(
             children: <Widget>[
-              Text('Total Unpaid Amounts'),
+              Text('Total Unpaid Amounts'.tr),
               const Spacer(),
               Text(settingsController.currencyFormatter(
                   databaseController.customersTransactions.fold(

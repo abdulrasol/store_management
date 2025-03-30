@@ -94,6 +94,7 @@ class _HomeState extends State<Home> {
                             ),
                           ],
                         ),
+                        verSpace,
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -236,12 +237,9 @@ class _HomeState extends State<Home> {
                                   .toString())),
                             ],
                           ),
-                          verSpace,
                         ],
                       )),
                 ),
-
-                //View the total amount of outstanding debt.
                 HomeCard(
                   width: (MediaQuery.sizeOf(context).width) - 30,
                   color: Colors.green,
@@ -274,49 +272,7 @@ class _HomeState extends State<Home> {
             Row(
               children: [
                 Text(
-                  'Last Invoices',
-                  style: TextStyle(fontSize: 16),
-                )
-              ],
-            ),
-            Expanded(
-                flex: 1,
-                child: Obx(
-                  () => ListView.builder(
-                    itemCount: databaseController.inovices.length > 5
-                        ? 5
-                        : databaseController.inovices.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                            '${databaseController.inovices[index].customer.target?.name} - ${databaseController.inovices[index].invoiceNumber()}'),
-                        subtitle: Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          runAlignment: WrapAlignment.spaceBetween,
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          children: [
-                            Text(
-                                'Price: ${settingsController.currencyFormatter(databaseController.inovices[index].pricetoPay())}'),
-                            Text(
-                                'Paid: ${settingsController.currencyFormatter(databaseController.inovices[index].transactions[0].amount)}'),
-                            Text(
-                                ' ${databaseController.inovices[index].invoiceDate()}')
-                          ],
-                        ),
-                        onTap: () {
-                          Get.to(() => InvoiceView(
-                              invoice: databaseController.inovices[index]));
-                        },
-                      );
-                    },
-                  ),
-                )),
-            Divider(),
-            verSpace,
-            Row(
-              children: [
-                Text(
-                  'Last Payments',
+                  'Last Invoices'.tr,
                   style: TextStyle(fontSize: 16),
                 )
               ],
@@ -324,35 +280,39 @@ class _HomeState extends State<Home> {
             Expanded(
               flex: 1,
               child: Obx(
-                () => ListView.builder(
-                  itemCount: databaseController.payTransaction.length > 5
-                      ? 5
-                      : databaseController.payTransaction.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(
-                          '${databaseController.payTransaction[index].customer.target?.name}'),
-                      subtitle: Wrap(
-                        alignment: WrapAlignment.spaceBetween,
-                        runAlignment: WrapAlignment.spaceBetween,
-                        crossAxisAlignment: WrapCrossAlignment.start,
-                        children: [
-                          Text(
-                              'Amount: ${settingsController.currencyFormatter(databaseController.payTransaction[index].amount)}'),
-                          Text(
-                              'Date: ${databaseController.payTransaction[index].paymentDate()}'),
-                          Text(
-                              'Number: ${databaseController.payTransaction[index].transactionNumber()}'),
-                        ],
-                      ),
-                      onTap: () {
-                        Get.to(() => TransactionView(
-                            transaction: queries.payTransactionQuery()[index]));
-                      },
-                    );
-                  },
+                () => invoicesView(
+                  databaseController.inovices
+                      .getRange(
+                          0,
+                          databaseController.inovices.length > 10
+                              ? 10
+                              : databaseController.inovices.length)
+                      .toList(),
                 ),
               ),
+            ),
+            Divider(),
+            verSpace,
+            Row(
+              children: [
+                Text(
+                  'Last Payments'.tr,
+                  style: TextStyle(fontSize: 16),
+                )
+              ],
+            ),
+            Expanded(
+              flex: 1,
+              child: Obx(() => transactionsView(
+                    databaseController.customersTransactions
+                        .getRange(
+                            0,
+                            databaseController.customersTransactions.length > 10
+                                ? 10
+                                : databaseController
+                                    .customersTransactions.length)
+                        .toList(),
+                  )),
             ),
           ],
         ),
@@ -363,7 +323,7 @@ class _HomeState extends State<Home> {
             child: Icon(Icons.receipt_long),
             foregroundColor: Colors.white,
             backgroundColor: Colors.green,
-            label: 'Create Invoice',
+            label: 'Create Invoice'.tr,
             onPressed: () {
               Get.to(() => InvoiceCreate());
             },
@@ -373,7 +333,7 @@ class _HomeState extends State<Home> {
             child: Icon(Icons.payment),
             foregroundColor: Colors.white,
             backgroundColor: Colors.lightBlue,
-            label: 'New Transactions',
+            label: 'New Transactions'.tr,
             onPressed: () {
               Get.to(() => TransactionAdd());
             },
@@ -382,7 +342,7 @@ class _HomeState extends State<Home> {
             child: Icon(Icons.attach_money_outlined),
             foregroundColor: Colors.white,
             backgroundColor: Colors.orange,
-            label: 'New Expense',
+            label: 'New Expense'.tr,
             onPressed: () {
               Get.to(() => ExpenseAdd());
             },
@@ -419,11 +379,6 @@ class _HomeState extends State<Home> {
                           size: 80,
                           color: Colors.blue.shade700,
                         )
-
-                  // CircleAvatar(
-                  //     backgroundImage: AssetImage('assets/png/logo.png'),
-                  //     radius: 50,
-                  //   ),
                 ],
               ),
             ),
@@ -433,7 +388,7 @@ class _HomeState extends State<Home> {
               },
               title: Text('items'.tr),
               leading: Icon(Icons.store),
-              subtitle: Text('view and manage items'.tr),
+              // subtitle: Text('view and manage items'.tr),
             ),
             ListTile(
               onTap: () {
@@ -441,23 +396,23 @@ class _HomeState extends State<Home> {
               },
               title: Text('Invoices'.tr),
               leading: Icon(Icons.receipt),
-              subtitle: Text('view and manage invoice'.tr),
+              //  subtitle: Text('view and manage invoice'.tr),
             ),
             ListTile(
               onTap: () {
                 Get.to(() => TransactionsPage());
               },
               title: Text('Transactions'.tr),
-              leading: Icon(Icons.payment),
-              subtitle: Text('view and manage payment'.tr),
+              leading: Icon(Icons.payments),
+              //subtitle: Text('view and manage payment'.tr),
             ),
             ListTile(
               onTap: () {
                 Get.to(() => ExpensesPage());
               },
               title: Text('Expenses'.tr),
-              leading: Icon(Icons.payments_sharp),
-              subtitle: Text('All Store Expenses'.tr),
+              leading: Icon(Icons.attach_money_outlined),
+              // subtitle: Text('All Store Expenses'.tr),
             ),
             ListTile(
               onTap: () {
@@ -465,7 +420,7 @@ class _HomeState extends State<Home> {
               },
               title: Text('customers'.tr),
               leading: Icon(Icons.people),
-              subtitle: Text('view and manage customers'.tr),
+              // subtitle: Text('view and manage customers'.tr),
             ),
             ListTile(
               onTap: () {
@@ -473,7 +428,7 @@ class _HomeState extends State<Home> {
               },
               title: Text('Profits'.tr),
               leading: Icon(Icons.currency_bitcoin),
-              subtitle: Text('view your profits'.tr),
+              // subtitle: Text('view your profits'.tr),
             ),
             ListTile(
               onTap: () {
@@ -481,15 +436,15 @@ class _HomeState extends State<Home> {
               },
               title: Text('Suppliers'.tr),
               leading: Icon(Icons.support),
-              subtitle: Text('Trade Suppliers'.tr),
+              // subtitle: Text('Trade Suppliers'.tr),
             ),
             ListTile(
               onTap: () {
                 Get.to(() => VouchersPage());
               },
               title: Text('Vouchers'.tr),
-              leading: Icon(Icons.support),
-              subtitle: Text('Trade Suppliers'.tr),
+              leading: Icon(Icons.receipt_long),
+              //  subtitle: Text('Trade Suppliers'.tr),
             ),
             Divider(),
             ListTile(
@@ -498,7 +453,8 @@ class _HomeState extends State<Home> {
               },
               title: Text('Edit Store Information'.tr),
               leading: Icon(Icons.store),
-              subtitle: Text('view and edit store information'.tr),
+
+              // subtitle: Text('view and edit store information'.tr),
             ),
           ],
         ),
