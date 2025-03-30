@@ -10,6 +10,7 @@ class AppTranslations extends Translations {
           'Invoices': 'قوائم المشتريات',
           'Transactions': 'الحركات والمشتريات',
           'customers': 'العملاء',
+
           // splash screen
           'view and manage items in your store': 'معاينة وادارة العناصر',
           'welcoming': 'مرحباً بك في تطبيق إدارة المبيعات!',
@@ -41,6 +42,15 @@ class AppTranslations extends Translations {
           'Transactions': 'Transactions',
           'customers': 'Customers',
           'Expenses': 'Expenses',
+          'Total Sales': 'Total Sales',
+          'Last Month Sales': 'Last Month Sales',
+          'Net revenue': 'Net revenue',
+          'Total Expense': 'Total Expense',
+          'Available Items Count': 'Available Items Count',
+          'Not Available Items Count': 'Not Available Items Count',
+          'Items less 5 in stocks': 'Items less 5 in stocks',
+          'Total Amount of Outstanding Debt':
+              'Total Amount of Outstanding Debt',
 
           'Paid-up capital': 'Paid-up capital',
 

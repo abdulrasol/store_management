@@ -15,13 +15,15 @@ class InvoiceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(Get.previousRoute);
     SettingsController settingsController = Get.find();
     return Scaffold(
       appBar: AppBar(
         title: Text('invoice: 00${invoice.id}'),
         leading: IconButton(
             onPressed: () {
-              if (Get.previousRoute == '/InvoiceSave') {
+              if (Get.previousRoute == '/InvoiceSave' ||
+                  Get.previousRoute == '/InvoiceSaveUpdate') {
                 Get.close(3);
               }
               //print(Get.previousRoute);
@@ -36,7 +38,7 @@ class InvoiceView extends StatelessWidget {
             },
             icon: Icon(Icons.restore),
           ),
-          if (!GetPlatform.isLinux)
+          if (!GetPlatform.isDesktop)
             IconButton(
               onPressed: () async {
                 var pdf = await generateInvoice(invoice: invoice);

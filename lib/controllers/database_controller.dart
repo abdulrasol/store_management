@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:store_management/database/objectbox.dart';
 import 'package:store_management/models/customer.dart';
@@ -100,10 +102,12 @@ class DatabaseController extends GetxController {
       Map<String, dynamic>? oldItemQuantity = oldItemsMap[invoiceItem.itemName];
       // if item is updated
       if (oldItemQuantity != null) {
-        int totalQuantity = oldItemQuantity['quantity'].toInt() +
-            invoiceItem.item.target!.quantity;
-        invoiceItem.item.target!.quantity =
-            totalQuantity - invoiceItem.quantity.toInt();
+        int oldQ = oldItemQuantity['quantity'].toInt();
+        int newQ = invoiceItem.quantity;
+        int leftQ = oldItemQuantity['total-quantity'].toInt();
+
+        invoiceItem.item.target!.quantity = (leftQ + oldQ) - newQ;
+
         addItem(item: invoiceItem.item.target!);
       }
       // now add
@@ -194,10 +198,18 @@ class DatabaseController extends GetxController {
         .find();
   }
 
+
+
   int addCustomer(Customer customer) {
     int id = objectBox.customerBox.put(customer);
     loading();
     return id;
+  }
+
+    num customerDebt() {
+    return custormers.where((customer) => customer.balance() > 0).toList().fold(
+        0, (num previousValue, element) => previousValue + element.balance());
+    
   }
 
   // Transactions
@@ -272,7 +284,9 @@ class DatabaseController extends GetxController {
   }
 
   int generateProfit(Profits profit) {
-    return objectBox.profitsBox.put(profit);
+    int id = objectBox.profitsBox.put(profit);
+    loading();
+    return id;
   }
 
 // Expense
@@ -283,8 +297,15 @@ class DatabaseController extends GetxController {
 
   int addExpense(Expense expense) {
     int id = objectBox.expenseBox.put(expense);
-
     loading();
     return id;
+  }
+
+  num netRevenue() {
+    num profits = databaseController.profits.fold(
+        0, (num previousValue, element) => previousValue + element.profit());
+    num expenses = databaseController.expenses.fold(
+        0, (num previousValue, element) => previousValue + element.amount);
+    return profits - expenses;
   }
 }

@@ -4,6 +4,7 @@ import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/invoice.dart';
+import 'package:store_management/ui/invoice_view.dart';
 
 import 'package:store_management/utils/app_constants.dart';
 import 'package:validatorless/validatorless.dart';
@@ -138,20 +139,15 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      // Profits profit = databaseController.profits.firstWhere(
-                      //     (profit) =>
-                      //         profit.invoice.target! == widget.orginalInvoice);
-                      // profit.invoice.target = widget.updatedInvoice;
-                      //
                       databaseController.updateInvoice(
                           oldItemsMap: widget.oldItemMap,
                           invoice: widget.invoice,
                           paymentAmount:
                               double.tryParse(payControll.text) ?? 0);
 
-                      // databaseController.generateProfit(profit);
 
-                      // Get.to(() => InvoiceView(invoice: widget.updatedInvoice));
+
+                      Get.to(() => InvoiceView(invoice: widget.invoice));
                     }
                   },
                   child: const Text('Save'),

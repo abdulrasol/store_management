@@ -19,8 +19,8 @@ class HomeCard extends StatelessWidget {
       color: color,
       child: Container(
         padding: EdgeInsets.all(25),
-        //width: width,
-        height: 100,
+        width: width,
+        // height: 100,
         child: child,
       ),
     );

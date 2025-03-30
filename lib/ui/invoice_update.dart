@@ -37,7 +37,11 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
 
     oldItemMap = {
       for (var item in widget.invoice.items)
-        item.itemName: {'quantity': item.quantity, 'id': item.item.targetId}
+        item.itemName: {
+          'quantity': item.quantity,
+          'id': item.item.targetId,
+          'total-quantity': item.item.target!.quantity
+        }
     };
   }
 
