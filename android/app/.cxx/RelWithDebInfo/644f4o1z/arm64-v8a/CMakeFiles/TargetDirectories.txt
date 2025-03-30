@@ -1,0 +1,2 @@
+/home/rasol/tutorials/flutter/store_management/android/app/.cxx/RelWithDebInfo/644f4o1z/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/rasol/tutorials/flutter/store_management/android/app/.cxx/RelWithDebInfo/644f4o1z/arm64-v8a/CMakeFiles/rebuild_cache.dir

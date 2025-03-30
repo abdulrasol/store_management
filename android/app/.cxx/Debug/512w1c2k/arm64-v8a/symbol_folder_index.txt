@@ -1,0 +1,1 @@
+/home/rasol/tutorials/flutter/store_management/build/app/intermediates/cxx/Debug/512w1c2k/obj/arm64-v8a

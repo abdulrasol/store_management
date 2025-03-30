@@ -1,0 +1,1 @@
+/home/rasol/tutorials/flutter/store_management/build/app/intermediates/cxx/RelWithDebInfo/644f4o1z/obj/x86
