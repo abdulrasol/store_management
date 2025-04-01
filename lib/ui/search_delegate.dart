@@ -75,19 +75,19 @@ class SearchDelegateHelper extends SearchDelegate {
     if (elements[index] is Customer) {
       return ListTile(
         onTap: () => Get.to(() => CustomerView(customer: elements[index])),
-        leading: Icon(Icons.person),
+        leading: Icon(
+            elements[index].customerType == 0 ? Icons.person : Icons.support),
         title: Text(elements[index].name),
         subtitle: Wrap(
           alignment: WrapAlignment.spaceBetween,
           runAlignment: WrapAlignment.spaceBetween,
           crossAxisAlignment: WrapCrossAlignment.start,
           children: [
-            Text(
-                'Balance: ${settingsController.currencyFormatter(elements[index].balance())}')
+            if (elements[index].customerType == 0)
+              Text(
+                  '${'Balance'.tr}: ${settingsController.currencyFormatter(elements[index].balance())}')
           ],
         ),
-        trailing: Icon(
-            elements[index].customerType == 0 ? Icons.person : Icons.support),
       );
     } else {
       return ListTile(
@@ -95,7 +95,7 @@ class SearchDelegateHelper extends SearchDelegate {
         leading: Icon(Icons.wallet_giftcard),
         title: Text(elements[index].name),
         subtitle: Text(
-            'Price: ${settingsController.currencyFormatter(elements[index].sellPrice)}'),
+            '${'Price'.tr}: ${settingsController.currencyFormatter(elements[index].sellPrice)}'),
       );
     }
   }

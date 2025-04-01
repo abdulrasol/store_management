@@ -49,7 +49,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Update Invoice'),
+        title: Text('Update Invoice'.tr),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -61,7 +61,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('search for item'),
+                  Text('Select Item'.tr),
                   verSpace,
                   TypeAheadField<Item>(
                     controller: nameControll,
@@ -71,13 +71,13 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                         focusNode: focusNode,
                         autofocus: true,
                         decoration:
-                            inputDecoration.copyWith(label: Text('item')),
+                            inputDecoration.copyWith(label: Text('item'.tr)),
                       );
                     },
                     itemBuilder: (context, item) => ListTile(
                       title: Text(item.name),
                       subtitle: Text(
-                          '${settingsController.currencyFormatter(item.sellPrice)}, ${item.quantity} available'),
+                          '${settingsController.currencyFormatter(item.sellPrice)}, ${item.quantity} ${'available'.tr}'),
                     ),
                     onSelected: (item) {
                       //print(item.toMap());
@@ -102,12 +102,12 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                         child: TextFormField(
                           controller: quantityControll,
                           decoration: inputDecoration.copyWith(
-                            label: Text('quantity'),
+                            label: Text('quantity'.tr),
                           ),
                           keyboardType: TextInputType.number,
                           validator: Validatorless.multiple([
-                            Validatorless.required('this row is required!'),
-                            Validatorless.number('number only'),
+                            Validatorless.required('required'.tr),
+                            Validatorless.number('number'.tr),
                           ]),
                         ),
                       ),
@@ -116,12 +116,12 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                         child: TextFormField(
                           controller: discountControll,
                           decoration: inputDecoration.copyWith(
-                            label: Text('discount'),
+                            label: Text('discount'.tr),
                           ),
                           keyboardType: TextInputType.number,
                           validator: Validatorless.multiple([
-                            Validatorless.required('this row is required!'),
-                            Validatorless.number('number only'),
+                            Validatorless.required('required'.tr),
+                            Validatorless.number('number'.tr),
                           ]),
                         ),
                       ),
@@ -144,12 +144,12 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                                     : addItem(quantity, discount);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Select item!')));
+                                    SnackBar(content: Text('Select item!'.tr)));
                               }
                             }
                           },
-                          child:
-                              Text(tempInvoiceItem != null ? 'Update' : 'Add'))
+                          child: Text(
+                              tempInvoiceItem != null ? 'Update'.tr : 'Add'.tr))
                     ],
                   ),
                 ],
@@ -158,7 +158,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
             verSpace,
             Divider(),
             verSpace,
-            Text('Invoice Items'),
+            Text('Invoice Items'.tr),
             verSpace,
             Expanded(
               child: SingleChildScrollView(
@@ -168,12 +168,12 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
                         columns: [
-                          DataColumn(label: Text('Update Action')),
-                          DataColumn(label: Text('Item')),
-                          DataColumn(label: Text('Quantity')),
-                          DataColumn(label: Text('Price')),
-                          DataColumn(label: Text('Discount')),
-                          DataColumn(label: Text('Total Price')),
+                          DataColumn(label: Text('#')),
+                          DataColumn(label: Text('item'.tr)),
+                          DataColumn(label: Text('quantity'.tr)),
+                          DataColumn(label: Text('Price'.tr)),
+                          DataColumn(label: Text('discount'.tr)),
+                          DataColumn(label: Text('Total Price'.tr)),
                         ],
                         rows: widget.invoice.items
                             .map<DataRow>((item) => DataRow(
@@ -182,7 +182,8 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                                       children: [
                                         IconButton(
                                             tooltip:
-                                                'edit quantity, discout or anything',
+                                                'edit quantity, discout or anything'
+                                                    .tr,
                                             onPressed: () {
                                               setState(() {
                                                 tempInvoiceItem = item;
@@ -199,7 +200,8 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                                         horSpace,
                                         IconButton(
                                           tooltip:
-                                              'remove item fron this invoive',
+                                              'remove item fron this invoive'
+                                                  .tr,
                                           onPressed: () {
                                             setState(() {
                                               widget.invoice.items.remove(item);
@@ -239,7 +241,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                 ));
           }
         },
-        child: Text('Next'),
+        child: Text('Next'.tr),
       ),
     );
   }
@@ -285,8 +287,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content:
-                Text('Qunatity of ${tempItem!.name} less than you want!')));
+            content: Text('less-Qunatity'.trParams({'item': tempItem!.name}))));
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -300,8 +301,8 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
               //   discountControll.text = checkInvoiceItem.discount.toString();
               // });
             },
-            child: Text(
-                '{checkInvoiceItem.itemName} already added! click to pencel edit')),
+            child: Text('already added'
+                .trParams({'name': tempInvoiceItem?.itemName ?? ''}))),
       ));
     }
   }
@@ -341,7 +342,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
       databaseController.objectBox.itemBox.put(tempItem!); // تحديث المخزون
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Qunatity of ${tempItem!.name} less than you want!')));
+          content: Text('less-Qunatity'.trParams({'item': tempItem!.name}))));
     }
     tempItem = null;
     tempInvoiceItem = null;

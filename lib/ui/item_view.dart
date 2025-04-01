@@ -21,7 +21,7 @@ class ItemView extends StatelessWidget {
               Get.to(() => EditItem(itemModel: item));
             },
             icon: Icon(Icons.edit),
-            label: Text('edit'),
+            label: Text('edit'.tr),
           ),
         ],
       ),
@@ -30,30 +30,27 @@ class ItemView extends StatelessWidget {
           children: [
             ListTile(
               title: Text(item.name),
-              subtitle: Text('item name'),
+              subtitle: Text('Item Name'.tr),
             ),
             ListTile(
               title: Text(item.code()),
-              subtitle: Text('item code'),
+              subtitle: Text('item code'.tr),
             ),
-            // ListTile(
-            //   title: Text(item.from),
-            //   subtitle: Text('item buy from'),
-            // ),
             ListTile(
               title: Text(settingsController.currencyFormatter(item.buyPrice)),
-              subtitle: Text('item buy price'),
+              subtitle: Text('Buy Price'.tr),
             ),
             ListTile(
               title: Text(settingsController.currencyFormatter(item.sellPrice)),
-              subtitle: Text('item sell price'),
+              subtitle: Text('Sell Price'.tr),
             ),
             ListTile(
-              title: Text(item.availabllty() ? 'available' : 'not available'),
-              subtitle: Text('${item.quantity} left'),
+              title: Text(
+                  item.availabllty() ? 'available'.tr : 'not available'.tr),
+              subtitle: Text('${item.quantity} ${'available'.tr}'),
             ),
             ListTile(
-              title: Text('Subllier'),
+              title: Text('Supplier'.tr),
               subtitle: Text('${item.supplier.target?.name} '),
             ),
           ],

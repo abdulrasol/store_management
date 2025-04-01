@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class SetupStore extends StatelessWidget {
-  const SetupStore({super.key});
+class AppSettings extends StatelessWidget {
+  const AppSettings({super.key});
 
   @override
   Widget build(BuildContext context) {

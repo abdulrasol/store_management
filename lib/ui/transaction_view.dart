@@ -19,23 +19,25 @@ class TransactionView extends StatelessWidget {
       appBar: AppBar(
         title: Text('${transaction.customer.target?.name}'),
         actions: [
-          IconButton(
-            onPressed: () async {
-              if (!GetPlatform.isLinux) {
-                final pdf = await generateTransaction(transaction: transaction);
-                await Share.shareXFiles([
-                  XFile.fromData(pdf)
-                ], fileNameOverrides: [
-                  '${transaction.customer.target!.name}-${transaction.transactionNumber()}.pdf'
-                ]);
-              }
-            },
-            icon: Icon(Icons.share_outlined),
-          ),
+          if (!GetPlatform.isDesktop)
+            IconButton(
+              onPressed: () async {
+                {
+                  final pdf =
+                      await generateTransaction(transaction: transaction);
+                  await Share.shareXFiles([
+                    XFile.fromData(pdf)
+                  ], fileNameOverrides: [
+                    '${transaction.customer.target!.name}-${transaction.transactionNumber()}.pdf'
+                  ]);
+                }
+              },
+              icon: Icon(Icons.share_outlined),
+            ),
           IconButton(
               onPressed: () async {
                 final pdf = await generateTransaction(transaction: transaction);
-                await savePdfFileToStorage(pdf);
+                await printPdfFileToStorage(pdf);
               },
               icon: Icon(Icons.print))
         ],
@@ -47,7 +49,7 @@ class TransactionView extends StatelessWidget {
             verSpace,
             Row(
               children: [
-                Text('Transaction Date'),
+                Text('Transaction Date'.tr),
                 Expanded(child: verSpace),
                 Text(transaction.paymentDate())
               ],
@@ -55,7 +57,7 @@ class TransactionView extends StatelessWidget {
             verSpace,
             Row(
               children: [
-                Text('Transaction Type'),
+                Text('Transaction Type'.tr),
                 Expanded(child: verSpace),
                 Text(transaction.stringType())
               ],
@@ -63,7 +65,7 @@ class TransactionView extends StatelessWidget {
             verSpace,
             Row(
               children: [
-                Text('Transaction amount'),
+                Text('Amount'.tr),
                 Expanded(child: verSpace),
                 Text(settingsController.currencyFormatter(transaction.amount))
               ],
@@ -71,7 +73,7 @@ class TransactionView extends StatelessWidget {
             verSpace,
             Row(
               children: [
-                Text('Customer Balance'),
+                Text('Customer Balance:'.tr),
                 Expanded(child: verSpace),
                 Text(settingsController
                     .currencyFormatter(transaction.customer.target!.balance()))

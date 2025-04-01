@@ -33,7 +33,7 @@ class _InvoiceSaveState extends State<InvoiceSave> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Save and Create invoice'),
+        title: Text('Save and Create invoice'.tr),
       ),
       body: Form(
         key: formKey,
@@ -51,14 +51,14 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                     focusNode: focusNode,
                     autofocus: true,
                     decoration: inputDecoration.copyWith(
-                      label: Text('Custormer name'),
+                      label: Text('custormer name'.tr),
                       suffix: TextButton.icon(
                         onPressed: () async {
                           customer = await Get.to(() => CustomerAdd(),
                               arguments: customerNameControll.text);
                           customerNameControll.text = customer?.name ?? '';
                         },
-                        label: Text('new customer'),
+                        label: Text('new customer'.tr),
                         icon: Icon(Icons.person),
                       ),
                     ),
@@ -83,8 +83,8 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                 },
                 emptyBuilder: (context) {
                   return ListTile(
-                    title: Text(
-                        'no customer found click to add ${customerNameControll.text}'),
+                    title: Text('no customer found'
+                        .trParams({'name': customerNameControll.text})),
                     onTap: () async {
                       customer = await Get.to(() => CustomerAdd(),
                           arguments: customerNameControll.text);
@@ -97,12 +97,12 @@ class _InvoiceSaveState extends State<InvoiceSave> {
               TextFormField(
                 controller: payControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('payment amount'),
+                  label: Text('Payment Amount'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
-                  Validatorless.required('this row is required!'),
-                  Validatorless.number('number only'),
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
                 ]),
               ),
               verSpace,
@@ -114,11 +114,11 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
                           columns: [
-                            DataColumn(label: Text('Item')),
-                            DataColumn(label: Text('Quantity')),
-                            DataColumn(label: Text('Price')),
-                            DataColumn(label: Text('Discount')),
-                            DataColumn(label: Text('Total Price')),
+                            DataColumn(label: Text('item'.tr)),
+                            DataColumn(label: Text('quantity'.tr)),
+                            DataColumn(label: Text('Price'.tr)),
+                            DataColumn(label: Text('discount'.tr)),
+                            DataColumn(label: Text('Total Price'.tr)),
                           ],
                           rows: widget.invoice.items
                               .map<DataRow>((item) => DataRow(
@@ -145,7 +145,7 @@ class _InvoiceSaveState extends State<InvoiceSave> {
               Divider(),
               Row(
                 children: [
-                  Text('Total Price:'),
+                  Text('Total Price'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.invoice.price())),
@@ -154,7 +154,7 @@ class _InvoiceSaveState extends State<InvoiceSave> {
               verSpace,
               Row(
                 children: [
-                  Text('Discount:'),
+                  Text('discount'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.invoice.discount())),
@@ -163,7 +163,7 @@ class _InvoiceSaveState extends State<InvoiceSave> {
               verSpace,
               Row(
                 children: [
-                  Text('price to pay:'),
+                  Text('price to pay'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.invoice.pricetoPay())),
@@ -200,7 +200,7 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                       Get.to(() => InvoiceView(invoice: widget.invoice));
                     }
                   },
-                  child: const Text('Save'),
+                  child: Text('save'.tr),
                 ),
               ),
               verSpace

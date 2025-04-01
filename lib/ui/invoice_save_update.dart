@@ -39,7 +39,7 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
         text: widget.invoice.transactions[1].amount.toString());
     return Scaffold(
       appBar: AppBar(
-        title: Text('Save and Create invoice'),
+        title: Text('Save invoice edits'.tr),
       ),
       body: Form(
         key: formKey,
@@ -53,7 +53,7 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
                 enabled: false,
                 controller: customerNameControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('Supplier'),
+                  label: Text('Supplier'.tr),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -61,12 +61,12 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
               TextFormField(
                 controller: payControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('payment amount'),
+                  label: Text('payment amount'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
-                  Validatorless.required('this row is required!'),
-                  Validatorless.number('number only'),
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
                 ]),
               ),
               verSpace,
@@ -78,11 +78,11 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
                           columns: [
-                            DataColumn(label: Text('Item')),
-                            DataColumn(label: Text('Quantity')),
-                            DataColumn(label: Text('Price')),
-                            DataColumn(label: Text('Discount')),
-                            DataColumn(label: Text('Total Price')),
+                            DataColumn(label: Text('item'.tr)),
+                            DataColumn(label: Text('quantity'.tr)),
+                            DataColumn(label: Text('Price'.tr)),
+                            DataColumn(label: Text('discount'.tr)),
+                            DataColumn(label: Text('Total Price'.tr)),
                           ],
                           rows: widget.invoice.items
                               .map<DataRow>((item) => DataRow(
@@ -109,7 +109,7 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
               Divider(),
               Row(
                 children: [
-                  Text('Total Price:'),
+                  Text('Total Price'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.invoice.price())),
@@ -118,7 +118,7 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
               verSpace,
               Row(
                 children: [
-                  Text('Discount:'),
+                  Text('discount'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.invoice.discount())),
@@ -127,7 +127,7 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
               verSpace,
               Row(
                 children: [
-                  Text('price to pay:'),
+                  Text('price to pay'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.invoice.pricetoPay())),
@@ -145,12 +145,10 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
                           paymentAmount:
                               double.tryParse(payControll.text) ?? 0);
 
-
-
                       Get.to(() => InvoiceView(invoice: widget.invoice));
                     }
                   },
-                  child: const Text('Save'),
+                  child: Text('save'.tr),
                 ),
               ),
               verSpace

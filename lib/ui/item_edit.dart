@@ -32,7 +32,7 @@ class _EditItemState extends State<EditItem> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Item'),
+        title: Text('ddit-item'.trParams({'name': widget.itemModel.name})),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -49,88 +49,46 @@ class _EditItemState extends State<EditItem> {
               TextFormField(
                 controller: nameControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('Item Name'),
+                  label: Text('Item Name'.tr),
                 ),
                 keyboardType: TextInputType.text,
-                validator: Validatorless.required('this row is required!'),
+                validator: Validatorless.required('required'.tr),
               ),
-
               verSpace,
-              // TextFormField(
-              //   controller: fromControll,
-              //   decoration: inputDecoration.copyWith(
-              //     label: Text('From'),
-              //   ),
-              //   keyboardType: TextInputType.text,
-              //   validator: Validatorless.required('this row is required!'),
-              // ),
-              // verSpace,
               TextFormField(
                 controller: buyControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('Buy Price'),
+                  label: Text('Buy Price'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
-                  Validatorless.required('this row is required!'),
-                  Validatorless.number('number only'),
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
                 ]),
               ),
               verSpace,
               TextFormField(
                 controller: sellControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('Sell Price'),
+                  label: Text('Sell Price'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
-                  Validatorless.required('this row is required!'),
-                  Validatorless.number('number only'),
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
                 ]),
               ),
               verSpace,
               TextFormField(
                 controller: quaControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('Quantity'),
+                  label: Text('quantity'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
-                  Validatorless.required('this row is required!'),
-                  Validatorless.number('number only'),
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
                 ]),
-              ),
-              verSpace,
-              TextButton.icon(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Be cearful?'),
-                          content: Text('Are you sure to delete this item?'),
-                          actions: [
-                            TextButton.icon(
-                              onPressed: () {},
-                              label: Text('No'),
-                              icon: Icon(Icons.remove_circle_outline_sharp),
-                            ),
-                            TextButton.icon(
-                              onPressed: () {
-                                databaseController
-                                    .deleteItem(widget.itemModel.id);
-
-                                Get.close(3);
-                              },
-                              label: Text('Yes'),
-                              icon:
-                                  Icon(Icons.delete_forever, color: Colors.red),
-                            ),
-                          ],
-                        );
-                      });
-                },
-                label: Text('delete item'),
               ),
             ],
           ),

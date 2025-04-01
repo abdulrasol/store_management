@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:objectbox/objectbox.dart';
 import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/invoice.dart';
@@ -37,9 +38,9 @@ class Transaction {
 
   String stringType() {
     if (amount < 0) {
-      return 'inovice';
+      return 'inovice'.tr;
     } else {
-      return 'payment';
+      return 'payment'.tr;
     }
   }
 

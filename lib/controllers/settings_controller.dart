@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,16 +8,57 @@ class SettingsController extends GetxController {
   late Rx<String?> appName;
   late Rx<String?> logo;
   late NumberFormat currencyFormat;
+  Rx<ThemeMode> appTheme = Rx<ThemeMode>(ThemeMode.system);
+  Rx<Locale> appLang = Rx<Locale>(Locale('en'));
+  late String countryCode;
 
   @override
   void onInit() async {
+    prefs = await SharedPreferences.getInstance();
+    await getAppThemeAndLang();
     await updateSettings();
     super.onInit();
   }
 
-  Future<void> updateSettings() async {
-    prefs = await SharedPreferences.getInstance();
+  Future<void> getAppThemeAndLang() async {
+    final theme = prefs.getString('app-theme') ?? 'system';
+    appLang.value = Locale(prefs.getString('languageCode') ?? 'en',
+        prefs.getString('countryCode'));
+    switch (theme) {
+      case 'dark':
+        appTheme.value = ThemeMode.dark;
+        break;
+      case 'light':
+        appTheme.value = ThemeMode.light;
+        break;
+      case 'system':
+        appTheme.value = ThemeMode.system;
+        break;
+    }
+  }
 
+  Future<void> setAppThemeAndLang(
+      {String? lang, String? countryCode, String? themeMode}) async {
+    prefs.setString('languageCode', lang ?? appLang.value.languageCode);
+    prefs.setString(
+        'app-theme', themeMode ?? appTheme.value.name.toLowerCase());
+    appLang.value = Locale(lang ?? appLang.value.languageCode, countryCode);
+    switch (themeMode ?? appTheme.value.name.toLowerCase()) {
+      case 'dark':
+        appTheme.value = ThemeMode.dark;
+        break;
+      case 'light':
+        appTheme.value = ThemeMode.light;
+        break;
+      case 'system':
+        appTheme.value = ThemeMode.system;
+        break;
+    }
+    // getAppThemeAndLang();
+    Get.updateLocale(appLang.value);
+  }
+
+  Future<void> updateSettings() async {
     currencyFormat = NumberFormat.currency(
       name: prefs.getString('currency_name') ?? 'USD',
       symbol: prefs.getString('currency_symbol') ?? '\$',

@@ -69,6 +69,7 @@ class AppTheme {
           ),
           elevation: 5,
           textStyle: const TextStyle(
+            fontFamily: 'Cairo',
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -84,6 +85,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(15),
           ),
           textStyle: const TextStyle(
+            fontFamily: 'Cairo',
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -95,6 +97,7 @@ class AppTheme {
           foregroundColor: primaryLight,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
           textStyle: const TextStyle(
+            fontFamily: 'Cairo',
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -128,9 +131,11 @@ class AppTheme {
           borderSide: BorderSide(color: Colors.red.shade700, width: 2),
         ),
         labelStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: Colors.grey.shade700,
         ),
         hintStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: Colors.grey.shade400,
         ),
       ),
@@ -149,6 +154,7 @@ class AppTheme {
       // تخصيصات خاصة بالقائمة المنسدلة
       dropdownMenuTheme: DropdownMenuThemeData(
         textStyle: const TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 16,
           color: Colors.black87,
         ),
@@ -186,6 +192,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         titleTextStyle: const TextStyle(
+          fontFamily: 'Cairo',
           fontWeight: FontWeight.bold,
           fontSize: 20,
           color: primaryDark,
@@ -205,6 +212,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: secondaryLight,
         labelStyle: const TextStyle(
+          fontFamily: 'Cairo',
           color: primaryDark,
         ),
         shape: RoundedRectangleBorder(
@@ -267,6 +275,7 @@ class AppTheme {
           ),
           elevation: 8,
           textStyle: const TextStyle(
+            fontFamily: 'Cairo',
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -282,6 +291,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(15),
           ),
           textStyle: const TextStyle(
+            fontFamily: 'Cairo',
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -293,6 +303,7 @@ class AppTheme {
           foregroundColor: Colors.blue.shade300,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
           textStyle: const TextStyle(
+            fontFamily: 'Cairo',
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -326,9 +337,11 @@ class AppTheme {
           borderSide: BorderSide(color: Colors.red.shade400, width: 2),
         ),
         labelStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: Colors.grey.shade300,
         ),
         hintStyle: TextStyle(
+          fontFamily: 'Cairo',
           color: Colors.grey.shade500,
         ),
       ),
@@ -347,6 +360,7 @@ class AppTheme {
       // تخصيصات خاصة بالقائمة المنسدلة
       dropdownMenuTheme: DropdownMenuThemeData(
         textStyle: const TextStyle(
+          fontFamily: 'Cairo',
           fontSize: 16,
           color: Colors.white,
         ),
@@ -384,6 +398,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         titleTextStyle: const TextStyle(
+          fontFamily: 'Cairo',
           fontWeight: FontWeight.bold,
           fontSize: 20,
           color: Colors.white,
@@ -403,6 +418,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: Colors.blue.shade800,
         labelStyle: const TextStyle(
+          fontFamily: 'Cairo',
           color: Colors.white,
         ),
         shape: RoundedRectangleBorder(

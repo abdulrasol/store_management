@@ -12,26 +12,35 @@ import 'ui/onboarding_screen.dart' show OnboardingScreen;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final database = Get.put(DatabaseController());
+
   Get.put(SettingsController());
   final objectBox = await ObjectBox.create();
   await database.init(objectBox);
 
-  runApp(app);
+  runApp(MyApp());
 }
 
-final app = GetMaterialApp(
-  title: 'welcoming'.tr,
-  initialRoute: '/',
-  routes: {
-    '/': (context) => const SplashScreen(),
-    '/onboarding': (context) => const OnboardingScreen(),
-    '/home': (context) => const Home(),
-  },
-  debugShowCheckedModeBanner: false,
-  theme: AppTheme.lightTheme(),
-  darkTheme: AppTheme.darkTheme(),
-  themeMode: ThemeMode.system,
-  locale: Get.deviceLocale, // Locale('ar'), //
-  translations: AppTranslations(),
-  fallbackLocale: Locale('en', 'US'),
-);
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = Get.put(SettingsController());
+    return Obx(() => GetMaterialApp(
+          title: 'app_name'.tr,
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const SplashScreen(),
+            '/onboarding': (context) => const OnboardingScreen(),
+            '/home': (context) => const Home(),
+          },
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme(),
+          darkTheme: AppTheme.darkTheme(),
+          themeMode: settings.appTheme.value,
+          locale: settings.appLang.value,
+          translations: AppTranslations(),
+          fallbackLocale: Locale('en', 'US'),
+        ));
+  }
+}

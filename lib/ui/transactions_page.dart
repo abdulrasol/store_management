@@ -21,7 +21,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Transactions'),
+        title: Text('Transactions'.tr),
         actions: [
           TextButton(
             onPressed: () {
@@ -29,7 +29,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 transactions = databaseController.customersTransactions;
               });
             },
-            child: Text('All'),
+            child: Text('All'.tr),
           ),
           TextButton(
             onPressed: () {
@@ -37,7 +37,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 transactions = databaseController.customerPaymetTranscation();
               });
             },
-            child: Text('Payments'),
+            child: Text('Payments'.tr),
           ),
           IconButton(
             onPressed: () {
@@ -67,9 +67,10 @@ Widget transactionsView(List<Transaction> transactions) {
             crossAxisAlignment: WrapCrossAlignment.start,
             children: [
               Text(
-                  'Amount: ${settingsController.currencyFormatter(transactions[index].amount)}'),
-              Text('Number: ${transactions[index].transactionNumber()}'),
-              Text('Date: ${transactions[index].paymentDate()}'),
+                  '${'Amount'.tr}: ${settingsController.currencyFormatter(transactions[index].amount)}'),
+              Text(
+                  '${'Transaction Number'.tr}: ${transactions[index].transactionNumber()}'),
+              Text(transactions[index].paymentDate()),
             ],
           ),
           onTap: () {
@@ -103,27 +104,7 @@ class Search extends SearchDelegate {
     List<Transaction> transactions = databaseController.customersTransactions
         .where((tra) => tra.transactionNumber().contains(query))
         .toList();
-    return ListView.builder(
-        itemCount: transactions.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text('${transactions[index].customer.target?.name}'),
-            subtitle: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              runAlignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.start,
-              children: [
-                Text('Amount: ${transactions[index].amount} IQD'),
-                Text('Date: ${transactions[index].paymentDate()}'),
-                Text('Number: ${transactions[index].transactionNumber()}'),
-                // Text(' ${databaseController.inovices[index].invoiceDate()}')
-              ],
-            ),
-            onTap: () {
-              Get.to(() => TransactionView(transaction: transactions[index]));
-            },
-          );
-        });
+    return searchResultBuilder(transactions);
   }
 
   @override
@@ -131,6 +112,10 @@ class Search extends SearchDelegate {
     List<Transaction> transactions = databaseController.customersTransactions
         .where((tra) => tra.transactionNumber().contains(query))
         .toList();
+    return searchResultBuilder(transactions);
+  }
+
+  ListView searchResultBuilder(List<Transaction> transactions) {
     return ListView.builder(
         itemCount: transactions.length,
         itemBuilder: (context, index) {
@@ -141,10 +126,11 @@ class Search extends SearchDelegate {
               runAlignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
-                Text('Amount: ${transactions[index].amount} IQD'),
-                Text('Date: ${transactions[index].paymentDate()}'),
-                Text('Number: ${transactions[index].transactionNumber()}'),
-                // Text(' ${databaseController.inovices[index].invoiceDate()}')
+                Text(
+                    '${'Amount'.tr}: ${settingsController.currencyFormatter(transactions[index].amount)}'),
+                Text(
+                    '${'Transaction Number'.tr}: ${transactions[index].transactionNumber()}'),
+                Text(transactions[index].paymentDate()),
               ],
             ),
             onTap: () {

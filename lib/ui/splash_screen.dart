@@ -21,7 +21,7 @@ class SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-
+    // done
     // إعداد الرسوم المتحركة للشعار
     _controller = AnimationController(
       duration: const Duration(seconds: 2),

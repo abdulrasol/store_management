@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
 
 Future<String?> saveFileToExternalStorage(
     List<int> fileBytes, String fileName) async {
@@ -73,11 +74,16 @@ Future<Directory?> getExternalStorageDirectory() async {
 }
 
 // مثال للاستخدام
-Future savePdfFileToStorage(Uint8List pdf) async {
+Future printPdfFileToStorage(Uint8List pdf) async {
   String? filePath = await saveFileToExternalStorage(pdf, 'file.pdf');
   await Printing.layoutPdf(onLayout: (format) => pdf);
   if (filePath != null) {
     // نجح الحفظ، يمكنك عرض رسالة للمستخدم
     print('تم حفظ الملف في: $filePath');
   }
+}
+
+Future sharePdfFile(Uint8List pdf, String? name, int id) async {
+  await Share.shareXFiles([XFile.fromData(pdf)],
+      fileNameOverrides: ['$name-$id.pdf']);
 }

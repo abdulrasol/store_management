@@ -7,7 +7,6 @@ import 'package:store_management/ui/invoice_update.dart';
 import 'package:store_management/utils/app_constants.dart';
 import 'package:store_management/utils/printing/invoice_pdf.dart';
 import 'package:store_management/utils/printing/save_pdf.dart';
-import 'package:share_plus/share_plus.dart';
 
 class InvoiceView extends StatelessWidget {
   const InvoiceView({super.key, required this.invoice});
@@ -19,7 +18,7 @@ class InvoiceView extends StatelessWidget {
     SettingsController settingsController = Get.find();
     return Scaffold(
       appBar: AppBar(
-        title: Text('invoice: 00${invoice.id}'),
+        title: Text('invoice-id'.trParams({'id': invoice.id.toString()})),
         leading: IconButton(
             onPressed: () {
               if (Get.previousRoute == '/InvoiceSave' ||
@@ -32,27 +31,24 @@ class InvoiceView extends StatelessWidget {
             icon: Icon(Icons.arrow_back)),
         actions: [
           IconButton(
-            tooltip: 'Recover Items',
+            tooltip: 'Edit Invoice'.tr,
             onPressed: () async {
               Get.to(() => InvoiceUpdate(invoice: invoice));
             },
-            icon: Icon(Icons.restore),
+            icon: Icon(Icons.edit_square),
           ),
           if (!GetPlatform.isDesktop)
             IconButton(
               onPressed: () async {
-                var pdf = await generateInvoice(invoice: invoice);
-                await Share.shareXFiles([
-                  XFile.fromData(pdf)
-                ], fileNameOverrides: [
-                  '${invoice.customer}-${invoice.invoiceNumber()}.pdf'
-                ]);
+                //var pdf = await generateInvoice(invoice: invoice);
+                await sharePdfFile(await generateInvoice(invoice: invoice),
+                    invoice.customer.target?.name, invoice.id);
               },
               icon: Icon(Icons.share_outlined),
             ),
           IconButton(
               onPressed: () async {
-                var pdf = await generateInvoice(invoice: invoice);
+                ///var pdf = await generateInvoice(invoice: invoice);
                 // Get.to(() => PrintPdfPage(pdfData: pdf));
                 // final Directory? downloadsDir = await getDownloadsDirectory();
                 // final Directory? dir = await getExternalStorageDirectory();
@@ -65,7 +61,8 @@ class InvoiceView extends StatelessWidget {
                 // }
                 // final file = File("${newDir.path}/example.pdf");
                 // await file.writeAsBytes(await pdf);
-                await savePdfFileToStorage(pdf);
+                await printPdfFileToStorage(
+                    await generateInvoice(invoice: invoice));
               },
               icon: Icon(Icons.print))
         ],
@@ -81,9 +78,10 @@ class InvoiceView extends StatelessWidget {
               runAlignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
-                Text('Customer: ${invoice.customer.target?.name}'),
-                Text(' on: ${invoice.invoiceDate()}'),
-                Text(' number: ${invoice.invoiceNumber()}'),
+                Text('customer_name'
+                    .trParams({'name': invoice.customer.target?.name ?? ''})),
+                Text(invoice.invoiceDate()),
+                Text(invoice.invoiceNumber()),
               ],
             ),
             verSpace,
@@ -95,11 +93,11 @@ class InvoiceView extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
                         columns: [
-                          DataColumn(label: Text('Item')),
-                          DataColumn(label: Text('Quantity')),
-                          DataColumn(label: Text('Price')),
-                          DataColumn(label: Text('Discount')),
-                          DataColumn(label: Text('Total Price')),
+                          DataColumn(label: Text('item'.tr)),
+                          DataColumn(label: Text('quantity'.tr)),
+                          DataColumn(label: Text('Price'.tr)),
+                          DataColumn(label: Text('discount'.tr)),
+                          DataColumn(label: Text('Total Price'.tr)),
                         ],
                         rows: invoice.items
                             .map<DataRow>((item) => DataRow(
@@ -125,7 +123,7 @@ class InvoiceView extends StatelessWidget {
             Divider(),
             Row(
               children: [
-                Text('total amount:'),
+                Text('Total Price'.tr),
                 Expanded(child: verSpace),
                 Text(settingsController.currencyFormatter(invoice.price())),
               ],
@@ -133,21 +131,21 @@ class InvoiceView extends StatelessWidget {
             verSpace,
             Row(
               children: [
-                Text('Discount:'),
+                Text('discount'.tr),
                 Expanded(child: verSpace),
                 Text(settingsController.currencyFormatter(invoice.discount())),
               ],
             ),
             verSpace,
             Row(children: [
-              Text('Amaunt to Pay:'),
+              Text('price to pay'.tr),
               Expanded(child: verSpace),
               Text(settingsController.currencyFormatter(invoice.pricetoPay())),
             ]),
             verSpace,
             Row(
               children: [
-                Text('paid amount:'),
+                Text('paid amount'.tr),
                 Expanded(child: verSpace),
                 Text(settingsController
                     .currencyFormatter(invoice.transactions[1].amount)),

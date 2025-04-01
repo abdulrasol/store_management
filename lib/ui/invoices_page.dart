@@ -15,7 +15,7 @@ class InvoicesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Invoices'),
+        title: Text('Invoices'.tr),
         actions: [
           IconButton(
             onPressed: () {
@@ -43,9 +43,9 @@ Widget invoicesView(List<Invoice> inovices) {
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
                 Text(
-                    'Price: ${settingsController.currencyFormatter((inovices[index].pricetoPay()))}'),
+                    '${'Price'.tr}: ${settingsController.currencyFormatter((inovices[index].pricetoPay()))}'),
                 Text(
-                    'Paid: ${settingsController.currencyFormatter(inovices[index].transactions[0].amount)}'),
+                    '${'Paid'.tr}: ${settingsController.currencyFormatter(inovices[index].transactions[0].amount)}'),
                 Text(' ${inovices[index].invoiceDate()}'),
                 Text(' ${inovices[index].invoiceNumber()}')
               ],
@@ -91,8 +91,10 @@ class Search extends SearchDelegate {
                 runAlignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.start,
                 children: [
-                  Text('Price: ${inovices[index].pricetoPay()} IQD'),
-                  Text('Paid: ${inovices[index].transactions[0].amount} IQD'),
+                  Text(
+                      '${'Price'.tr}: ${settingsController.currencyFormatter(inovices[index].pricetoPay())}'),
+                  Text(
+                      '${'Paid'.tr}: ${settingsController.currencyFormatter(inovices[index].transactions[0].amount)}'),
                   Text(' ${inovices[index].invoiceDate()}'),
                   Text(' ${inovices[index].invoiceNumber()}')
                 ],
@@ -119,8 +121,10 @@ class Search extends SearchDelegate {
                 runAlignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.start,
                 children: [
-                  Text('Price: ${inovices[index].pricetoPay()} IQD'),
-                  Text('Paid: ${inovices[index].transactions[0].amount} IQD'),
+                  Text(
+                      '${'Price'.tr}: ${settingsController.currencyFormatter(inovices[index].pricetoPay())}'),
+                  Text(
+                      '${'Paid'.tr}: ${settingsController.currencyFormatter(inovices[index].transactions[0].amount)}'),
                   Text(' ${inovices[index].invoiceDate()}'),
                   Text(' ${inovices[index].invoiceNumber()}')
                 ],

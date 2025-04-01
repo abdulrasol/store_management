@@ -31,7 +31,7 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create new invoice'),
+        title: Text('Create New Invoice'.tr),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -43,7 +43,7 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('search for item'),
+                  Text('Select Item'.tr),
                   verSpace,
                   TypeAheadField<Item>(
                     controller: nameControll,
@@ -53,13 +53,13 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                         focusNode: focusNode,
                         autofocus: true,
                         decoration:
-                            inputDecoration.copyWith(label: Text('item')),
+                            inputDecoration.copyWith(label: Text('item'.tr)),
                       );
                     },
                     itemBuilder: (context, item) => ListTile(
                       title: Text(item.name),
                       subtitle: Text(
-                          '${settingsController.currencyFormatter(item.sellPrice)}, ${item.quantity} available'),
+                          '${settingsController.currencyFormatter(item.sellPrice)}, ${item.quantity} ${'available'.tr}'),
                     ),
                     onSelected: (item) {
                       setState(() {
@@ -83,12 +83,12 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                         child: TextFormField(
                           controller: quantityControll,
                           decoration: inputDecoration.copyWith(
-                            label: Text('quantity'),
+                            label: Text('quantity'.tr),
                           ),
                           keyboardType: TextInputType.number,
                           validator: Validatorless.multiple([
-                            Validatorless.required('this row is required!'),
-                            Validatorless.number('number only'),
+                            Validatorless.required('required'.tr),
+                            Validatorless.number('number'.tr),
                           ]),
                         ),
                       ),
@@ -97,12 +97,12 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                         child: TextFormField(
                           controller: discountControll,
                           decoration: inputDecoration.copyWith(
-                            label: Text('discount'),
+                            label: Text('discount'.tr),
                           ),
                           keyboardType: TextInputType.number,
                           validator: Validatorless.multiple([
-                            Validatorless.required('this row is required!'),
-                            Validatorless.number('number only'),
+                            Validatorless.required('required'.tr),
+                            Validatorless.number('number'.tr),
                           ]),
                         ),
                       ),
@@ -113,9 +113,10 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                                 tempItem!.quantity <
                                     double.parse(
                                         '${quantityControll.text}.0')) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text(
-                                      'Qunatity of ${tempItem!.name} less than you want!')));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('less-Qunatity'.trParams(
+                                          {'item': tempItem!.name}))));
                             } else {
                               if (formKey.currentState!.validate() &&
                                   tempItem != null) {
@@ -129,7 +130,6 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                                       quantity:
                                           int.parse(quantityControll.text),
                                       itemName: tempItem!.name,
-                                    
                                       itemSellPrice: tempItem!.sellPrice,
                                     );
                                     item.item.target = tempItem;
@@ -137,13 +137,12 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                                     discountControll.text = '0';
                                     nameControll.text = '';
                                     quantityControll.text = '1';
-                                   
                                   },
                                 );
                               }
                             }
                           },
-                          child: Text('Add'))
+                          child: Text('Add'.tr))
                     ],
                   ),
                 ],
@@ -152,7 +151,7 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
             verSpace,
             Divider(),
             verSpace,
-            Text('Invoice Items'),
+            Text('Invoice Items'.tr),
             verSpace,
             Expanded(
               child: SingleChildScrollView(
@@ -163,11 +162,11 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                       child: DataTable(
                         columns: [
                           DataColumn(label: Text('#')),
-                          DataColumn(label: Text('Item')),
-                          DataColumn(label: Text('Quantity')),
-                          DataColumn(label: Text('Price')),
-                          DataColumn(label: Text('Discount')),
-                          DataColumn(label: Text('Total Price')),
+                          DataColumn(label: Text('item'.tr)),
+                          DataColumn(label: Text('quantity'.tr)),
+                          DataColumn(label: Text('Price'.tr)),
+                          DataColumn(label: Text('discount'.tr)),
+                          DataColumn(label: Text('Total Price'.tr)),
                         ],
                         rows: invoice.items
                             .map<DataRow>((item) => DataRow(
@@ -206,7 +205,7 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
             Get.to(() => InvoiceSave(invoice: invoice));
           }
         },
-        child: Text('Next'),
+        child: Text('Next'.tr),
       ),
     );
   }

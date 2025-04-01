@@ -15,7 +15,7 @@ class VouchersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Invoices'),
+        title: Text('Vouchers'.tr),
         actions: [
           IconButton(
             onPressed: () {
@@ -43,9 +43,9 @@ Widget voucherView(List<Voucher> voucher) {
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
                 Text(
-                    'Price: ${settingsController.currencyFormatter((voucher[index].price()))}'),
+                    '${'Price'.tr}: ${settingsController.currencyFormatter((voucher[index].price()))}'),
                 Text(
-                    'Paid: ${settingsController.currencyFormatter(voucher[index].transactions[0].amount)}'),
+                    '${'Paid'.tr}: ${settingsController.currencyFormatter(voucher[index].transactions[0].amount)}'),
                 Text(' ${voucher[index].voucherDate()}'),
                 Text(' ${voucher[index].voucherNumber()}')
               ],
@@ -80,27 +80,7 @@ class Search extends SearchDelegate {
     List<Voucher> vouchers = databaseController.vouchers
         .where((tra) => tra.voucherNumber().contains(query))
         .toList();
-    return ListView.builder(
-        itemCount: vouchers.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-              title: Text(
-                  '${vouchers[index].customer.target!.name} - 000${vouchers[index].id}'),
-              subtitle: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                runAlignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                children: [
-                  Text('Price: ${vouchers[index].price()} IQD'),
-                  Text('Paid: ${vouchers[index].transactions[0].amount} IQD'),
-                  Text(' ${vouchers[index].voucherDate()}'),
-                  Text(' ${vouchers[index].voucherNumber()}')
-                ],
-              ),
-              onTap: () {
-                Get.to(() => VoucherView(voucher: vouchers[index]));
-              });
-        });
+    return searchResultBuilder(vouchers);
   }
 
   @override
@@ -108,6 +88,10 @@ class Search extends SearchDelegate {
     List<Voucher> vouchers = databaseController.vouchers
         .where((tra) => tra.voucherNumber().contains(query))
         .toList();
+    return searchResultBuilder(vouchers);
+  }
+
+  ListView searchResultBuilder(List<Voucher> vouchers) {
     return ListView.builder(
         itemCount: vouchers.length,
         itemBuilder: (context, index) {
@@ -119,8 +103,10 @@ class Search extends SearchDelegate {
                 runAlignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.start,
                 children: [
-                  Text('Price: ${vouchers[index].price()} IQD'),
-                  Text('Paid: ${vouchers[index].transactions[0].amount} IQD'),
+                  Text(
+                      '${'Price'.tr}: ${settingsController.currencyFormatter((vouchers[index].price()))}'),
+                  Text(
+                      '${'Paid'.tr}: ${settingsController.currencyFormatter(vouchers[index].transactions[0].amount)}'),
                   Text(' ${vouchers[index].voucherDate()}'),
                   Text(' ${vouchers[index].voucherNumber()}')
                 ],

@@ -28,7 +28,7 @@ class _TransactionAddState extends State<TransactionAdd> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Transaction'),
+        title: Text('New Transaction'.tr),
       ),
       body: Form(
         key: formKey,
@@ -46,14 +46,14 @@ class _TransactionAddState extends State<TransactionAdd> {
                     focusNode: focusNode,
                     autofocus: true,
                     decoration: inputDecoration.copyWith(
-                      label: Text('Custormer name'),
+                      label: Text('name'.tr),
                       suffix: TextButton.icon(
                         onPressed: () async {
                           customer = await Get.to(() => CustomerAdd(),
                               arguments: customerNameControll.text);
                           customerNameControll.text = customer?.name ?? '';
                         },
-                        label: Text('new customer'),
+                        label: Text('new customer'.tr),
                         icon: Icon(Icons.person),
                       ),
                     ),
@@ -89,8 +89,8 @@ class _TransactionAddState extends State<TransactionAdd> {
                 },
                 emptyBuilder: (context) {
                   return ListTile(
-                    title: Text(
-                        'no customer found click to add ${customerNameControll.text}'),
+                    title: Text('no customer found'
+                        .trParams({'name': customerNameControll.text})),
                     onTap: () async {
                       customer = await Get.to(() => CustomerAdd(),
                           arguments: customerNameControll.text);
@@ -103,12 +103,12 @@ class _TransactionAddState extends State<TransactionAdd> {
               TextFormField(
                 controller: payControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('amount'),
+                  label: Text('amount'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
-                  Validatorless.required('this row is required!'),
-                  Validatorless.number('number only'),
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
                 ]),
               ),
               verSpace,
@@ -116,7 +116,7 @@ class _TransactionAddState extends State<TransactionAdd> {
               verSpace,
               Row(
                 children: [
-                  Text('Customer Balance'),
+                  Text('Customer Balance:'.tr),
                   Expanded(child: verSpace),
                   customer != null
                       ? Text(settingsController
@@ -134,7 +134,7 @@ class _TransactionAddState extends State<TransactionAdd> {
                       itemBuilder: (context, index) {
                         return ListTile(
                           title: Text(
-                              '${settingsController.currencyFormatter(transactions![index].amount)} on ${transactions![index].paymentDate()}'),
+                              '${settingsController.currencyFormatter(transactions![index].amount)}. ${transactions![index].paymentDate()}'),
                         );
                       }),
                 ),
@@ -144,16 +144,17 @@ class _TransactionAddState extends State<TransactionAdd> {
                   onPressed: () {
                     if (formKey.currentState!.validate() &&
                         customer != null &&
-                        customerNameControll.text.isNotEmpty) {}
-                    Transaction t = Transaction(
-                        date: DateTime.now().millisecondsSinceEpoch,
-                        amount: double.tryParse(payControll.text) ??
-                            double.parse('${payControll.text}.0'));
-                    t.customer.target = customer!;
-                    databaseController.newTransaction(t);
-                    Get.back();
+                        customerNameControll.text.isNotEmpty) {
+                      Transaction t = Transaction(
+                          date: DateTime.now().millisecondsSinceEpoch,
+                          amount: double.tryParse(payControll.text) ??
+                              double.parse('${payControll.text}.0'));
+                      t.customer.target = customer!;
+                      databaseController.newTransaction(t);
+                      Get.back();
+                    }
                   },
-                  child: const Text('Save'),
+                  child: Text('save'.tr),
                 ),
               ),
               verSpace

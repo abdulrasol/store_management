@@ -43,7 +43,7 @@ class CustomerView extends StatelessWidget {
               icon: const Icon(Icons.print),
               onPressed: () async {
                 final pdf = await generateFullInvoice(customer: customer);
-                await savePdfFileToStorage(pdf);
+                await printPdfFileToStorage(pdf);
               },
             ),
             TextButton.icon(
@@ -52,7 +52,7 @@ class CustomerView extends StatelessWidget {
                       customer: customer,
                     ));
               },
-              label: Text('eidt'.tr),
+              label: Text('edit'.tr),
               icon: Icon(Icons.edit),
             ),
           ],

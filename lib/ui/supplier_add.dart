@@ -24,8 +24,8 @@ class _SupplierAddState extends State<SupplierAdd> {
     return Scaffold(
       appBar: AppBar(
         title: name == null
-            ? Text('Add New Supplier')
-            : Text('Add New Supplier $name'),
+            ? Text('Add New Supplier'.tr)
+            : Text('${'Add New Supplier'.tr} $name'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -45,7 +45,7 @@ class _SupplierAddState extends State<SupplierAdd> {
                 TextFormField(
                   controller: nameControll,
                   decoration: inputDecoration.copyWith(
-                    label: Text('Name'.tr),
+                    label: Text('name'.tr),
                   ),
                   keyboardType: TextInputType.text,
                   validator: Validatorless.required('required'.tr),
@@ -54,7 +54,7 @@ class _SupplierAddState extends State<SupplierAdd> {
                 TextFormField(
                   controller: phoneControll,
                   decoration: inputDecoration.copyWith(
-                    label: Text('Phone'),
+                    label: Text('phone'.tr),
                   ),
                   keyboardType: TextInputType.phone,
                   validator: Validatorless.multiple([

@@ -14,7 +14,7 @@ class VoucherView extends StatelessWidget {
     SettingsController settingsController = Get.find();
     return Scaffold(
       appBar: AppBar(
-        title: Text('voucher: 00${voucher.voucherNumber()}'),
+        title: Text('${'voucher'.tr}: 00${voucher.voucherNumber()}'),
         leading: IconButton(
             onPressed: () {
               if (Get.previousRoute == '/VoucherSave') {
@@ -25,17 +25,7 @@ class VoucherView extends StatelessWidget {
             },
             icon: Icon(Icons.arrow_back)),
         actions: [
-          IconButton(
-            tooltip: 'Recover Items',
-            onPressed: () async {
-              // if (databaseController.re(voucher.id)) {
-              //   Get.back();
-              // }
-              // Get.to(() => InvoiceRecoverItem(invoce: invoice));
-            },
-            icon: Icon(Icons.restore),
-          ),
-          if (!GetPlatform.isLinux)
+          if (!GetPlatform.isDesktop)
             IconButton(
               onPressed: () async {
                 // var pdf = await ge(invoice: voucher);
@@ -78,9 +68,9 @@ class VoucherView extends StatelessWidget {
               runAlignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
-                Text('Customer: ${voucher.customer.target?.name}'),
-                Text(' on: ${voucher.voucherDate()}'),
-                Text(' number: ${voucher.voucherNumber()}'),
+                Text('${'supplier name'.tr}: ${voucher.customer.target?.name}'),
+                Text(voucher.voucherDate()),
+                Text('${'voucher number'.tr}: ${voucher.voucherNumber()}'),
               ],
             ),
             verSpace,
@@ -92,11 +82,11 @@ class VoucherView extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
                         columns: [
-                          DataColumn(label: Text('Item')),
-                          DataColumn(label: Text('Quantity')),
-                          DataColumn(label: Text('Buy Price')),
-                          DataColumn(label: Text('Sell Price')),
-                          DataColumn(label: Text('Total Price')),
+                          DataColumn(label: Text('item'.tr)),
+                          DataColumn(label: Text('quantity'.tr)),
+                          DataColumn(label: Text('Buy Price'.tr)),
+                          DataColumn(label: Text('Sell Price'.tr)),
+                          DataColumn(label: Text('Total Price'.tr)),
                         ],
                         rows: voucher.items
                             .map<DataRow>((item) => DataRow(
@@ -123,7 +113,7 @@ class VoucherView extends StatelessWidget {
             Divider(),
             Row(
               children: [
-                Text('Total Amount:'),
+                Text('Total Price'.tr),
                 Expanded(child: verSpace),
                 Text(settingsController.currencyFormatter(voucher.price())),
               ],
@@ -131,22 +121,16 @@ class VoucherView extends StatelessWidget {
             verSpace,
             Row(
               children: [
-                Text('Paid Amount:'),
+                Text('paid amount'.tr),
                 Expanded(child: verSpace),
                 Text(settingsController
                     .currencyFormatter(voucher.transactions[1].amount)),
               ],
             ),
             verSpace,
-            // Row(children: [
-            //   Text('Amaunt to Pay:'),
-            //   Expanded(child: verSpace),
-            //   Text(settingsController.currencyFormatter(voucher.pricetoPay())),
-            // ]),
-            verSpace,
             Row(
               children: [
-                Text('Supplier Balance:'),
+                Text('Supplier Balance'.tr),
                 Expanded(child: verSpace),
                 Text(settingsController.currencyFormatter(voucher.balance())),
               ],

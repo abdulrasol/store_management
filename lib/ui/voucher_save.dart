@@ -11,8 +11,10 @@ import 'package:store_management/utils/app_constants.dart';
 import 'package:validatorless/validatorless.dart';
 
 class VoucherSave extends StatefulWidget {
-  const VoucherSave({super.key, required this.voucher});
+  const VoucherSave(
+      {super.key, required this.voucher, required this.oldQuantity});
   final Voucher voucher;
+  final List<int> oldQuantity;
 
   @override
   State<VoucherSave> createState() => _VoucherSaveState();
@@ -31,7 +33,7 @@ class _VoucherSaveState extends State<VoucherSave> {
     TextEditingController payControll = TextEditingController();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Save Voucher'),
+        title: Text('Save Voucher'.tr),
       ),
       body: Form(
         key: formKey,
@@ -45,7 +47,7 @@ class _VoucherSaveState extends State<VoucherSave> {
                 enabled: false,
                 controller: customerNameControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('Supplier'),
+                  label: Text('Supplier'.tr),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -53,12 +55,12 @@ class _VoucherSaveState extends State<VoucherSave> {
               TextFormField(
                 controller: payControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('payment amount'),
+                  label: Text('Payment Amount'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
-                  Validatorless.required('this row is required!'),
-                  Validatorless.number('number only'),
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
                 ]),
               ),
               verSpace,
@@ -70,12 +72,12 @@ class _VoucherSaveState extends State<VoucherSave> {
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
                           columns: [
-                            DataColumn(label: Text('Item')),
-                            DataColumn(label: Text('Quantity')),
-                            DataColumn(label: Text('Buy Price')),
-                            DataColumn(label: Text('Sell Price')),
-                            DataColumn(label: Text('Code')),
-                            DataColumn(label: Text('Total Price')),
+                            DataColumn(label: Text('item'.tr)),
+                            DataColumn(label: Text('quantity'.tr)),
+                            DataColumn(label: Text('Buy Price'.tr)),
+                            DataColumn(label: Text('Sell Price'.tr)),
+                            DataColumn(label: Text('Code'.tr)),
+                            DataColumn(label: Text('Total Price'.tr)),
                           ],
                           rows: widget.voucher.items
                               .map<DataRow>((item) => DataRow(
@@ -101,7 +103,7 @@ class _VoucherSaveState extends State<VoucherSave> {
               Divider(),
               Row(
                 children: [
-                  Text('Total Price:'),
+                  Text('Total Price'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.voucher.price())),
@@ -110,22 +112,21 @@ class _VoucherSaveState extends State<VoucherSave> {
               verSpace,
               Row(
                 children: [
-                  Text('Supplier Balance:'),
+                  Text('Supplier Balance'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.voucher.balance())),
                 ],
               ),
-              // verSpace,
+              verSpace,
               Row(
                 children: [
-                  Text('price to pay:'),
+                  Text('price to pay'.tr),
                   Expanded(child: verSpace),
                   Text(settingsController
                       .currencyFormatter(widget.voucher.price())),
                 ],
               ),
-              verSpace,
               verSpace,
               Center(
                 child: ElevatedButton(
@@ -157,7 +158,7 @@ class _VoucherSaveState extends State<VoucherSave> {
                       Get.to(() => VoucherView(voucher: widget.voucher));
                     }
                   },
-                  child: const Text('Save'),
+                  child: Text('save'.tr),
                 ),
               ),
               verSpace

@@ -16,11 +16,15 @@ class ItemsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Items'),
+        title: Text('items'.tr),
         actions: [
           IconButton(
             onPressed: () {
-              showSearch(context: context, delegate: Search());
+              showSearch(
+                  context: context,
+                  delegate: Search(),
+                  useRootNavigator: true,
+                  maintainState: true);
             },
             icon: Icon(Icons.search),
           ),
@@ -38,13 +42,13 @@ class ItemsPage extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.start,
                   children: [
                     Text(
-                        'buy: ${settingsController.currencyFormatter(databaseController.items()[index].buyPrice)}'),
+                        '${'Buy Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].buyPrice)}'),
                     Text(
-                        'sell: ${settingsController.currencyFormatter(databaseController.items()[index].sellPrice)}'),
+                        '${'Sell Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].sellPrice)}'),
                     Text(
-                        'qunatity: ${databaseController.items()[index].quantity}'),
+                        '${'quantity'.tr}: ${databaseController.items()[index].quantity}'),
                     Text(
-                        'supplier: ${databaseController.items()[index].supplier.target?.name}'),
+                        '${'Supplier'.tr}: ${databaseController.items()[index].supplier.target?.name}'),
                   ],
                 ),
                 onTap: () => Get.to(
@@ -98,9 +102,14 @@ class Search extends SearchDelegate {
             runAlignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.start,
             children: [
-              Text('buy: ${databaseController.items()[index].buyPrice} IQD'),
-              Text('sell: ${databaseController.items()[index].sellPrice} IQD'),
-              Text('qunatity: ${databaseController.items()[index].quantity}'),
+              Text(
+                  '${'Buy Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].buyPrice)}'),
+              Text(
+                  '${'Sell Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].sellPrice)}'),
+              Text(
+                  '${'quantity'.tr}: ${databaseController.items()[index].quantity}'),
+              Text(
+                  '${'Supplier'.tr}: ${databaseController.items()[index].supplier.target?.name}'),
             ],
           ),
           onTap: () => Get.to(
@@ -128,9 +137,14 @@ class Search extends SearchDelegate {
             runAlignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.start,
             children: [
-              Text('buy: ${databaseController.items()[index].buyPrice} IQD'),
-              Text('sell: ${databaseController.items()[index].sellPrice} IQD'),
-              Text('qunatity: ${databaseController.items()[index].quantity}'),
+              Text(
+                  '${'Buy Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].buyPrice)}'),
+              Text(
+                  '${'Sell Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].sellPrice)}'),
+              Text(
+                  '${'quantity'.tr}: ${databaseController.items()[index].quantity}'),
+              Text(
+                  '${'Supplier'.tr}: ${databaseController.items()[index].supplier.target?.name}'),
             ],
           ),
           onTap: () => Get.to(

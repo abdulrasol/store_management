@@ -36,11 +36,12 @@ class _VoucherCreateState extends State<VoucherCreate> {
   Item? oldItem;
   Customer? customer;
   InvoiceItem? invoiceItem;
+  Map<String, int> oldQuantities = {};
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add New Items To Store'),
+        title: Text('Add Items, New Voucher'.tr),
         actions: [Icon(Icons.add_shopping_cart), horSpace],
       ),
       body: Padding(
@@ -62,13 +63,13 @@ class _VoucherCreateState extends State<VoucherCreate> {
                           focusNode: focusNode,
                           autofocus: true,
                           decoration:
-                              inputDecoration.copyWith(label: Text('item')),
+                              inputDecoration.copyWith(label: Text('item'.tr)),
                         );
                       },
                       itemBuilder: (context, item) => ListTile(
                         title: Text(item.name),
                         subtitle: Text(
-                            '${settingsController.currencyFormatter(item.sellPrice)}, ${item.quantity} available'),
+                            '${settingsController.currencyFormatter(item.sellPrice)}, ${item.quantity} ${'available'.tr}'),
                       ),
                       onSelected: (item) {
                         setState(() {
@@ -92,17 +93,6 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       },
                     ),
                     verSpace,
-                    // TextFormField(
-                    //   controller: nameControll,
-                    //   decoration: inputDecoration.copyWith(
-                    //     label: Text('Item Name'),
-                    //   ),
-                    //   keyboardType: TextInputType.text,
-                    //   validator:
-                    //       Validatorless.required('this row is required!'),
-                    // ),
-                    // verSpace,
-
                     TypeAheadField<Customer>(
                       controller: customerNameControll,
                       builder: (context, controller, focusNode) {
@@ -111,7 +101,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                           focusNode: focusNode,
                           autofocus: true,
                           decoration: inputDecoration.copyWith(
-                            label: Text('Supplier'),
+                            label: Text('Supplier'.tr),
                             suffix: TextButton.icon(
                               onPressed: () async {
                                 customer = await Get.to(() => SupplierAdd(),
@@ -145,8 +135,8 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       },
                       emptyBuilder: (context) {
                         return ListTile(
-                          title: Text(
-                              'no customer found click to add ${customerNameControll.text}'),
+                          title: Text('no-supplier'.trParams(
+                              {'supplier': customerNameControll.text})),
                           onTap: () async {
                             customer = await Get.to(() => SupplierAdd(),
                                 arguments: customerNameControll.text);
@@ -163,32 +153,32 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       ),
                       keyboardType: TextInputType.number,
                       validator: Validatorless.multiple([
-                        Validatorless.required('this row is required!'),
-                        Validatorless.number('number only'),
+                        Validatorless.required('required'.tr),
+                        Validatorless.number('number'.tr),
                       ]),
                     ),
                     verSpace,
                     TextFormField(
                       controller: sellControll,
                       decoration: inputDecoration.copyWith(
-                        label: Text('Sell Price'),
+                        label: Text('Sell Price'.tr),
                       ),
                       keyboardType: TextInputType.number,
                       validator: Validatorless.multiple([
-                        Validatorless.required('this row is required!'),
-                        Validatorless.number('number only'),
+                        Validatorless.required('required'.tr),
+                        Validatorless.number('number'.tr),
                       ]),
                     ),
                     verSpace,
                     TextFormField(
                       controller: quaControll,
                       decoration: inputDecoration.copyWith(
-                        label: Text('Quantity'),
+                        label: Text('quantity'.tr),
                       ),
                       keyboardType: TextInputType.number,
                       validator: Validatorless.multiple([
-                        Validatorless.required('this row is required!'),
-                        Validatorless.number('number only'),
+                        Validatorless.required('required'.tr),
+                        Validatorless.number('number'.tr),
                       ]),
                     ),
                   ],
@@ -209,10 +199,17 @@ class _VoucherCreateState extends State<VoucherCreate> {
                         if (formKey.currentState!.validate() &&
                             customer != null &&
                             customerNameControll.text.isNotEmpty) {
+                          double newPirce = double.tryParse(buyControll.text) ??
+                              double.parse('${buyControll.text}.0');
                           // create item
-                          if (oldItem != null) {
+                          if (oldItem != null &&
+                              oldItem!.supplier.targetId == customer!.id &&
+                              oldItem!.buyPrice == newPirce) {
                             tempItem = oldItem;
-                            tempItem!.quantity = int.parse(quaControll.text);
+                            int oldQuantity = oldItem!.quantity;
+                            tempItem!.quantity =
+                                int.parse(quaControll.text) + oldQuantity;
+                            oldQuantities.addAll({tempItem!.name: oldQuantity});
                           } else {
                             tempItem = Item(
                               name: nameControll.text,
@@ -223,6 +220,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                               quantity: int.tryParse(quaControll.text) ??
                                   int.parse(quaControll.text),
                             );
+                            oldQuantities.addAll({tempItem!.name: 0});
                           }
                           // set supplier
                           tempItem!.supplier.target = customer!;
@@ -231,7 +229,6 @@ class _VoucherCreateState extends State<VoucherCreate> {
                             voucher.items.add(tempItem!);
                             // reset contorllers
                             nameControll.text = '';
-
                             buyControll.text = '';
                             sellControll.text = '';
                             quaControll.text = '';
@@ -244,7 +241,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                           //         .toString())));
                         }
                       },
-                      child: Text('Add Item'))
+                      child: Text('Add'.tr))
                 ],
               ),
               verSpace,
@@ -255,11 +252,11 @@ class _VoucherCreateState extends State<VoucherCreate> {
                     child: DataTable(
                       columns: [
                         DataColumn(label: Text('#')),
-                        DataColumn(label: Text('Item')),
-                        DataColumn(label: Text('Quantity')),
-                        DataColumn(label: Text('Buy Price')),
-                        DataColumn(label: Text('Sell Price')),
-                        DataColumn(label: Text('Total Price')),
+                        DataColumn(label: Text('item'.tr)),
+                        DataColumn(label: Text('quantity'.tr)),
+                        DataColumn(label: Text('Buy Price'.tr)),
+                        DataColumn(label: Text('Sell Price'.tr)),
+                        DataColumn(label: Text('Total Price'.tr)),
                       ],
                       rows: voucher.items
                           .map<DataRow>((item) => DataRow(
@@ -291,7 +288,9 @@ class _VoucherCreateState extends State<VoucherCreate> {
                                   DataCell(
                                     Text(
                                       settingsController.currencyFormatter(
-                                          item.buyPrice * item.quantity),
+                                          item.buyPrice *
+                                                  oldQuantities[item.name]! -
+                                              item.buyPrice),
                                     ),
                                   ),
                                 ],
@@ -312,6 +311,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
 
             Get.to(() => VoucherSave(
                   voucher: voucher,
+                  oldQuantity: [],
                 ));
           }
         },

@@ -43,7 +43,7 @@ class OnboardingScreenState extends State<OnboardingScreen> {
       if (logoString != null) {
         await prefs.setString('logo', logoString!);
       }
-
+//
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/home');
     }

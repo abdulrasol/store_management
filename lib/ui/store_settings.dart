@@ -318,6 +318,99 @@ class StoreSettingsState extends State<StoreSettings> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 24),
+                      Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'App Settings'.tr,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              DropdownButtonFormField<ThemeMode>(
+                                value: Get.isDarkMode
+                                    ? ThemeMode.dark
+                                    : ThemeMode.light,
+                                decoration: InputDecoration(
+                                  labelText: 'App Theme'.tr,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  prefixIcon: const Icon(Icons.brightness_auto),
+                                ),
+                                items: [
+                                  DropdownMenuItem<ThemeMode>(
+                                    value: ThemeMode.dark,
+                                    child: Text('Dark Theme'.tr),
+                                  ),
+                                  DropdownMenuItem<ThemeMode>(
+                                    value: ThemeMode.light,
+                                    child: Text('Light Theme'.tr),
+                                  ),
+                                  DropdownMenuItem<ThemeMode>(
+                                    value: ThemeMode.system,
+                                    child: Text('Follow System'.tr),
+                                  ),
+                                ],
+                                onChanged: (ThemeMode? value) async {
+                                  Get.changeThemeMode(value!);
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  //    print(value.name);
+                                  prefs.setString('app-theme', value.name);
+                                },
+                              ),
+                              verSpace,
+                              DropdownButtonFormField<String>(
+                                value: Get.locale?.languageCode ?? '',
+                                decoration: InputDecoration(
+                                  labelText: 'App Language'.tr,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  prefixIcon: const Icon(Icons.language),
+                                ),
+                                items: [
+                                  DropdownMenuItem<String>(
+                                    value: 'ar',
+                                    child: const Text('العربية'),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'en',
+                                    child: const Text('English'),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'fa',
+                                    child: const Text('فارسى'),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'tr',
+                                    child: const Text('Turkey'),
+                                  ),
+                                ],
+                                onChanged: (String? value) async {
+                                  Get.updateLocale(Locale(value ?? 'en'));
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+
+                                  prefs.setString('languageCode', value!);
+                                  Get.updateLocale(Locale(value));
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
 
                       const SizedBox(height: 40),
 
