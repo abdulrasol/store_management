@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/http/stub/file_decoder_stub.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,6 +70,9 @@ class SettingsController extends GetxController {
     );
     appName = prefs.getString('store_name').obs;
     logo = prefs.getString('logo').obs;
+    if (logo.value == null) {
+      logo.value = base64Encode(File('assets/png/logo.png').readAsBytesSync());
+    }
   }
 
   String currencyFormatter(num number) {

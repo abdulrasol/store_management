@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 String appName = 'نظم المستقبل للطاقة الشمسية والانظمة الحديثة';
 String shortSlag =
-    'اشراف وتنفيذ وتجهيز منظومات الطاقة الشمسية المنزلية والزراعية والصناعية';
+    '';
 
 var appTheme = ThemeData(
   // This is the theme of your application.
