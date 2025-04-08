@@ -18,7 +18,7 @@ import 'package:store_management/ui/search_delegate.dart';
 import 'package:store_management/ui/suppliers_page.dart';
 import 'package:store_management/ui/transaction_add.dart';
 import 'package:store_management/ui/transactions_page.dart';
-import 'package:store_management/ui/vouchers_Page.dart';
+import 'package:store_management/ui/vouchers_page.dart';
 import 'package:store_management/utils/app_constants.dart';
 import 'invoices_page.dart';
 

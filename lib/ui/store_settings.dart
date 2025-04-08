@@ -106,7 +106,7 @@ class StoreSettingsState extends State<StoreSettings> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.blue.withOpacity(0.3),
+                              color: Colors.blue.withAlpha(80),
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             ),

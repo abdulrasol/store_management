@@ -14,7 +14,7 @@ class InvoiceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(Get.previousRoute);
+   
     SettingsController settingsController = Get.find();
     return Scaffold(
       appBar: AppBar(

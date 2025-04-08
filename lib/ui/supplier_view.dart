@@ -7,7 +7,7 @@ import 'package:store_management/ui/customer_edit.dart';
 import 'package:store_management/ui/item_view.dart';
 
 import '../utils/app_constants.dart';
-import 'vouchers_Page.dart';
+import 'vouchers_page.dart';
 
 SettingsController settingsController = Get.find();
 DatabaseController databaseController = Get.find();
