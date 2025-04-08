@@ -117,11 +117,3 @@ Currently, the application supports the following languages:
 
 We appreciate your contributions to making this application better!
 
-## License
-
-This application is provided free of charge for individuals managing their own business operations.
-
-**Restrictions:**
-
-- **Not Free for Resale:** This software cannot be resold or distributed as a standalone product by others.
-- **Commercial and Institutional Use Requires Licensing:** Use of this application by companies, organizations, or institutions requires a specific commercial license. Please contact [Your Contact Information or Link to Licensing Page] to inquire about commercial licensing options.
