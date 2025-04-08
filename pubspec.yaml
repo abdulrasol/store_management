@@ -81,6 +81,8 @@ flutter:
     - assets/png/item.png
     - assets/png/invoce.png
     - assets/png/customer.png
+    - assets/png/logo.png
+    - assets/png/logo.png
 
   fonts:
     - family: Cairo

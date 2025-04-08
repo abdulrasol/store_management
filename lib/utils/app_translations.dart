@@ -66,6 +66,9 @@ class AppTranslations extends Translations {
           'Expense Amount': 'Expense Amount',
           'Expense description': 'Expense Description',
           'Total Expenses': 'Total Expenses',
+          'all': 'all',
+          'This Mounth': 'This Mounth',
+          'This Year': 'This Year',
 
           // Invoices
 
@@ -224,6 +227,9 @@ class AppTranslations extends Translations {
           'Expense Amount': 'مبلغ المصروف',
           'Expense description': 'وصف المصروف',
           'Total Expenses': 'إجمالي المصروفات',
+          'all': 'الكل',
+          'This Mounth': 'هذا الشهر',
+          'This Year': 'هذه السنة',
 
           // Invoices
 
@@ -385,6 +391,9 @@ class AppTranslations extends Translations {
           'Expense Amount': 'مبلغ هزینه',
           'Expense description': 'توضیحات هزینه',
           'Total Expenses': 'کل هزینه‌ها',
+          'all': 'همه',
+          'This Mounth': 'اين ماه',
+          'This Year': 'اين سال',
 
           // Invoices
           'Create New Invoice': 'ایجاد فاکتور جدید',
@@ -574,7 +583,10 @@ class AppTranslations extends Translations {
           "Reset your settings": "Ayarları Sıfırla",
           "Please re-enter your store information":
               "Lütfen Mağaza Bilgilerinizi Yeniden Girin",
-          "Currency Settings": "Para Birimi Ayarları"
+          "Currency Settings": "Para Birimi Ayarları",
+          'all': 'tümü',
+          'This Mounth': 'Bu Ay',
+          'This Year': 'Bu Yıl',
         },
       };
 }

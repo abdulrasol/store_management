@@ -56,6 +56,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
 Widget transactionsView(List<Transaction> transactions) {
   return ListView.builder(
+      shrinkWrap: true,
       itemCount: transactions.length,
       itemBuilder: (context, index) {
         return ListTile(

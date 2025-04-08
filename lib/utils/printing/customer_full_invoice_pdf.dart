@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -73,9 +74,9 @@ class InvoiceTamplate {
         await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
 
     final img = await rootBundle.load('assets/png/logo.png');
-    final nameImage = await rootBundle.load('assets/png/name.png');
-    logo = img.buffer.asUint8List();
-    name = nameImage.buffer.asUint8List();
+    logo = settingsController.logo.value != null
+        ? base64Decode(settingsController.logo.value!)
+        : img.buffer.asUint8List();
     // Add page to the PDF
     doc.addPage(
       pw.MultiPage(
@@ -299,9 +300,12 @@ class InvoiceTamplate {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('Customer Balance:'),
-                      pw.Text(settingsController
-                          .currencyFormatter(customer.balance())
-                          .replaceAll('\u200F', '')),
+                      pw.Text(
+                          settingsController
+                              .currencyFormatter(customer.balance())
+                              .replaceAll('\u200F', ''),
+                          textDirection: getTextDirection(settingsController
+                              .currencyFormat.currencySymbol)),
                     ],
                   ),
                 ),
@@ -391,7 +395,9 @@ class InvoiceTamplate {
                     settingsController
                         .currencyFormatter(trasnsaction.amount)
                         .replaceAll('\u200F', ''),
-                    textAlign: pw.TextAlign.center),
+                    textAlign: pw.TextAlign.center,
+                    textDirection: getTextDirection(
+                        settingsController.currencyFormat.currencySymbol)),
               ),
             ],
           ),

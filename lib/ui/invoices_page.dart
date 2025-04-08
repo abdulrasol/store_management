@@ -33,6 +33,7 @@ class InvoicesPage extends StatelessWidget {
 Widget invoicesView(List<Invoice> inovices) {
   return ListView.builder(
       itemCount: inovices.length,
+      shrinkWrap: true,
       itemBuilder: (context, index) {
         return ListTile(
             title: Text(

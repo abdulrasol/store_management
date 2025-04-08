@@ -52,202 +52,204 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          //crossAxisAlignment: Cr,
-          children: [
-            Wrap(
-              alignment: WrapAlignment.spaceAround,
-              runAlignment: WrapAlignment.spaceAround,
-              crossAxisAlignment: WrapCrossAlignment.start,
-              children: [
-                HomeCard(
-                  width: (MediaQuery.sizeOf(context).width) - 30,
-                  color: Colors.teal,
-                  count: 5,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Total Sales'.tr),
-                          Obx(
-                            () => Text(
-                              settingsController.currencyFormatter(
-                                databaseController.inovices.fold(
-                                  0,
-                                  (num previousValue, element) =>
-                                      previousValue + element.pricetoPay(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            //crossAxisAlignment: Cr,
+            children: [
+              Wrap(
+                alignment: WrapAlignment.spaceAround,
+                runAlignment: WrapAlignment.spaceAround,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                children: [
+                  HomeCard(
+                    width: (MediaQuery.sizeOf(context).width) - 30,
+                    color: Colors.teal,
+                    count: 5,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Total Sales'.tr),
+                            Obx(
+                              () => Text(
+                                settingsController.currencyFormatter(
+                                  databaseController.inovices.fold(
+                                    0,
+                                    (num previousValue, element) =>
+                                        previousValue + element.pricetoPay(),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      verSpace,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Last Month Sales'.tr),
-                          Obx(
-                            () => Text(
-                              settingsController.currencyFormatter(
-                                databaseController.inovices
-                                    .where((invoice) =>
-                                        invoice.date >
-                                        DateTime.now().millisecondsSinceEpoch -
-                                            2629800000)
-                                    .toList()
-                                    .fold(
-                                      0,
-                                      (num previousValue, element) =>
-                                          previousValue + element.pricetoPay(),
-                                    ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                HomeCard(
-                  width: (MediaQuery.sizeOf(context).width) - 30,
-                  color: Colors.deepPurpleAccent,
-                  count: 5,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Paid-up capital'.tr),
-                          Obx(
-                            () => Text(
-                              settingsController.currencyFormatter(
-                                (-1 *
-                                        databaseController.supplierTransactions
-                                            .where((tran) => tran.amount < 0)
-                                            .toList()
-                                            .fold(
-                                                0,
-                                                (previousValue, element) =>
-                                                    previousValue +
-                                                    element.amount)) +
-                                    (databaseController.expenses.fold(
+                          ],
+                        ),
+                        verSpace,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Last Month Sales'.tr),
+                            Obx(
+                              () => Text(
+                                settingsController.currencyFormatter(
+                                  databaseController.inovices
+                                      .where((invoice) =>
+                                          invoice.date >
+                                          DateTime.now()
+                                                  .millisecondsSinceEpoch -
+                                              2629800000)
+                                      .toList()
+                                      .fold(
                                         0,
-                                        (previousValue, element) =>
-                                            previousValue + element.amount)),
+                                        (num previousValue, element) =>
+                                            previousValue +
+                                            element.pricetoPay(),
+                                      ),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      verSpace,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Total Expense'.tr),
-                          Obx(() => Text(settingsController.currencyFormatter(
-                              databaseController.expenses.fold(
-                                  0,
-                                  (previousValue, element) =>
-                                      previousValue + element.amount)))),
-                        ],
-                      ),
-                      verSpace,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Net revenue'.tr),
-                          Obx(
-                            () => Text(settingsController.currencyFormatter(
-                                databaseController.netRevenue())),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                HomeCard(
-                  width: (MediaQuery.sizeOf(context).width) - 30,
-                  color: Colors.pink,
-                  count: 5,
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Available Items Count'.tr),
-                          Obx(() => Text(databaseController.items
-                              .where((item) => item.quantity > 0)
-                              .toList()
-                              .length
-                              .toString())),
-                        ],
-                      ),
-                      verSpace,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Not Available Items Count'.tr),
-                          Obx(() => Text(databaseController.items
-                              .where((item) => item.quantity <= 0)
-                              .toList()
-                              .length
-                              .toString())),
-                        ],
-                      ),
-                      verSpace,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Items less 5 in stocks'.tr),
-                          Obx(() => Text(databaseController.items
-                              .where((item) => item.quantity < 10)
-                              .toList()
-                              .length
-                              .toString())),
-                        ],
-                      ),
-                    ],
+                  HomeCard(
+                    width: (MediaQuery.sizeOf(context).width) - 30,
+                    color: Colors.deepPurpleAccent,
+                    count: 5,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Paid-up capital'.tr),
+                            Obx(
+                              () => Text(
+                                settingsController.currencyFormatter(
+                                  (-1 *
+                                          databaseController
+                                              .supplierTransactions
+                                              .where((tran) => tran.amount < 0)
+                                              .toList()
+                                              .fold(
+                                                  0,
+                                                  (previousValue, element) =>
+                                                      previousValue +
+                                                      element.amount)) +
+                                      (databaseController.expenses.fold(
+                                          0,
+                                          (previousValue, element) =>
+                                              previousValue + element.amount)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verSpace,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Total Expense'.tr),
+                            Obx(() => Text(settingsController.currencyFormatter(
+                                databaseController.expenses.fold(
+                                    0,
+                                    (previousValue, element) =>
+                                        previousValue + element.amount)))),
+                          ],
+                        ),
+                        verSpace,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Net revenue'.tr),
+                            Obx(
+                              () => Text(settingsController.currencyFormatter(
+                                  databaseController.netRevenue())),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                HomeCard(
-                  width: (MediaQuery.sizeOf(context).width) - 30,
-                  color: Colors.green,
-                  count: 5,
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Total Amount of Outstanding Debt'.tr),
-                          Obx(() => Text(settingsController.currencyFormatter(
-                              databaseController.customerDebt()))),
-                        ],
-                      ),
-                    ],
+                  HomeCard(
+                    width: (MediaQuery.sizeOf(context).width) - 30,
+                    color: Colors.pink,
+                    count: 5,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Available Items Count'.tr),
+                            Obx(() => Text(databaseController.items
+                                .where((item) => item.quantity > 0)
+                                .toList()
+                                .length
+                                .toString())),
+                          ],
+                        ),
+                        verSpace,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Not Available Items Count'.tr),
+                            Obx(() => Text(databaseController.items
+                                .where((item) => item.quantity <= 0)
+                                .toList()
+                                .length
+                                .toString())),
+                          ],
+                        ),
+                        verSpace,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Items less 5 in stocks'.tr),
+                            Obx(() => Text(databaseController.items
+                                .where((item) => item.quantity < 10)
+                                .toList()
+                                .length
+                                .toString())),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            verSpace,
-            Divider(),
-            verSpace,
-            Row(
-              children: [
-                Text(
-                  'Last Invoices'.tr,
-                  style: TextStyle(fontSize: 16),
-                )
-              ],
-            ),
-            Expanded(
-              flex: 1,
-              child: Obx(
+                  HomeCard(
+                    width: (MediaQuery.sizeOf(context).width) - 30,
+                    color: Colors.green,
+                    count: 5,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Total Amount of Outstanding Debt'.tr),
+                            Obx(() => Text(settingsController.currencyFormatter(
+                                databaseController.customerDebt()))),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              verSpace,
+              Divider(),
+              verSpace,
+              Row(
+                children: [
+                  Text(
+                    'Last Invoices'.tr,
+                    style: TextStyle(fontSize: 16),
+                  )
+                ],
+              ),
+              Obx(
                 () => invoicesView(
                   databaseController.inovices
                       .getRange(
@@ -258,31 +260,29 @@ class _HomeState extends State<Home> {
                       .toList(),
                 ),
               ),
-            ),
-            Divider(),
-            verSpace,
-            Row(
-              children: [
-                Text(
-                  'Last Payments'.tr,
-                  style: TextStyle(fontSize: 16),
-                )
-              ],
-            ),
-            Expanded(
-              flex: 1,
-              child: Obx(() => transactionsView(
-                    databaseController.customersTransactions
-                        .getRange(
-                            0,
-                            databaseController.customersTransactions.length > 10
-                                ? 10
-                                : databaseController
-                                    .customersTransactions.length)
-                        .toList(),
-                  )),
-            ),
-          ],
+              //   Divider(),
+              verSpace,
+              // Row(
+              //   children: [
+              //     Text(
+              //       'Last Payments'.tr,
+              //       style: TextStyle(fontSize: 16),
+              //     )
+              //   ],
+              // ),
+              // Obx(() => transactionsView(
+              //       databaseController.customersTransactions
+              //           .getRange(
+              //               0,
+              //               databaseController.customersTransactions.length >
+              //                       10
+              //                   ? 10
+              //                   : databaseController
+              //                       .customersTransactions.length)
+              //           .toList(),
+              //     )),
+            ],
+          ),
         ),
       ),
       floatingActionButton: SpeedDial(

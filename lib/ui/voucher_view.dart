@@ -25,36 +25,36 @@ class VoucherView extends StatelessWidget {
             },
             icon: Icon(Icons.arrow_back)),
         actions: [
-          if (!GetPlatform.isDesktop)
-            IconButton(
-              onPressed: () async {
-                // var pdf = await ge(invoice: voucher);
-                // await Share.shareXFiles([
-                //   XFile.fromData(pdf)
-                // ], fileNameOverrides: [
-                //   '${voucher.customer}-${voucher.invoiceNumber()}.pdf'
-                // ]);
-              },
-              icon: Icon(Icons.share_outlined),
-            ),
-          IconButton(
-              onPressed: () async {
-                // var pdf = await generateInvoice(invoice: voucher);
-                // Get.to(() => PrintPdfPage(pdfData: pdf));
-                // final Directory? downloadsDir = await getDownloadsDirectory();
-                // final Directory? dir = await getExternalStorageDirectory();
-                // final String newPath =
-                //     "${dir!.path}/store-management-app"; // مجلد خاص داخل مجلد التطبيق
-                // final Directory newDir = Directory(newPath);
+          // if (!GetPlatform.isDesktop)
+          //   IconButton(
+          //     onPressed: () async {
+          //       // var pdf = await ge(invoice: voucher);
+          //       // await Share.shareXFiles([
+          //       //   XFile.fromData(pdf)
+          //       // ], fileNameOverrides: [
+          //       //   '${voucher.customer}-${voucher.invoiceNumber()}.pdf'
+          //       // ]);
+          //     },
+          //     icon: Icon(Icons.share_outlined),
+          //   ),
+          // IconButton(
+          //     onPressed: () async {
+          //       // var pdf = await generateInvoice(invoice: voucher);
+          //       // Get.to(() => PrintPdfPage(pdfData: pdf));
+          //       // final Directory? downloadsDir = await getDownloadsDirectory();
+          //       // final Directory? dir = await getExternalStorageDirectory();
+          //       // final String newPath =
+          //       //     "${dir!.path}/store-management-app"; // مجلد خاص داخل مجلد التطبيق
+          //       // final Directory newDir = Directory(newPath);
 
-                // if (!await newDir.exists()) {
-                //   await newDir.create(recursive: true);
-                // }
-                // final file = File("${newDir.path}/example.pdf");
-                // await file.writeAsBytes(await pdf);
-                //  await savePdfFileToStorage(pdf);
-              },
-              icon: Icon(Icons.print))
+          //       // if (!await newDir.exists()) {
+          //       //   await newDir.create(recursive: true);
+          //       // }
+          //       // final file = File("${newDir.path}/example.pdf");
+          //       // await file.writeAsBytes(await pdf);
+          //       //  await savePdfFileToStorage(pdf);
+          //     },
+          //     icon: Icon(Icons.print))
         ],
       ),
       body: Padding(

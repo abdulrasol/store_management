@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -89,10 +90,11 @@ class InvoiceTamplate {
         await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
 
     final img = await rootBundle.load('assets/png/logo.png');
-    final nameImage = await rootBundle.load('assets/png/name.png');
-    logo = img.buffer.asUint8List();
-    name = nameImage.buffer.asUint8List();
-    // Add page to the PDF
+
+    logo = settingsController.logo.value != null
+        ? base64Decode(settingsController.logo.value!)
+        : img.buffer.asUint8List();
+
     doc.addPage(
       pw.MultiPage(
         pageTheme: _buildTheme(
@@ -303,7 +305,7 @@ class InvoiceTamplate {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Text(
-                'Thank you for your business',
+                'Thank you for your business'.tr,
                 style: pw.TextStyle(
                   color: _darkColor,
                   fontWeight: pw.FontWeight.bold,
@@ -345,9 +347,12 @@ class InvoiceTamplate {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Total Price:'),
-                    pw.Text(settingsController
-                        .currencyFormatter(invoice.price())
-                        .replaceAll('\u200F', '')),
+                    pw.Text(
+                        settingsController
+                            .currencyFormatter(invoice.price())
+                            .replaceAll('\u200F', ''),
+                        textDirection: getTextDirection(
+                            settingsController.currencyFormat.currencySymbol)),
                   ],
                 ),
                 // pw.SizedBox(height: 5),
@@ -355,10 +360,13 @@ class InvoiceTamplate {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Discount:'),
-                    pw.Text(settingsController
-                        .currencyFormatter(
-                            invoice.price() - invoice.pricetoPay())
-                        .replaceAll('\u200F', '')),
+                    pw.Text(
+                        settingsController
+                            .currencyFormatter(
+                                invoice.price() - invoice.pricetoPay())
+                            .replaceAll('\u200F', ''),
+                        textDirection: getTextDirection(
+                            settingsController.currencyFormat.currencySymbol)),
                   ],
                 ),
                 // pw.Divider(color: accentColor),
@@ -374,9 +382,12 @@ class InvoiceTamplate {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('Price To Pay:'),
-                      pw.Text(settingsController
-                          .currencyFormatter(invoice.pricetoPay())
-                          .replaceAll('\u200F', '')),
+                      pw.Text(
+                          settingsController
+                              .currencyFormatter(invoice.pricetoPay())
+                              .replaceAll('\u200F', ''),
+                          textDirection: getTextDirection(settingsController
+                              .currencyFormat.currencySymbol)),
                     ],
                   ),
                 ),
@@ -391,9 +402,12 @@ class InvoiceTamplate {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('Paid Amount:'),
-                      pw.Text(settingsController
-                          .currencyFormatter(invoice.transactions[0].amount)
-                          .replaceAll('\u200F', '')),
+                      pw.Text(
+                          settingsController
+                              .currencyFormatter(invoice.transactions[0].amount)
+                              .replaceAll('\u200F', ''),
+                          textDirection: getTextDirection(settingsController
+                              .currencyFormat.currencySymbol)),
                     ],
                   ),
                 ),
@@ -409,12 +423,15 @@ class InvoiceTamplate {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('Customer Balance:'),
-                      pw.Text(settingsController
-                          .currencyFormatter(invoice
-                              .customer.target!.trasnsactions
-                              .fold<double>(
-                                  0, (sum, trans) => sum + trans.amount))
-                          .replaceAll('\u200F', '')),
+                      pw.Text(
+                          settingsController
+                              .currencyFormatter(invoice
+                                  .customer.target!.trasnsactions
+                                  .fold<double>(
+                                      0, (sum, trans) => sum + trans.amount))
+                              .replaceAll('\u200F', ''),
+                          textDirection: getTextDirection(settingsController
+                              .currencyFormat.currencySymbol)),
                     ],
                   ),
                 ),
@@ -445,7 +462,7 @@ class InvoiceTamplate {
             pw.Padding(
               padding: const pw.EdgeInsets.all(5),
               child: pw.Text(
-                'Item',
+                'Item'.tr,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                 textAlign: pw.TextAlign.left,
               ),

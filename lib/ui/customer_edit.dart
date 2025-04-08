@@ -69,6 +69,7 @@ class _CustomerEditState extends State<CustomerEdit> {
                       Customer customer = Customer(
                           name: nameControll.text, phone: phoneControll.text);
                       customer.id = widget.customer.id;
+                      customer.customerType = widget.customer.customerType;
                       databaseController.addCustomer(customer);
                       Get.back(result: customer);
                     }

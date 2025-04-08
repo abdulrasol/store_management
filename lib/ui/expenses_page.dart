@@ -10,9 +10,22 @@ import '../controllers/settings_controller.dart';
 
 SettingsController settingsController = Get.find();
 
-class ExpensesPage extends StatelessWidget {
+int currentMounthMilliSecond =
+    DateTime(DateTime.now().year, DateTime.now().month, 1)
+        .millisecondsSinceEpoch;
+int currentyearMilliSecond =
+    DateTime(DateTime.now().year, 1, 1).millisecondsSinceEpoch;
+int all = DateTime(2024, 1, 1).millisecondsSinceEpoch;
+int viewExpenseFrom = all;
+
+class ExpensesPage extends StatefulWidget {
   const ExpensesPage({super.key});
 
+  @override
+  State<ExpensesPage> createState() => _ExpensesPageState();
+}
+
+class _ExpensesPageState extends State<ExpensesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,34 +41,83 @@ class ExpensesPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Obx(
-          () => ListView.builder(
-            itemCount: databaseController.expenses.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                onTap: () => Get.to(() =>
-                    ExpenseView(expense: databaseController.expenses[index])),
-                title: Text(
-                    '${'Amount'.tr} :${settingsController.currencyFormatter(databaseController.expenses[index].amount)}'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        // minHeight: 0.0,
-                        maxHeight: 50.0,
+        child: Column(
+          children: [
+            DropdownButton<int>(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                //  isDense: true,
+                isExpanded: true,
+                icon: const Icon(Icons.date_range),
+                //elevation: 16,
+                // style: const TextStyle(color: Colors.deepPurple),
+                // underline: Container(height: 2, color: Colors.deepPurpleAccent),
+                value: viewExpenseFrom,
+                items: [
+                  DropdownMenuItem<int>(
+                    value: all,
+                    child: Text('All'.tr),
+                  ),
+                  DropdownMenuItem<int>(
+                    value: currentMounthMilliSecond,
+                    child: Text('This Mounth'.tr),
+                  ),
+                  DropdownMenuItem<int>(
+                    value: currentyearMilliSecond,
+                    child: Text('This Year'.tr),
+                  )
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    viewExpenseFrom = value!;
+                  });
+                }),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: databaseController.expenses
+                  .where((expense) =>
+                      expense.date.millisecondsSinceEpoch >= viewExpenseFrom)
+                  .toList()
+                  .length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  // onTap: () => Get.to(() => ExpenseView(
+                  //     expense: databaseController.expenses
+                  //         .where((expense) =>
+                  //             expense.date.millisecondsSinceEpoch >=
+                  //             viewExpenseFrom)
+                  //         .toList()[index])),
+                  title: Text(
+                      '${'Amount'.tr} :${settingsController.currencyFormatter(databaseController.expenses[index].amount)}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          // minHeight: 0.0,
+                          maxHeight: 50.0,
+                        ),
+                        child: Text(
+                          databaseController.expenses
+                              .where((expense) =>
+                                  expense.date.millisecondsSinceEpoch >=
+                                  viewExpenseFrom)
+                              .toList()[index]
+                              .description,
+                          overflow: TextOverflow.fade,
+                        ),
                       ),
-                      child: Text(
-                        databaseController.expenses[index].description,
-                        overflow: TextOverflow.fade,
-                      ),
-                    ),
-                    Text(databaseController.expenses[index].getDate()),
-                  ],
-                ),
-              );
-            },
-          ),
+                      Text(databaseController.expenses
+                          .where((expense) =>
+                              expense.date.millisecondsSinceEpoch >=
+                              viewExpenseFrom)
+                          .toList()[index]
+                          .getDate()),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -73,8 +135,12 @@ class ExpensesPage extends StatelessWidget {
             children: <Widget>[
               Text('Total Expenses'.tr),
               const Spacer(),
-              Text(settingsController.currencyFormatter(
-                  databaseController.expenses.fold(
+              Text(settingsController.currencyFormatter(databaseController
+                  .expenses
+                  .where((expense) =>
+                      expense.date.millisecondsSinceEpoch >= viewExpenseFrom)
+                  .toList()
+                  .fold(
                       0,
                       (previousValue, element) =>
                           previousValue + element.amount))),
@@ -84,6 +150,8 @@ class ExpensesPage extends StatelessWidget {
       ),
     );
   }
+
+  /// disappear
 }
 
 class Search extends SearchDelegate {

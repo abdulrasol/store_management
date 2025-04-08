@@ -68,7 +68,10 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                       });
                     },
                     suggestionsCallback: (text) {
-                      return databaseController.items.where((item) {
+                      return databaseController.items
+                          .where((item) => item.quantity > 0)
+                          .toList()
+                          .where((item) {
                         return item.name
                             .toLowerCase()
                             .contains(text.toLowerCase());

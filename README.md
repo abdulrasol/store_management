@@ -6,26 +6,25 @@ Store Management App is your all-in-one solution for effortless store management
 
 ## Key Features
 
-* **Inventory Management:** Easily track available and unavailable items, and get alerts for low stock.
-* **Invoice Management:** Create, edit, and manage invoices with ease.
-* **Transaction Tracking:** Monitor all sales and payment transactions in one place.
-* **Expense Management:** Keep track of your business expenses for better financial control.
-* **Customer & Supplier Management:** Maintain organized records of your customers and suppliers.
-* **Profit Analysis:** Gain clear insights into your profits with detailed reports.
-* **Voucher Management:** Handle payment and receipt vouchers efficiently.
-* **Sales Overview:** Get a quick snapshot of total sales, last month's performance, and net revenue.
-* **Debt Tracking:** Monitor outstanding debts from customers.
+- **Inventory Management:** Easily track available and unavailable items, and get alerts for low stock.
+- **Invoice Management:** Create, edit, and manage invoices with ease.
+- **Transaction Tracking:** Monitor all sales and payment transactions in one place.
+- **Expense Management:** Keep track of your business expenses for better financial control.
+- **Customer & Supplier Management:** Maintain organized records of your customers and suppliers.
+- **Profit Analysis:** Gain clear insights into your profits with detailed reports.
+- **Voucher Management:** Handle payment and receipt vouchers efficiently.
+- **Sales Overview:** Get a quick snapshot of total sales, last month's performance, and net revenue.
+- **Debt Tracking:** Monitor outstanding debts from customers.
 
 ## Platforms
 
 The app has been tested on the following platforms:
 
-| Platform | Status |
-|---|---|
+| Platform                                                                                                               | Status |
+| ---------------------------------------------------------------------------------------------------------------------- | ------ |
 | <img src="https://img.shields.io/badge/Android-3D6D55?style=for-the-badge&logo=android&logoColor=white" alt="Android"> | Tested |
 | <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows"> | Tested |
-| <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux"> | Tested |
-| <img src="https://img.shields.io/badge/Web-F16529?style=for-the-badge&logo=html5&logoColor=white" alt="Web"> | Tested |
+| <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">       | Tested |
 
 ## Screenshots
 
@@ -97,7 +96,6 @@ To get started with this application:
     flutter run
     ```
 
-
 ## Contributing
 
 We welcome contributions to this project! We are currently open to both development and translation efforts.
@@ -106,10 +104,10 @@ We welcome contributions to this project! We are currently open to both developm
 
 Currently, the application supports the following languages:
 
-* English
-* Arabic
-* Turkish
-* Persian
+- English
+- Arabic
+- Turkish
+- Persian
 
 **How to Contribute:**
 
@@ -125,5 +123,5 @@ This application is provided free of charge for individuals managing their own b
 
 **Restrictions:**
 
-* **Not Free for Resale:** This software cannot be resold or distributed as a standalone product by others.
-* **Commercial and Institutional Use Requires Licensing:** Use of this application by companies, organizations, or institutions requires a specific commercial license. Please contact [Your Contact Information or Link to Licensing Page] to inquire about commercial licensing options.
+- **Not Free for Resale:** This software cannot be resold or distributed as a standalone product by others.
+- **Commercial and Institutional Use Requires Licensing:** Use of this application by companies, organizations, or institutions requires a specific commercial license. Please contact [Your Contact Information or Link to Licensing Page] to inquire about commercial licensing options.
