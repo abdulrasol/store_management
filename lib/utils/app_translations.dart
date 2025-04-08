@@ -230,6 +230,7 @@ class AppTranslations extends Translations {
           'all': 'الكل',
           'This Mounth': 'هذا الشهر',
           'This Year': 'هذه السنة',
+          'Select Date': 'اختر تاريخ',
 
           // Invoices
 
@@ -394,6 +395,7 @@ class AppTranslations extends Translations {
           'all': 'همه',
           'This Mounth': 'اين ماه',
           'This Year': 'اين سال',
+          'Select Date': 'انتخاب',
 
           // Invoices
           'Create New Invoice': 'ایجاد فاکتور جدید',
@@ -587,6 +589,7 @@ class AppTranslations extends Translations {
           'all': 'tümü',
           'This Mounth': 'Bu Ay',
           'This Year': 'Bu Yıl',
+          'Select Date': 'Select Date',
         },
       };
 }

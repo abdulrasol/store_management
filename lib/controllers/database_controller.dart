@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:store_management/database/objectbox.dart';
 import 'package:store_management/models/customer.dart';
@@ -197,18 +196,15 @@ class DatabaseController extends GetxController {
         .find();
   }
 
-
-
   int addCustomer(Customer customer) {
     int id = objectBox.customerBox.put(customer);
     loading();
     return id;
   }
 
-    num customerDebt() {
+  num customerDebt() {
     return custormers.where((customer) => customer.balance() > 0).toList().fold(
         0, (num previousValue, element) => previousValue + element.balance());
-    
   }
 
   // Transactions
@@ -298,6 +294,10 @@ class DatabaseController extends GetxController {
     int id = objectBox.expenseBox.put(expense);
     loading();
     return id;
+  }
+
+  List<Expense> getFilteriedExpenses(DateTime fromDate) {
+    return expenses.where((expense) => expense.date.isAfter(fromDate)).toList();
   }
 
   num netRevenue() {

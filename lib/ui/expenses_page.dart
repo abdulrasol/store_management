@@ -17,6 +17,7 @@ int currentyearMilliSecond =
     DateTime(DateTime.now().year, 1, 1).millisecondsSinceEpoch;
 int all = DateTime(2024, 1, 1).millisecondsSinceEpoch;
 int viewExpenseFrom = all;
+int pickedViewExpenseFrom = viewExpenseFrom;
 
 class ExpensesPage extends StatefulWidget {
   const ExpensesPage({super.key});
@@ -43,79 +44,88 @@ class _ExpensesPageState extends State<ExpensesPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            DropdownButton<int>(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                //  isDense: true,
-                isExpanded: true,
-                icon: const Icon(Icons.date_range),
-                //elevation: 16,
-                // style: const TextStyle(color: Colors.deepPurple),
-                // underline: Container(height: 2, color: Colors.deepPurpleAccent),
-                value: viewExpenseFrom,
-                items: [
-                  DropdownMenuItem<int>(
-                    value: all,
-                    child: Text('All'.tr),
-                  ),
-                  DropdownMenuItem<int>(
-                    value: currentMounthMilliSecond,
-                    child: Text('This Mounth'.tr),
-                  ),
-                  DropdownMenuItem<int>(
-                    value: currentyearMilliSecond,
-                    child: Text('This Year'.tr),
-                  )
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    viewExpenseFrom = value!;
-                  });
-                }),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: databaseController.expenses
-                  .where((expense) =>
-                      expense.date.millisecondsSinceEpoch >= viewExpenseFrom)
-                  .toList()
-                  .length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  // onTap: () => Get.to(() => ExpenseView(
-                  //     expense: databaseController.expenses
-                  //         .where((expense) =>
-                  //             expense.date.millisecondsSinceEpoch >=
-                  //             viewExpenseFrom)
-                  //         .toList()[index])),
-                  title: Text(
-                      '${'Amount'.tr} :${settingsController.currencyFormatter(databaseController.expenses[index].amount)}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          // minHeight: 0.0,
-                          maxHeight: 50.0,
-                        ),
-                        child: Text(
-                          databaseController.expenses
-                              .where((expense) =>
-                                  expense.date.millisecondsSinceEpoch >=
-                                  viewExpenseFrom)
-                              .toList()[index]
-                              .description,
-                          overflow: TextOverflow.fade,
-                        ),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<int>(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    isExpanded: true,
+                    //icon: const Icon(Icons.date_range),
+                    value: viewExpenseFrom,
+                    items: [
+                      DropdownMenuItem<int>(
+                        value: all,
+                        child: Text('All'.tr),
                       ),
-                      Text(databaseController.expenses
-                          .where((expense) =>
-                              expense.date.millisecondsSinceEpoch >=
-                              viewExpenseFrom)
-                          .toList()[index]
-                          .getDate()),
+                      DropdownMenuItem<int>(
+                        value: currentMounthMilliSecond,
+                        child: Text('This Mounth'.tr),
+                      ),
+                      DropdownMenuItem<int>(
+                        value: currentyearMilliSecond,
+                        child: Text('This Year'.tr),
+                      )
                     ],
+                    onChanged: (value) {
+                      setState(() {
+                        viewExpenseFrom = value!;
+                        pickedViewExpenseFrom = value;
+                      });
+                    },
                   ),
-                );
-              },
+                ),
+                TextButton.icon(
+                  onPressed: () async {
+                    await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    ).then((date) {
+                      setState(() {
+                        pickedViewExpenseFrom =
+                            date?.millisecondsSinceEpoch ?? viewExpenseFrom;
+                      });
+                    });
+                  },
+                  label: Text('Select Date'.tr),
+                  icon: Icon(Icons.date_range_outlined),
+                )
+              ],
+            ),
+            Expanded(
+              child: Obx(
+                () => ListView(
+                  //   shrinkWrap: true,
+                  children: databaseController.expenses
+                      .where((e) =>
+                          e.date.millisecondsSinceEpoch >=
+                          pickedViewExpenseFrom)
+                      .map((expense) => ListTile(
+                            onTap: () =>
+                                Get.to(() => ExpenseView(expense: expense)),
+                            title: Text(
+                                '${'Amount'.tr} :${settingsController.currencyFormatter(expense.amount)}'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    // minHeight: 0.0,
+                                    maxHeight: 50.0,
+                                  ),
+                                  child: Text(
+                                    expense.description,
+                                    overflow: TextOverflow.fade,
+                                  ),
+                                ),
+                                Text(expense.getDate()),
+                              ],
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ),
             ),
           ],
         ),
@@ -135,15 +145,17 @@ class _ExpensesPageState extends State<ExpensesPage> {
             children: <Widget>[
               Text('Total Expenses'.tr),
               const Spacer(),
-              Text(settingsController.currencyFormatter(databaseController
-                  .expenses
-                  .where((expense) =>
-                      expense.date.millisecondsSinceEpoch >= viewExpenseFrom)
-                  .toList()
-                  .fold(
-                      0,
-                      (previousValue, element) =>
-                          previousValue + element.amount))),
+              Obx(
+                () => Text(settingsController.currencyFormatter(
+                    databaseController
+                        .getFilteriedExpenses(
+                            DateTime.fromMillisecondsSinceEpoch(
+                                pickedViewExpenseFrom))
+                        .fold(
+                            0,
+                            (previousValue, element) =>
+                                previousValue + element.amount))),
+              )
             ],
           ),
         ),
