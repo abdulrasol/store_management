@@ -12,9 +12,9 @@ import 'package:validatorless/validatorless.dart';
 
 class VoucherSave extends StatefulWidget {
   const VoucherSave(
-      {super.key, required this.voucher, required this.oldQuantity});
+      {super.key, required this.voucher, required this.oldQuantities});
   final Voucher voucher;
-  final List<int> oldQuantity;
+  final Map<String, int> oldQuantities;
 
   @override
   State<VoucherSave> createState() => _VoucherSaveState();
@@ -155,7 +155,9 @@ class _VoucherSaveState extends State<VoucherSave> {
 
                       databaseController.createVouchers(widget.voucher);
 
-                      Get.to(() => VoucherView(voucher: widget.voucher));
+                      Get.to(() => VoucherView(
+                            voucher: widget.voucher,
+                          ));
                     }
                   },
                   child: Text('save'.tr),

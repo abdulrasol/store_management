@@ -50,12 +50,15 @@ class DatabaseController extends GetxController {
     required double sellPrice,
     required double buyPrice,
     required int qunatity,
+    required Customer supplier,
   }) {
     var item = Item(
         name: name,
         buyPrice: buyPrice,
         sellPrice: sellPrice,
         quantity: qunatity);
+
+    item.supplier.target = supplier;
     item.id = id;
     objectBox.itemBox.put(item);
     loading();

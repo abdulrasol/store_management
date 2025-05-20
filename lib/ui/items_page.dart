@@ -96,26 +96,25 @@ class Search extends SearchDelegate {
       itemCount: items.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(databaseController.items()[index].name),
+          title: Text(items[index].name),
           subtitle: Wrap(
             alignment: WrapAlignment.spaceBetween,
             runAlignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.start,
             children: [
               Text(
-                  '${'Buy Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].buyPrice)}'),
+                  '${'Buy Price'.tr}: ${settingsController.currencyFormatter(items[index].buyPrice)}'),
               Text(
-                  '${'Sell Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].sellPrice)}'),
+                  '${'Sell Price'.tr}: ${settingsController.currencyFormatter(items[index].sellPrice)}'),
               Text(
-                  '${'quantity'.tr}: ${databaseController.items()[index].quantity}'),
+                  '${'quantity'.tr}: ${items[index].quantity}'),
               Text(
-                  '${'Supplier'.tr}: ${databaseController.items()[index].supplier.target?.name}'),
+                  '${'Supplier'.tr}: ${items[index].supplier.target?.name}'),
             ],
           ),
           onTap: () => Get.to(
             () => ItemView(
-                item: databaseController
-                    .getItemById(databaseController.items()[index].id)!),
+                item: databaseController.getItemById(items[index].id)!),
           ),
         );
       },
@@ -131,26 +130,26 @@ class Search extends SearchDelegate {
       itemCount: items.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(databaseController.items()[index].name),
+          title: Text(items[index].name),
           subtitle: Wrap(
             alignment: WrapAlignment.spaceBetween,
             runAlignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.start,
             children: [
               Text(
-                  '${'Buy Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].buyPrice)}'),
+                  '${'Buy Price'.tr}: ${settingsController.currencyFormatter(items[index].buyPrice)}'),
               Text(
-                  '${'Sell Price'.tr}: ${settingsController.currencyFormatter(databaseController.items()[index].sellPrice)}'),
+                  '${'Sell Price'.tr}: ${settingsController.currencyFormatter(items[index].sellPrice)}'),
               Text(
-                  '${'quantity'.tr}: ${databaseController.items()[index].quantity}'),
+                  '${'quantity'.tr}: ${items[index].quantity}'),
               Text(
-                  '${'Supplier'.tr}: ${databaseController.items()[index].supplier.target?.name}'),
+                  '${'Supplier'.tr}: ${items[index].supplier.target?.name}'),
             ],
           ),
           onTap: () => Get.to(
             () => ItemView(
                 item: databaseController
-                    .getItemById(databaseController.items()[index].id)!),
+                    .getItemById(items[index].id)!),
           ),
         );
       },

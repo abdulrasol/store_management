@@ -14,7 +14,6 @@ class InvoiceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
     SettingsController settingsController = Get.find();
     return Scaffold(
       appBar: AppBar(
@@ -94,9 +93,9 @@ class InvoiceView extends StatelessWidget {
                       child: DataTable(
                         columns: [
                           DataColumn(label: Text('item'.tr)),
-                          DataColumn(label: Text('quantity'.tr)),
                           DataColumn(label: Text('Price'.tr)),
-                          DataColumn(label: Text('discount'.tr)),
+                          DataColumn(label: Text('quantity'.tr)),
+                          //   DataColumn(label: Text('discount'.tr)),
                           DataColumn(label: Text('Total Price'.tr)),
                         ],
                         rows: invoice.items
@@ -104,11 +103,12 @@ class InvoiceView extends StatelessWidget {
                                   cells: [
                                     DataCell(Text(item.item.target!.name)),
                                     DataCell(
+                                        Text(item.saledPrice().toString())),
+                                    DataCell(
                                         Text(item.quantity.toStringAsFixed(0))),
-                                    DataCell(
-                                        Text(item.itemSellPrice.toString())),
-                                    DataCell(
-                                        Text(item.discount.toStringAsFixed(0))),
+
+                                    // DataCell(
+                                    //     Text(item.discount.toStringAsFixed(0))),
                                     DataCell(Text(
                                         item.totalPrice().toStringAsFixed(0))),
                                   ],

@@ -397,6 +397,10 @@ class StoreSettingsState extends State<StoreSettings> {
                                     value: 'tr',
                                     child: const Text('Turkey'),
                                   ),
+                                  DropdownMenuItem<String>(
+                                    value: 'zh',
+                                    child: const Text('简体中文'),
+                                  ),
                                 ],
                                 onChanged: (String? value) async {
                                   Get.updateLocale(Locale(value ?? 'en'));

@@ -1,0 +1,28 @@
+{
+  "buildFiles": [
+    "/home/rasol/Android/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/rasol/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/rasol/tutorials/flutter/store_management/android/app/.cxx/RelWithDebInfo/624v2g2x/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/rasol/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/rasol/tutorials/flutter/store_management/android/app/.cxx/RelWithDebInfo/624v2g2x/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {},
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/home/rasol/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/home/rasol/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": []
+}

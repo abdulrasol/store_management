@@ -1,4 +1,4 @@
-package io.github.abdulrasol.store_mangment.store_management
+package io.github.abdulrasol.store_mangment
 
 import io.flutter.embedding.android.FlutterActivity
 

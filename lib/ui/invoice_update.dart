@@ -22,7 +22,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController nameControll = TextEditingController();
   TextEditingController quantityControll = TextEditingController(text: '1');
-  TextEditingController discountControll = TextEditingController(text: '0');
+  TextEditingController sellPriceControll = TextEditingController();
   SettingsController settingsController = Get.find();
   DatabaseController databaseController = Get.find();
   Item? tempItem;
@@ -84,6 +84,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                       setState(() {
                         nameControll.text = item.name;
                         tempItem = item;
+                        sellPriceControll.text = item.sellPrice.toString();
                       });
                     },
                     suggestionsCallback: (text) {
@@ -100,6 +101,20 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                     children: [
                       Expanded(
                         child: TextFormField(
+                          controller: sellPriceControll,
+                          decoration: inputDecoration.copyWith(
+                            label: Text('Sell Price'.tr),
+                          ),
+                          keyboardType: TextInputType.number,
+                          validator: Validatorless.multiple([
+                            Validatorless.required('required'.tr),
+                            Validatorless.number('number'.tr),
+                          ]),
+                        ),
+                      ),
+                      horSpace,
+                      Expanded(
+                        child: TextFormField(
                           controller: quantityControll,
                           decoration: inputDecoration.copyWith(
                             label: Text('quantity'.tr),
@@ -112,36 +127,31 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                         ),
                       ),
                       horSpace,
-                      Expanded(
-                        child: TextFormField(
-                          controller: discountControll,
-                          decoration: inputDecoration.copyWith(
-                            label: Text('discount'.tr),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: Validatorless.multiple([
-                            Validatorless.required('required'.tr),
-                            Validatorless.number('number'.tr),
-                          ]),
-                        ),
-                      ),
-                      horSpace,
                       OutlinedButton(
                           onPressed: () {
                             // get and discount
-                            double quantity =
-                                double.tryParse(quantityControll.text) ??
-                                    double.parse('${quantityControll.text}.0');
+                            int quantity =
+                                int.tryParse(quantityControll.text) ??
+                                    int.parse('${quantityControll.text}.0');
 
-                            double discount =
-                                double.tryParse(discountControll.text) ??
-                                    double.parse('${discountControll.text}.0');
+                            double discount = 0;
+                            double sellPriceInput =
+                                double.parse(sellPriceControll.text);
+
+                            if (sellPriceInput < tempItem!.sellPrice) {
+                              discount = tempItem!.sellPrice -
+                                  double.parse(sellPriceControll.text);
+                            } else {
+                              discount = 0;
+                            }
 
                             if (formKey.currentState!.validate()) {
                               if (tempItem != null && nameControll.text != '') {
                                 tempInvoiceItem != null
-                                    ? updateItem(quantity.toInt(), discount)
-                                    : addItem(quantity, discount);
+                                    ? updateItem(quantity.toInt(), discount,
+                                        sellPriceInput)
+                                    : addItem(
+                                        quantity, discount, sellPriceInput);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(content: Text('Select item!'.tr)));
@@ -170,9 +180,10 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                         columns: [
                           DataColumn(label: Text('#')),
                           DataColumn(label: Text('item'.tr)),
-                          DataColumn(label: Text('quantity'.tr)),
+
                           DataColumn(label: Text('Price'.tr)),
-                          DataColumn(label: Text('discount'.tr)),
+                          DataColumn(label: Text('quantity'.tr)),
+                          //    DataColumn(label: Text('discount'.tr)),
                           DataColumn(label: Text('Total Price'.tr)),
                         ],
                         rows: widget.invoice.items
@@ -192,8 +203,9 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                                                     item.itemName;
                                                 quantityControll.text =
                                                     item.quantity.toString();
-                                                discountControll.text =
-                                                    item.discount.toString();
+                                                sellPriceControll.text = item
+                                                    .saledPrice()
+                                                    .toString();
                                               });
                                             },
                                             icon: Icon(Icons.edit)),
@@ -212,12 +224,13 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
                                       ],
                                     )),
                                     DataCell(Text(item.item.target!.name)),
+
+                                    DataCell(
+                                        Text(item.saledPrice().toString())),
                                     DataCell(
                                         Text(item.quantity.toStringAsFixed(0))),
-                                    DataCell(
-                                        Text(item.itemSellPrice.toString())),
-                                    DataCell(
-                                        Text(item.discount.toStringAsFixed(0))),
+                                    // DataCell(
+                                    //     Text(item.discount.toStringAsFixed(0))),
                                     DataCell(Text(
                                         item.totalPrice().toStringAsFixed(0))),
                                   ],
@@ -252,12 +265,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
     databaseController.loading();
   }
 
-  void addItem(quantity, discount) {
-    // check if item alrady add
-
-    // InvoiceItem? checkInvoiceItem = widget.invoice.items.firstWhereOrNull((i) {
-    //   return i.item.targetId == tempItem!.id;
-    // });
+  void addItem(quantity, discount, sellPrice) {
     bool isAddbefore = false;
     for (InvoiceItem item in widget.invoice.items) {
       if (tempItem!.code == item.item.target!.code) {
@@ -271,15 +279,14 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
       if (quantity <= tempItem!.quantity) {
         setState(() {
           tempInvoiceItem = InvoiceItem(
-            discount: double.tryParse(discountControll.text) ??
-                double.parse('${discountControll.text}.0'),
-            quantity: int.parse(quantityControll.text),
+            discount: discount,
+            quantity: quantity,
             itemName: tempItem!.name,
-            itemSellPrice: tempItem!.sellPrice,
+            itemSellPrice: sellPrice,
           );
           tempInvoiceItem!.item.target = tempItem;
           widget.invoice.items.add(tempInvoiceItem!);
-          discountControll.text = '0';
+          sellPriceControll.text = '0';
           nameControll.text = '';
           quantityControll.text = '0';
           tempInvoiceItem = null;
@@ -325,7 +332,7 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
   //         content: Text('Qunatity of ${tempItem!.name} less than you want!')));
   //   }
   // }
-  void updateItem(int quantity, discount) {
+  void updateItem(int quantity, discount, sellPrice) {
     if ((quantity - tempInvoiceItem!.quantity) <= tempItem!.quantity) {
       int index = widget.invoice.items.indexOf(tempInvoiceItem);
       tempItem!.quantity +=
@@ -333,10 +340,11 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
       tempItem!.quantity -= quantity; // خصم الكمية الجديدة
       tempInvoiceItem?.discount = discount;
       tempInvoiceItem!.quantity = quantity;
+      tempInvoiceItem!.itemSellPrice = sellPrice;
       setState(() {
         nameControll.text = '';
         quantityControll.text = '0';
-        discountControll.text = '0';
+        sellPriceControll.text = '0';
         widget.invoice.items[index] = tempInvoiceItem!;
       });
       databaseController.objectBox.itemBox.put(tempItem!); // تحديث المخزون

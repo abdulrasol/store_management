@@ -21,7 +21,7 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController nameControll = TextEditingController();
   TextEditingController quantityControll = TextEditingController(text: '1');
-  TextEditingController discountControll = TextEditingController(text: '0');
+  TextEditingController sellPriceControll = TextEditingController(text: '0');
   SettingsController settingsController = Get.find();
   DatabaseController databaseController = Get.find();
   Item? tempItem;
@@ -65,6 +65,7 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                       setState(() {
                         nameControll.text = item.name;
                         tempItem = item;
+                        sellPriceControll.text = item.sellPrice.toString();
                       });
                     },
                     suggestionsCallback: (text) {
@@ -84,9 +85,9 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                     children: [
                       Expanded(
                         child: TextFormField(
-                          controller: quantityControll,
+                          controller: sellPriceControll,
                           decoration: inputDecoration.copyWith(
-                            label: Text('quantity'.tr),
+                            label: Text('Sell Price'.tr),
                           ),
                           keyboardType: TextInputType.number,
                           validator: Validatorless.multiple([
@@ -98,9 +99,9 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                       horSpace,
                       Expanded(
                         child: TextFormField(
-                          controller: discountControll,
+                          controller: quantityControll,
                           decoration: inputDecoration.copyWith(
-                            label: Text('discount'.tr),
+                            label: Text('quantity'.tr),
                           ),
                           keyboardType: TextInputType.number,
                           validator: Validatorless.multiple([
@@ -123,21 +124,29 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                             } else {
                               if (formKey.currentState!.validate() &&
                                   tempItem != null) {
+                                double discount = 0;
+                                double sellPriceInput =
+                                    double.parse(sellPriceControll.text);
+
+                                if (sellPriceInput < tempItem!.sellPrice) {
+                                  discount = tempItem!.sellPrice -
+                                      double.parse(sellPriceControll.text);
+                                } else {
+                                  discount = 0;
+                                }
+
                                 setState(
                                   () {
                                     var item = InvoiceItem(
-                                      discount: double.tryParse(
-                                              discountControll.text) ??
-                                          double.parse(
-                                              '${discountControll.text}.0'),
+                                      discount: discount,
                                       quantity:
                                           int.parse(quantityControll.text),
                                       itemName: tempItem!.name,
-                                      itemSellPrice: tempItem!.sellPrice,
+                                      itemSellPrice: sellPriceInput,
                                     );
                                     item.item.target = tempItem;
                                     invoice.items.add(item);
-                                    discountControll.text = '0';
+                                    sellPriceControll.text = '0';
                                     nameControll.text = '';
                                     quantityControll.text = '1';
                                   },
@@ -166,9 +175,10 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                         columns: [
                           DataColumn(label: Text('#')),
                           DataColumn(label: Text('item'.tr)),
-                          DataColumn(label: Text('quantity'.tr)),
+
                           DataColumn(label: Text('Price'.tr)),
-                          DataColumn(label: Text('discount'.tr)),
+                          DataColumn(label: Text('quantity'.tr)),
+                          //  DataColumn(label: Text('discount'.tr)),
                           DataColumn(label: Text('Total Price'.tr)),
                         ],
                         rows: invoice.items
@@ -183,11 +193,12 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                                         child: Icon(Icons.delete_forever))),
                                     DataCell(Text(item.item.target!.name)),
                                     DataCell(
+                                        Text(item.saledPrice().toString())),
+                                    DataCell(
                                         Text(item.quantity.toStringAsFixed(0))),
-                                    DataCell(
-                                        Text(item.itemSellPrice.toString())),
-                                    DataCell(
-                                        Text(item.discount.toStringAsFixed(0))),
+
+                                    // DataCell(
+                                    //     Text(item.discount.toStringAsFixed(0))),
                                     DataCell(Text(
                                         item.totalPrice().toStringAsFixed(0))),
                                   ],

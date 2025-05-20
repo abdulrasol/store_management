@@ -22,7 +22,6 @@ class _EditItemState extends State<EditItem> {
   Widget build(BuildContext context) {
     TextEditingController nameControll =
         TextEditingController(text: widget.itemModel.name);
-
     TextEditingController buyControll =
         TextEditingController(text: widget.itemModel.buyPrice.toString());
     TextEditingController sellControll =
@@ -101,8 +100,7 @@ class _EditItemState extends State<EditItem> {
               databaseController.updateItem(
                 widget.itemModel.id,
                 name: nameControll.text,
-
-                //  from: fromControll.text,
+                supplier: widget.itemModel.supplier.target!,
                 buyPrice: double.tryParse('${buyControll.text}.0') ??
                     double.parse(buyControll.text),
                 sellPrice: double.tryParse('${sellControll.text}.0') ??

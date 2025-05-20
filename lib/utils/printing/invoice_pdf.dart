@@ -362,8 +362,7 @@ class InvoiceTamplate {
                     pw.Text('Discount:'),
                     pw.Text(
                         settingsController
-                            .currencyFormatter(
-                                invoice.price() - invoice.pricetoPay())
+                            .currencyFormatter(invoice.discount())
                             .replaceAll('\u200F', ''),
                         textDirection: getTextDirection(
                             settingsController.currencyFormat.currencySymbol)),
@@ -445,11 +444,12 @@ class InvoiceTamplate {
 
   pw.Widget _contentTable(pw.Context context) {
     return pw.Table(
-      border: null,
+      border: pw.TableBorder.all(color: _lightColor),
       columnWidths: {
-        0: pw.FlexColumnWidth(2), // تخصيص عرض العمود الأول
+        0: pw.FlexColumnWidth(3), // تخصيص عرض العمود الأول
         1: pw.FlexColumnWidth(1),
         2: pw.FlexColumnWidth(1),
+        3: pw.FlexColumnWidth(1),
       },
       children: [
         // الصف الأول (العناوين)
@@ -475,14 +475,14 @@ class InvoiceTamplate {
                 textAlign: pw.TextAlign.center,
               ),
             ),
-            pw.Padding(
-              padding: const pw.EdgeInsets.all(5),
-              child: pw.Text(
-                'Discount',
-                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                textAlign: pw.TextAlign.center,
-              ),
-            ),
+            // pw.Padding(
+            //   padding: const pw.EdgeInsets.all(5),
+            //   child: pw.Text(
+            //     'Discount',
+            //     style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            //     textAlign: pw.TextAlign.center,
+            //   ),
+            // ),
             pw.Padding(
               padding: const pw.EdgeInsets.all(5),
               child: pw.Text(
@@ -514,14 +514,14 @@ class InvoiceTamplate {
               ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(5),
-                child: pw.Text(item.itemSellPrice.toString(),
+                child: pw.Text(item.saledPrice().toString(),
                     textAlign: pw.TextAlign.center),
               ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.all(5),
-                child: pw.Text(item.discount.toString(),
-                    textAlign: pw.TextAlign.center),
-              ),
+              // pw.Padding(
+              //   padding: const pw.EdgeInsets.all(5),
+              //   child: pw.Text(item.discount.toString(),
+              //       textAlign: pw.TextAlign.center),
+              // ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(5),
                 child: pw.Text(item.quantity.toStringAsFixed(0),
@@ -551,8 +551,8 @@ class Product {
         return item.itemName;
       case 2:
         return item.itemSellPrice.toStringAsFixed(2);
-      case 3:
-        return item.discount.toStringAsFixed(2);
+      // case 3:
+      //   return item.discount.toStringAsFixed(2);
       case 4:
         return item.quantity.toString();
       case 5:

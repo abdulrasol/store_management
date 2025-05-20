@@ -22,6 +22,8 @@ class InvoiceItem {
     required this.itemSellPrice,
   });
 
+  double saledPrice() => itemSellPrice - discount;
+
   // احسب السعر الإجمالي باستخدام البيانات المخزنة بدلاً من العلاقة
   double totalPrice() => (itemSellPrice - discount) * quantity;
   Map<String, dynamic> toMap() {

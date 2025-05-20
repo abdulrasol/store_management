@@ -115,21 +115,22 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                         child: DataTable(
                           columns: [
                             DataColumn(label: Text('item'.tr)),
-                            DataColumn(label: Text('quantity'.tr)),
                             DataColumn(label: Text('Price'.tr)),
-                            DataColumn(label: Text('discount'.tr)),
+                            DataColumn(label: Text('quantity'.tr)),
+                            //  DataColumn(label: Text('discount'.tr)),
                             DataColumn(label: Text('Total Price'.tr)),
                           ],
                           rows: widget.invoice.items
                               .map<DataRow>((item) => DataRow(
                                     cells: [
                                       DataCell(Text(item.itemName)),
+                                      DataCell(
+                                          Text(item.saledPrice().toString())),
                                       DataCell(Text(
                                           item.quantity.toStringAsFixed(0))),
-                                      DataCell(
-                                          Text(item.itemSellPrice.toString())),
-                                      DataCell(Text(
-                                          item.discount.toStringAsFixed(0))),
+
+                                      // DataCell(Text(
+                                      //     item.discount.toStringAsFixed(0))),
                                       DataCell(Text(item
                                           .totalPrice()
                                           .toStringAsFixed(0))),

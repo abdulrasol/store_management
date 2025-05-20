@@ -1,10 +1,12 @@
 // splash_screen.dart
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_management/controllers/settings_controller.dart';
+import 'package:store_management/utils/app_constants.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,6 +20,7 @@ class SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _animation;
   SettingsController settingsController = Get.find();
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +55,13 @@ class SplashScreenState extends State<SplashScreen>
     final bool onboardingComplete =
         prefs.getBool('onboarding_complete') ?? false;
 
+    final bool appPolicyArgument =
+        prefs.getBool('app_policy_argument') ?? false;
+
+    if (!appPolicyArgument) {
+      // push app policy dialog
+      await Get.dialog(appPolicyDialog());
+    }
     if (!mounted) return;
 
     if (onboardingComplete) {
@@ -61,6 +71,60 @@ class SplashScreenState extends State<SplashScreen>
       // إذا كانت هذه المرة الأولى، انتقل إلى شاشة البداية
       Navigator.of(context).pushReplacementNamed('/onboarding');
     }
+  }
+
+  Directionality appPolicyDialog() {
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'App Policy',
+                style: TextStyle(fontSize: 18),
+              ),
+              verSpace,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Text(
+                    policy,
+                    // textDirection: TextDirection.ltr,
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    onPressed: () => exit(0),
+                    label: Text('Disagree'.tr),
+                    // icon: Icon(Icons),
+                  ),
+                  const SizedBox(width: 5),
+                  TextButton.icon(
+                    onPressed: () async {
+                      _policyUpdate(true);
+                    },
+                    label: Text('Agree'.tr),
+                    // icon: Icon(Icons),
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _policyUpdate(bool appPolicyArgument) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('app_policy_argument', appPolicyArgument);
+    if (!mounted) return;
+    Get.back();
   }
 
   @override

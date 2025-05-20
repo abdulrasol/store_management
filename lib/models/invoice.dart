@@ -20,9 +20,9 @@ class Invoice {
   double price() {
     double price = 0.0; // إعادة تعيين السعر قبل الحساب
     for (var item in items) {
-      price += (item.item.target!.sellPrice) * item.quantity;
+      price += (item.saledPrice()) * item.quantity;
     }
-    return price;
+    return price + discount();
   }
 
   double pricetoPay() {

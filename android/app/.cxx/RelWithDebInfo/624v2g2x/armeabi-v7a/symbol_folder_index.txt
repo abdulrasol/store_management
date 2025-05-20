@@ -1,0 +1,1 @@
+/home/rasol/tutorials/flutter/store_management/build/app/intermediates/cxx/RelWithDebInfo/624v2g2x/obj/armeabi-v7a

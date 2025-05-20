@@ -75,8 +75,9 @@ class SearchDelegateHelper extends SearchDelegate {
     if (elements[index] is Customer) {
       return ListTile(
         onTap: () => Get.to(() => CustomerView(customer: elements[index])),
-        leading: Icon(
-            elements[index].customerType == 0 ? Icons.person : Icons.support),
+        leading: Icon(elements[index].customerType == 0
+            ? Icons.people
+            : Icons.local_shipping),
         title: Text(elements[index].name),
         subtitle: Wrap(
           alignment: WrapAlignment.spaceBetween,
@@ -92,7 +93,7 @@ class SearchDelegateHelper extends SearchDelegate {
     } else {
       return ListTile(
         onTap: () => Get.to(() => ItemView(item: elements[index])),
-        leading: Icon(Icons.wallet_giftcard),
+        leading: Icon(Icons.shopping_bag),
         title: Text(elements[index].name),
         subtitle: Text(
             '${'Price'.tr}: ${settingsController.currencyFormatter(elements[index].sellPrice)}'),

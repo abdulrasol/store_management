@@ -24,8 +24,8 @@ class _VoucherCreateState extends State<VoucherCreate> {
   SettingsController settingsController = Get.find();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  TextEditingController nameControll = TextEditingController();
 
+  TextEditingController nameControll = TextEditingController();
   TextEditingController fromControll = TextEditingController();
   TextEditingController buyControll = TextEditingController();
   TextEditingController sellControll = TextEditingController();
@@ -75,7 +75,6 @@ class _VoucherCreateState extends State<VoucherCreate> {
                         setState(() {
                           nameControll.text = item.name;
                           oldItem = item;
-
                           sellControll.text = oldItem!.sellPrice.toString();
                           buyControll.text = oldItem!.buyPrice.toString();
                           buyControll.text = oldItem!.buyPrice.toString();
@@ -201,14 +200,18 @@ class _VoucherCreateState extends State<VoucherCreate> {
                             customerNameControll.text.isNotEmpty) {
                           double newPirce = double.tryParse(buyControll.text) ??
                               double.parse('${buyControll.text}.0');
+
+                          //      int newQantity = int.parse(quaControll.text);
+
                           // create item
                           if (oldItem != null &&
                               oldItem!.supplier.targetId == customer!.id &&
                               oldItem!.buyPrice == newPirce) {
                             tempItem = oldItem;
+
                             int oldQuantity = oldItem!.quantity;
-                            tempItem!.quantity =
-                                int.parse(quaControll.text) + oldQuantity;
+
+                            tempItem!.quantity = int.parse(quaControll.text);
                             oldQuantities.addAll({tempItem!.name: oldQuantity});
                           } else {
                             tempItem = Item(
@@ -288,9 +291,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                                   DataCell(
                                     Text(
                                       settingsController.currencyFormatter(
-                                          item.buyPrice *
-                                                  oldQuantities[item.name]! -
-                                              item.buyPrice),
+                                          item.buyPrice * item.quantity),
                                     ),
                                   ),
                                 ],
@@ -311,7 +312,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
 
             Get.to(() => VoucherSave(
                   voucher: voucher,
-                  oldQuantity: [],
+                  oldQuantities: oldQuantities,
                 ));
           }
         },

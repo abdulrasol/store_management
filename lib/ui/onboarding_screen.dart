@@ -23,6 +23,12 @@ class OnboardingScreenState extends State<OnboardingScreen> {
       TextEditingController();
   int decimalDigits = 0;
   String? logoString;
+  bool appPolicyArgument = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -40,6 +46,7 @@ class OnboardingScreenState extends State<OnboardingScreen> {
       await prefs.setString('currency_symbol', _currencySymbolController.text);
       await prefs.setInt('decimal_digits', decimalDigits);
       await prefs.setBool('onboarding_complete', true);
+      await prefs.setBool('appPolicyArgument', appPolicyArgument);
       if (logoString != null) {
         await prefs.setString('logo', logoString!);
       }
@@ -77,13 +84,7 @@ class OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                         ],
                       ),
-                      child: Center(
-                        child: Icon(
-                          Icons.point_of_sale_outlined,
-                          size: 80,
-                          color: Colors.blue.shade700,
-                        ),
-                      ),
+                      child: Center(child: Image.asset('assets/png/logo.png')),
                     ),
                     const SizedBox(height: 40),
 
