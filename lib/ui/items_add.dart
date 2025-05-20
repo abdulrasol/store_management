@@ -8,7 +8,7 @@ import 'package:store_management/models/invoice_item.dart';
 import 'package:store_management/models/item.dart';
 import 'package:store_management/models/voucher.dart';
 import 'package:store_management/ui/supplier_add.dart';
-import 'package:store_management/ui/voucher_save.dart';
+import 'package:store_management/ui/items_add_view.dart';
 import 'package:store_management/utils/app_constants.dart';
 import 'package:validatorless/validatorless.dart';
 
@@ -31,12 +31,12 @@ class _VoucherCreateState extends State<VoucherCreate> {
   TextEditingController sellControll = TextEditingController();
   TextEditingController quaControll = TextEditingController();
   TextEditingController customerNameControll = TextEditingController();
-  Voucher voucher = Voucher();
+
   Item? tempItem;
   Item? oldItem;
   Customer? customer;
-  InvoiceItem? invoiceItem;
   Map<String, int> oldQuantities = {};
+  List<Item> newItems = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +55,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                 child: Column(
                   children: [
                     verSpace,
+                    // item select, search old or add new item
                     TypeAheadField<Item>(
                       controller: nameControll,
                       builder: (context, controller, focusNode) {
@@ -92,6 +93,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       },
                     ),
                     verSpace,
+                    // Supplers find or add new
                     TypeAheadField<Customer>(
                       controller: customerNameControll,
                       builder: (context, controller, focusNode) {
@@ -122,7 +124,6 @@ class _VoucherCreateState extends State<VoucherCreate> {
                         setState(() {
                           customer = item;
                           customerNameControll.text = customer!.name;
-                          voucher.customer.target = item;
                         });
                       },
                       suggestionsCallback: (text) {
@@ -145,6 +146,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       },
                     ),
                     verSpace,
+                    // item buy prcie
                     TextFormField(
                       controller: buyControll,
                       decoration: inputDecoration.copyWith(
@@ -157,6 +159,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       ]),
                     ),
                     verSpace,
+                    // sell price
                     TextFormField(
                       controller: sellControll,
                       decoration: inputDecoration.copyWith(
@@ -169,6 +172,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       ]),
                     ),
                     verSpace,
+                    // item quantity
                     TextFormField(
                       controller: quaControll,
                       decoration: inputDecoration.copyWith(
@@ -200,17 +204,11 @@ class _VoucherCreateState extends State<VoucherCreate> {
                             customerNameControll.text.isNotEmpty) {
                           double newPirce = double.tryParse(buyControll.text) ??
                               double.parse('${buyControll.text}.0');
-
-                          //      int newQantity = int.parse(quaControll.text);
-
-                          // create item
                           if (oldItem != null &&
                               oldItem!.supplier.targetId == customer!.id &&
                               oldItem!.buyPrice == newPirce) {
                             tempItem = oldItem;
-
                             int oldQuantity = oldItem!.quantity;
-
                             tempItem!.quantity = int.parse(quaControll.text);
                             oldQuantities.addAll({tempItem!.name: oldQuantity});
                           } else {
@@ -229,14 +227,15 @@ class _VoucherCreateState extends State<VoucherCreate> {
                           tempItem!.supplier.target = customer!;
                           setState(() {
                             // save item to invoice
-                            voucher.items.add(tempItem!);
+
+                            newItems.add(tempItem!);
+                            //  Item.add(tempItem!);
                             // reset contorllers
                             nameControll.text = '';
                             buyControll.text = '';
                             sellControll.text = '';
                             quaControll.text = '';
                             tempItem = null;
-                            invoiceItem = null;
                           });
                           // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           //     content: Text(voucher
@@ -256,12 +255,13 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       columns: [
                         DataColumn(label: Text('#')),
                         DataColumn(label: Text('item'.tr)),
+                        DataColumn(label: Text('Supplier'.tr)),
                         DataColumn(label: Text('quantity'.tr)),
                         DataColumn(label: Text('Buy Price'.tr)),
                         DataColumn(label: Text('Sell Price'.tr)),
                         DataColumn(label: Text('Total Price'.tr)),
                       ],
-                      rows: voucher.items
+                      rows: newItems
                           .map<DataRow>((item) => DataRow(
                                 cells: [
                                   DataCell(InkWell(
@@ -276,12 +276,13 @@ class _VoucherCreateState extends State<VoucherCreate> {
                                           quaControll.text =
                                               item.quantity.toString();
                                           tempItem = null;
-                                          invoiceItem = null;
-                                          voucher.items.remove(item);
+
+                                          newItems.remove(item);
                                         });
                                       },
                                       child: Icon(Icons.edit))),
                                   DataCell(Text(item.name)),
+                                  DataCell(Text(item.supplier.target!.name)),
                                   DataCell(
                                       Text(item.quantity.toStringAsFixed(0))),
                                   DataCell(Text(settingsController
@@ -307,11 +308,9 @@ class _VoucherCreateState extends State<VoucherCreate> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (voucher.items.isNotEmpty && customer != null) {
-            voucher.customer.target = customer!;
-
+          if (newItems.isNotEmpty) {
             Get.to(() => VoucherSave(
-                  voucher: voucher,
+                  newItems: newItems,
                   oldQuantities: oldQuantities,
                 ));
           }

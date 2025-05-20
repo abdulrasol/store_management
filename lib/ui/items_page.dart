@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/item.dart';
-import 'package:store_management/ui/voucher_create.dart';
+import 'package:store_management/ui/items_add.dart';
 import 'package:store_management/ui/item_view.dart';
 
 DatabaseController databaseController = Get.find();

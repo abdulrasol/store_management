@@ -30,8 +30,7 @@ class SupplierPage extends StatelessWidget {
             itemCount: databaseController.suppliers().length,
             itemBuilder: (context, index) {
               return ListTile(
-                title: Text(
-                    '${'name'.tr}: ${databaseController.suppliers[index].name}'),
+                title: Text(databaseController.suppliers[index].name),
                 subtitle: Wrap(
                   alignment: WrapAlignment.spaceBetween,
                   runAlignment: WrapAlignment.spaceBetween,
@@ -40,9 +39,7 @@ class SupplierPage extends StatelessWidget {
                     Text(
                         '${'phone'.tr}: ${databaseController.suppliers[index].phone}'),
                     Text(
-                        '${'Invoices'.tr}: ${databaseController.suppliers()[index].invoices.length}'),
-                    Text(
-                        '${'Transactions'.tr}: ${databaseController.suppliers()[index].trasnsactions.length}'),
+                        '${'items'.tr}: ${databaseController.suppliers()[index].items.length}'),
                   ],
                 ),
                 onTap: () => Get.to(
@@ -122,8 +119,8 @@ class Search extends SearchDelegate {
             ],
           ),
           onTap: () => Get.to(
-            () => CustomerView(
-              customer: databaseController.suppliers[index],
+            () => SupplierView(
+              supplier: databaseController.suppliers[index],
             ),
           ),
         );

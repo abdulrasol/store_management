@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:store_management/controllers/settings_controller.dart';
-import 'package:store_management/models/voucher.dart' as d;
+import 'package:store_management/models/item.dart';
 import 'package:store_management/utils/app_constants.dart';
 
 class VoucherView extends StatelessWidget {
-  const VoucherView({super.key, required this.voucher});
-  final d.Voucher voucher;
+  const VoucherView({super.key, required this.newItems});
+  final List<Item> newItems;
 
   @override
   Widget build(BuildContext context) {
     SettingsController settingsController = Get.find();
     return Scaffold(
       appBar: AppBar(
-        title: Text('${'voucher'.tr}: 00${voucher.voucherNumber()}'),
+        //title: Text('${'voucher'.tr}: 00${newItems.voucherNumber()}'),
         leading: IconButton(
             onPressed: () {
               if (Get.previousRoute == '/VoucherSave') {
@@ -68,9 +67,10 @@ class VoucherView extends StatelessWidget {
               runAlignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.start,
               children: [
-                Text('${'supplier name'.tr}: ${voucher.customer.target?.name}'),
-                Text(voucher.voucherDate()),
-                Text('${'voucher number'.tr}: ${voucher.voucherNumber()}'),
+                // Text(
+                //     '${'supplier name'.tr}: ${newItems.customer.target?.name}'),
+                // Text(newItems.voucherDate()),
+                // Text('${'voucher number'.tr}: ${newItems.voucherNumber()}'),
               ],
             ),
             verSpace,
@@ -88,7 +88,7 @@ class VoucherView extends StatelessWidget {
                           DataColumn(label: Text('Sell Price'.tr)),
                           DataColumn(label: Text('Total Price'.tr)),
                         ],
-                        rows: voucher.items
+                        rows: newItems
                             .map<DataRow>((item) => DataRow(
                                   cells: [
                                     DataCell(Text(item.name)),
@@ -115,7 +115,10 @@ class VoucherView extends StatelessWidget {
               children: [
                 Text('Total Price'.tr),
                 Expanded(child: verSpace),
-                Text(settingsController.currencyFormatter(voucher.price())),
+                Text(settingsController.currencyFormatter(newItems.fold(
+                    0,
+                    (previousValue, element) =>
+                        previousValue + element.buyPrice))),
               ],
             ),
             verSpace,
@@ -123,8 +126,8 @@ class VoucherView extends StatelessWidget {
               children: [
                 Text('paid amount'.tr),
                 Expanded(child: verSpace),
-                Text(settingsController
-                    .currencyFormatter(voucher.transactions[1].amount)),
+                // Text(settingsController
+                //     .currencyFormatter(newItems.transactions[1].amount)),
               ],
             ),
             verSpace,
@@ -132,7 +135,7 @@ class VoucherView extends StatelessWidget {
               children: [
                 Text('Supplier Balance'.tr),
                 Expanded(child: verSpace),
-                Text(settingsController.currencyFormatter(voucher.balance())),
+                // Text(settingsController.currencyFormatter(newItems.balance())),
               ],
             ),
             verSpace,

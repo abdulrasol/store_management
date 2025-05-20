@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/database/objectbox.dart';
 import 'package:store_management/ui/splash_screen.dart';
-import 'package:store_management/ui/home-old.dart';
+import 'package:store_management/ui/home.dart';
 import 'package:store_management/utils/app_theme.dart';
 import 'package:store_management/utils/app_translations.dart';
 import 'controllers/settings_controller.dart';

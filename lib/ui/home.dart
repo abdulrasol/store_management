@@ -8,7 +8,9 @@ import 'package:store_management/ui/customers_page.dart';
 import 'package:store_management/ui/expenses_page.dart';
 import 'package:store_management/ui/invoice_create.dart';
 import 'package:store_management/ui/invoice_view.dart';
+import 'package:store_management/ui/invoices_page.dart';
 import 'package:store_management/ui/items_page.dart';
+import 'package:store_management/ui/profits_page.dart';
 import 'package:store_management/ui/search_delegate.dart';
 import 'package:store_management/ui/store_settings.dart';
 import 'package:store_management/ui/suppliers_page.dart';
@@ -64,6 +66,7 @@ class Home extends StatelessWidget {
       runSpacing: 16,
       children: [
         _statCard(
+          onTap: () => Get.to(() => InvoicesPage()),
           title: 'Total Sales'.tr,
           icon: Icons.attach_money,
           color: Colors.teal,
@@ -81,6 +84,7 @@ class Home extends StatelessWidget {
           width: cardWidth,
         ),
         _statCard(
+          onTap: () => Get.to(() => ProfitsPage()),
           title: 'Net revenue'.tr,
           icon: Icons.bar_chart,
           color: Colors.deepPurple,
@@ -110,30 +114,35 @@ class Home extends StatelessWidget {
     );
   }
 
-  Widget _statCard(
-      {required String title,
-      required IconData icon,
-      required Color color,
-      required Widget value,
-      required double width}) {
-    return Container(
-      width: width,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: 8),
-          Text(title,
-              style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          value,
-        ],
+  Widget _statCard({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required Widget value,
+    required double width,
+    void Function()? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color, width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 32),
+            const SizedBox(height: 8),
+            Text(title,
+                style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            value,
+          ],
+        ),
       ),
     );
   }

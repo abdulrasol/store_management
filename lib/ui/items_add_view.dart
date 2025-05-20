@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
-import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/item.dart';
-import 'package:store_management/models/transaction.dart';
-import 'package:store_management/models/voucher.dart';
-import 'package:store_management/ui/voucher_view.dart';
+import 'package:store_management/ui/items_add_save.dart';
 import 'package:store_management/utils/app_constants.dart';
 import 'package:validatorless/validatorless.dart';
 
 class VoucherSave extends StatefulWidget {
   const VoucherSave(
-      {super.key, required this.voucher, required this.oldQuantities});
-  final Voucher voucher;
+      {super.key, required this.oldQuantities, required this.newItems});
+
   final Map<String, int> oldQuantities;
+  final List<Item> newItems;
 
   @override
   State<VoucherSave> createState() => _VoucherSaveState();
@@ -27,9 +25,6 @@ class _VoucherSaveState extends State<VoucherSave> {
 
   @override
   Widget build(BuildContext context) {
-    Customer customer = widget.voucher.customer.target!;
-    TextEditingController customerNameControll =
-        TextEditingController(text: customer.name);
     TextEditingController payControll = TextEditingController();
     return Scaffold(
       appBar: AppBar(
@@ -43,14 +38,6 @@ class _VoucherSaveState extends State<VoucherSave> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verSpace,
-              TextFormField(
-                enabled: false,
-                controller: customerNameControll,
-                decoration: inputDecoration.copyWith(
-                  label: Text('Supplier'.tr),
-                ),
-                keyboardType: TextInputType.number,
-              ),
               verSpace,
               TextFormField(
                 controller: payControll,
@@ -73,16 +60,19 @@ class _VoucherSaveState extends State<VoucherSave> {
                         child: DataTable(
                           columns: [
                             DataColumn(label: Text('item'.tr)),
+                            DataColumn(label: Text('Supplier'.tr)),
                             DataColumn(label: Text('quantity'.tr)),
                             DataColumn(label: Text('Buy Price'.tr)),
                             DataColumn(label: Text('Sell Price'.tr)),
                             DataColumn(label: Text('Code'.tr)),
                             DataColumn(label: Text('Total Price'.tr)),
                           ],
-                          rows: widget.voucher.items
+                          rows: widget.newItems
                               .map<DataRow>((item) => DataRow(
                                     cells: [
                                       DataCell(Text(item.name)),
+                                      DataCell(
+                                          Text(item.supplier.target!.name)),
                                       DataCell(Text(
                                           item.quantity.toStringAsFixed(0))),
                                       DataCell(Text(item.buyPrice.toString())),
@@ -105,58 +95,30 @@ class _VoucherSaveState extends State<VoucherSave> {
                 children: [
                   Text('Total Price'.tr),
                   Expanded(child: verSpace),
-                  Text(settingsController
-                      .currencyFormatter(widget.voucher.price())),
+                  Text(settingsController.currencyFormatter(widget.newItems
+                      .fold(
+                          0,
+                          (previousValue, element) =>
+                              previousValue +
+                              (element.buyPrice * element.quantity)))),
                 ],
               ),
               verSpace,
-              Row(
-                children: [
-                  Text('Supplier Balance'.tr),
-                  Expanded(child: verSpace),
-                  Text(settingsController
-                      .currencyFormatter(widget.voucher.balance())),
-                ],
-              ),
-              verSpace,
-              Row(
-                children: [
-                  Text('price to pay'.tr),
-                  Expanded(child: verSpace),
-                  Text(settingsController
-                      .currencyFormatter(widget.voucher.price())),
-                ],
-              ),
               verSpace,
               Center(
                 child: ElevatedButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      for (Item item in widget.voucher.items) {
+                      for (Item item in widget.newItems) {
                         if (item.id != 0) {
                           item.quantity +=
                               databaseController.getItemById(item.id)!.quantity;
                         }
                         databaseController.addItem(item: item);
                       }
-                      // create transactions
-                      Transaction transactionSell = Transaction(
-                          amount: (-1 * widget.voucher.price()),
-                          date: widget.voucher.date.millisecondsSinceEpoch);
-                      Transaction transactionPay = Transaction(
-                          amount: double.tryParse(payControll.text) ?? 0,
-                          date: widget.voucher.date.millisecondsSinceEpoch);
-                      transactionSell.customer.target =
-                          widget.voucher.customer.target;
-                      transactionPay.customer.target =
-                          widget.voucher.customer.target;
-                      widget.voucher.transactions
-                          .addAll([transactionSell, transactionPay]);
-
-                      databaseController.createVouchers(widget.voucher);
 
                       Get.to(() => VoucherView(
-                            voucher: widget.voucher,
+                            newItems: widget.newItems,
                           ));
                     }
                   },
