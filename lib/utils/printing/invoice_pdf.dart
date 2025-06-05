@@ -33,8 +33,7 @@ Future<Uint8List> generateInvoice({required Invoice invoice}) async {
     items: invoice.items.toList(),
     customerName: invoice.customer.target!.name,
     customerAddress: invoice.customer.target!.phone,
-    paymentInfo:
-        '4509 Wiseman Street\nKnoxville, Tennessee(TN), 37929\n865-372-0425',
+    paymentInfo: '',
     //tax: .15,
     baseColor: PdfColors.teal,
     accentColor: PdfColors.blueGrey900,
@@ -403,7 +402,7 @@ class InvoiceTamplate {
                       pw.Text('Paid Amount:'),
                       pw.Text(
                           settingsController
-                              .currencyFormatter(invoice.transactions[0].amount)
+                              .currencyFormatter(invoice.transactions[1].amount)
                               .replaceAll('\u200F', ''),
                           textDirection: getTextDirection(settingsController
                               .currencyFormat.currencySymbol)),

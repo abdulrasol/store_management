@@ -384,10 +384,13 @@ class InvoiceTamplate {
                 child: pw.Text(trasnsaction.paymentDate(),
                     textAlign: pw.TextAlign.center),
               ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.all(5),
-                child: pw.Text(trasnsaction.stringType(),
-                    textAlign: pw.TextAlign.center),
+              pw.Directionality(
+                textDirection: getTextDirection(trasnsaction.stringType()),
+                child: pw.Padding(
+                  padding: const pw.EdgeInsets.all(5),
+                  child: pw.Text(trasnsaction.stringType(),
+                      textAlign: pw.TextAlign.center),
+                ),
               ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(5),

@@ -4,6 +4,7 @@ import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/invoice.dart';
+import 'package:store_management/models/transaction.dart';
 import 'package:store_management/ui/invoice_view.dart';
 
 import 'package:store_management/utils/app_constants.dart';
@@ -32,11 +33,23 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
 
   @override
   Widget build(BuildContext context) {
+    Transaction disTran = Transaction(date: widget.invoice.date, amount: 0);
+
+    try {
+      
+      disTran = widget.invoice.transactions[2];
+    } catch (e) {
+      print(e);
+    }
+
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
     TextEditingController customerNameControll =
         TextEditingController(text: widget.invoice.customer.target?.name);
     TextEditingController payControll = TextEditingController(
         text: widget.invoice.transactions[1].amount.toString());
+
+    TextEditingController discountControll =
+        TextEditingController(text: disTran.amount.toString());
     return Scaffold(
       appBar: AppBar(
         title: Text('Save invoice edits'.tr),
@@ -53,7 +66,7 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
                 enabled: false,
                 controller: customerNameControll,
                 decoration: inputDecoration.copyWith(
-                  label: Text('Supplier'.tr),
+                  label: Text('custormer name'.tr),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -62,6 +75,18 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
                 controller: payControll,
                 decoration: inputDecoration.copyWith(
                   label: Text('payment amount'.tr),
+                ),
+                keyboardType: TextInputType.number,
+                validator: Validatorless.multiple([
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
+                ]),
+              ),
+              verSpace,
+              TextFormField(
+                controller: discountControll,
+                decoration: inputDecoration.copyWith(
+                  label: Text('discount'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
@@ -144,8 +169,9 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
                       databaseController.updateInvoice(
                           oldItemsMap: widget.oldItemMap,
                           invoice: widget.invoice,
-                          paymentAmount:
-                              double.tryParse(payControll.text) ?? 0);
+                          paymentAmount: double.tryParse(payControll.text) ?? 0,
+                          discount:
+                              double.tryParse(discountControll.text) ?? 0);
 
                       Get.to(() => InvoiceView(invoice: widget.invoice));
                     }

@@ -24,6 +24,7 @@ class _InvoiceSaveState extends State<InvoiceSave> {
   SettingsController settingsController = Get.find();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController customerNameControll = TextEditingController();
+  TextEditingController discountControll = TextEditingController(text: '0');
   TextEditingController payControll = TextEditingController();
   DatabaseController databaseController = Get.find();
 
@@ -98,6 +99,18 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                 controller: payControll,
                 decoration: inputDecoration.copyWith(
                   label: Text('Payment Amount'.tr),
+                ),
+                keyboardType: TextInputType.number,
+                validator: Validatorless.multiple([
+                  Validatorless.required('required'.tr),
+                  Validatorless.number('number'.tr),
+                ]),
+              ),
+              verSpace,
+              TextFormField(
+                controller: discountControll,
+                decoration: inputDecoration.copyWith(
+                  label: Text('discount'.tr),
                 ),
                 keyboardType: TextInputType.number,
                 validator: Validatorless.multiple([
@@ -185,12 +198,20 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                       Transaction transactionPay = Transaction(
                           amount: double.tryParse(payControll.text) ?? 0,
                           date: widget.invoice.date);
+                      Transaction transactionDiscount = Transaction(
+                          amount: (double.tryParse(discountControll.text) ?? 0),
+                          date: widget.invoice.date);
                       transactionSell.customer.target =
                           widget.invoice.customer.target;
                       transactionPay.customer.target =
                           widget.invoice.customer.target;
-                      widget.invoice.transactions
-                          .addAll([transactionSell, transactionPay]);
+                      transactionDiscount.customer.target =
+                          widget.invoice.customer.target;
+                      widget.invoice.transactions.addAll([
+                        transactionSell,
+                        transactionPay,
+                        transactionDiscount
+                      ]);
 
                       Profits profit = Profits();
                       profit.invoice.target = widget.invoice;

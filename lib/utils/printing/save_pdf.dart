@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:printing/printing.dart';
@@ -11,14 +11,17 @@ Future<String?> saveFileToExternalStorage(
     // 1. التحقق من الأذونات أولاً (مهم جداً)
     bool hasPermission = await _requestStoragePermission();
     if (!hasPermission) {
-      print('لم يتم منح إذن الوصول للتخزين');
+      
+        print('لم يتم منح إذن الوصول للتخزين');
+     
       return null;
     }
-
     // 2. الحصول على مسار التخزين الخارجي (مختلف حسب إصدار أندرويد)
     final directory = await getExternalStorageDirectory();
     if (directory == null) {
-      print('لا يمكن الوصول إلى التخزين الخارجي');
+  
+        print('لا يمكن الوصول إلى التخزين الخارجي');
+      
       return null;
     }
 
@@ -32,10 +35,14 @@ Future<String?> saveFileToExternalStorage(
     final file = File('${myAppFolder.path}/$fileName');
     await file.writeAsBytes(fileBytes);
 
-    print('تم حفظ الملف بنجاح في: ${file.path}');
+   
+      print('تم حفظ الملف بنجاح في: ${file.path}');
+   
     return file.path;
   } catch (e) {
-    print('حدث خطأ أثناء حفظ الملف: $e');
+   
+      print('حدث خطأ أثناء حفظ الملف: $e');
+    
     return null;
   }
 }
@@ -79,7 +86,9 @@ Future printPdfFileToStorage(Uint8List pdf) async {
   await Printing.layoutPdf(onLayout: (format) => pdf);
   if (filePath != null) {
     // نجح الحفظ، يمكنك عرض رسالة للمستخدم
-    print('تم حفظ الملف في: $filePath');
+  
+      print('تم حفظ الملف في: $filePath');
+    
   }
 }
 

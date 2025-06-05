@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/models/customer.dart';
-import 'package:store_management/ui/customer_view.dart';
 import 'package:store_management/ui/supplier_add.dart';
 import 'package:store_management/ui/supplier_view.dart';
 

@@ -149,6 +149,9 @@ class _InvoiceCreateState extends State<InvoiceCreate> {
                                     sellPriceControll.text = '0';
                                     nameControll.text = '';
                                     quantityControll.text = '1';
+                                    print(sellPriceInput);
+                                    print(item.itemSellPrice);
+                                    print(item.saledPrice());
                                   },
                                 );
                               }

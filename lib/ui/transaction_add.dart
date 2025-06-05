@@ -10,22 +10,25 @@ import 'package:store_management/utils/app_constants.dart';
 import 'package:validatorless/validatorless.dart';
 
 class TransactionAdd extends StatefulWidget {
-  const TransactionAdd({super.key});
+  const TransactionAdd({super.key, required this.customer});
+  final Customer? customer;
 
   @override
   State<TransactionAdd> createState() => _TransactionAddState();
 }
 
 class _TransactionAddState extends State<TransactionAdd> {
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  TextEditingController customerNameControll = TextEditingController();
-  TextEditingController payControll = TextEditingController();
-  DatabaseController databaseController = Get.find();
-  SettingsController settingsController = Get.find();
-  Customer? customer;
   List<Transaction>? transactions;
   @override
   Widget build(BuildContext context) {
+    GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    TextEditingController customerNameControll =
+        TextEditingController(text: widget.customer?.name ?? '');
+    TextEditingController payControll = TextEditingController();
+    DatabaseController databaseController = Get.find();
+    SettingsController settingsController = Get.find();
+    Customer? customer = widget.customer;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('New Transaction'.tr),

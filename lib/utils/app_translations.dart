@@ -123,6 +123,8 @@ class AppTranslations extends Translations {
           'Transaction Type': 'Transaction Type',
           'inovice': 'Invoice',
           'payment': 'Payment',
+          'discount-tran': 'Invoice Discount',
+
           'All': 'All',
           'Payments': 'Payments',
           'Transaction Number': 'Transaction Number',
@@ -165,6 +167,11 @@ class AppTranslations extends Translations {
           'Please re-enter your store information':
               'Please Re-enter Your Store Information',
           'Currency Settings': 'Currency Settings',
+
+          // printing
+          'Purchase Receipt': 'Purchase Receipt',
+          'Invoice to': 'Invoice to',
+          'Receipt Number': 'Receipt Number',
         },
         'ar_IQ': {
           // home
@@ -285,6 +292,7 @@ class AppTranslations extends Translations {
           'Transaction Type': 'نوع المعاملة',
           'inovice': 'فاتورة',
           'payment': 'دفعة',
+          'discount-tran': 'تخفيض فاتورة',
           'All': 'الكل',
           'Payments': 'مدفوعات',
           'Transaction Number': 'رقم المعاملة',
@@ -328,7 +336,7 @@ class AppTranslations extends Translations {
               'الرجاء إعادة إدخال معلومات متجرك',
           'Currency Settings': 'إعدادات العملة',
           'App Theme': 'مظهر التطبيق',
-          'App Language': 'لغة التطبيق'
+          'App Language': 'لغة التطبيق',
         },
         'fa_IR': {
           // home
@@ -447,6 +455,7 @@ class AppTranslations extends Translations {
           'Transaction Type': 'نوع تراکنش',
           'inovice': 'فاکتور',
           'payment': 'پرداخت',
+          'discount-tran': 'تخفیف فاکتور',
           'All': 'همه',
           'Payments': 'پرداخت‌ها',
           'Transaction Number': 'شماره تراکنش',
@@ -588,7 +597,8 @@ class AppTranslations extends Translations {
           'all': 'tümü',
           'This Mounth': 'Bu Ay',
           'This Year': 'Bu Yıl',
-          'Select Date': 'Select Date',
+          'Select Date': 'Tarih Seçin',
+          'discount-tran': 'Fatura indirimi',
         },
         'zh_ch': {
           // home
@@ -704,6 +714,8 @@ class AppTranslations extends Translations {
           'Transaction Type': '交易类型',
           'inovice': '发票',
           'payment': '付款',
+          'discount-tran': '发票折扣',
+
           'All': '全部',
           'Payments': '付款记录',
           'Transaction Number': '交易编号',

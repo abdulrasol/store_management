@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/customer.dart';
 import 'package:store_management/ui/customer_edit.dart';
+import 'package:store_management/ui/transaction_add.dart';
 import 'package:store_management/utils/printing/customer_full_invoice_pdf.dart';
 import 'package:store_management/utils/printing/save_pdf.dart';
 
@@ -86,6 +87,12 @@ class CustomerView extends StatelessWidget {
             invoicesView(customer.invoices),
             transactionsView(customer.trasnsactions),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Get.to(() => TransactionAdd(customer: customer));
+          },
+          child: Icon(Icons.payment),
         ),
         bottomNavigationBar: BottomAppBar(
           //  color: Colors.purple,

@@ -11,7 +11,6 @@ class Transaction {
   double amount;
   final invoice = ToOne<Invoice>();
   final voucher = ToOne<Voucher>();
-
   final customer = ToOne<Customer>();
   int date;
 
@@ -37,11 +36,30 @@ class Transaction {
   }
 
   String stringType() {
-    if (amount < 0) {
-      return 'inovice'.tr;
-    } else {
-      return 'payment'.tr;
+    switch (amount) {
+      case < 0:
+        return 'inovice'.tr;
+      case > 0:
+        try {
+          if (amount == invoice.target!.discount()) {
+            return 'discount-tran'.tr;
+          }
+        } catch (e) {
+          return 'payment'.tr;
+        }
+        return 'payment'.tr;
+      default:
+        return 'info';
     }
+    // if (amount > 0) {
+    //   try {
+    //     if (amount == invoice.target!.discount()) {
+    //       return 'discount'.tr;
+    //     }
+    //   } catch (e) {
+    //     print('test');
+    //   }
+    // } else {}
   }
 
   String transactionNumber() {
@@ -53,4 +71,4 @@ class Transaction {
   // }
 }
 
-enum TransactionType { buy, pay }
+enum TransactionType { buy, pay, discount }

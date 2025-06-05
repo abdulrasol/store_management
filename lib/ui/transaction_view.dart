@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/transaction.dart';
+import 'package:store_management/ui/transaction_edit.dart';
 import 'package:store_management/utils/app_constants.dart';
 import 'package:store_management/utils/printing/save_pdf.dart';
 import 'package:store_management/utils/printing/transaction_pdf.dart';
@@ -34,6 +35,15 @@ class TransactionView extends StatelessWidget {
               },
               icon: Icon(Icons.share_outlined),
             ),
+          if (transaction.invoice.target == null)
+            IconButton(
+                onPressed: () {
+                  Get.to(() => TransactionEdit(
+                        customer: transaction.customer.target!,
+                        transaction: transaction,
+                      ));
+                },
+                icon: Icon(Icons.edit)),
           IconButton(
               onPressed: () async {
                 final pdf = await generateTransaction(transaction: transaction);

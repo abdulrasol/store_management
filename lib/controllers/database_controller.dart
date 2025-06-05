@@ -96,6 +96,7 @@ class DatabaseController extends GetxController {
     required Map<String, Map<String, dynamic>> oldItemsMap,
     required Invoice invoice,
     required double paymentAmount,
+    required double discount,
   }) {
     // new and updated items
     for (InvoiceItem invoiceItem in invoice.items) {
@@ -135,9 +136,19 @@ class DatabaseController extends GetxController {
     transactionSell.amount = invoice.pricetoPay();
     Transaction transactionPay = invoice.transactions[1];
     transactionPay.amount = paymentAmount;
-
+    Transaction transactionDiscount =
+        Transaction(date: invoice.date, amount: discount);
+    try {
+      transactionDiscount = invoice.transactions[2];
+    } catch (e) {
+      transactionDiscount.customer.target = invoice.customer.target;
+      invoice.transactions.add(transactionDiscount);
+      print(' old version without discount transacrion');
+    }
+    transactionDiscount.amount = discount;
     int id = objectBox.invoiceBox.put(invoice);
-    objectBox.transactionBox.putMany([transactionSell, transactionPay]);
+    objectBox.transactionBox
+        .putMany([transactionSell, transactionPay, transactionDiscount]);
 
     loading();
     return id;
@@ -215,7 +226,7 @@ class DatabaseController extends GetxController {
   RxList<Transaction> sellTransaction = <Transaction>[].obs;
   RxList<Transaction> payTransaction = <Transaction>[].obs;
 
-  RxList<Transaction> supplierTransactions = <Transaction>[].obs;
+  RxList<Transaction> discountTransactions = <Transaction>[].obs;
 
   void loadTransactions() {
     customersTransactions.value = objectBox.transactionBox
@@ -224,7 +235,7 @@ class DatabaseController extends GetxController {
         .toList()
         .reversed
         .toList();
-    supplierTransactions.value = objectBox.transactionBox
+    discountTransactions.value = objectBox.transactionBox
         .getAll()
         .where((trans) => trans.customer.target!.customerType == 1)
         .toList();
@@ -245,7 +256,7 @@ class DatabaseController extends GetxController {
   List<Transaction> customerPaymetTranscation() =>
       customersTransactions.where((trans) => trans.amount > 0).toList();
   List<Transaction> supplierPaymetTranscation() =>
-      supplierTransactions.where((trans) => trans.amount > 0).toList();
+      discountTransactions.where((trans) => trans.amount > 0).toList();
 
   int newTransaction(Transaction transaction) {
     int id = objectBox.transactionBox.put(transaction);
@@ -309,5 +320,20 @@ class DatabaseController extends GetxController {
     num expenses = databaseController.expenses.fold(
         0, (num previousValue, element) => previousValue + element.amount);
     return profits - expenses;
+  }
+
+  void deleteInvoice(Invoice invoice) {
+    List<Transaction> trans = invoice.transactions;
+    List<InvoiceItem> items = invoice.items;
+
+    for (InvoiceItem item in items) {
+      item.item.target!.quantity += item.quantity;
+      objectBox.itemBox.put(item.item.target!);
+      objectBox.invoiceItemBox.remove(item.id);
+    }
+    for (Transaction tran in trans) {
+      objectBox.transactionBox.remove(tran.id);
+    }
+    objectBox.invoiceBox.remove(invoice.id);
   }
 }

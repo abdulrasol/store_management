@@ -30,7 +30,7 @@ class ProfitsPage extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.start,
                   children: [
                     Text(
-                        '${'Total Invoice Price'.tr}: ${settingsController.currencyFormatter(databaseController.profits[index].invoice.target!.pricetoPay())}'),
+                        '${'Total Price'.tr}: ${settingsController.currencyFormatter(databaseController.profits[index].invoice.target!.pricetoPay())}'),
                     Text(
                         '${'custormer name'.tr}: ${databaseController.profits[index].invoice.target!.customer.target!.name}'),
                     Text(

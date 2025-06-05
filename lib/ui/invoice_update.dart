@@ -50,6 +50,32 @@ class _InvoiceUpdateState extends State<InvoiceUpdate> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Update Invoice'.tr),
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              Get.defaultDialog(
+                title: 'Alert',
+                middleText:
+                    'Are you sure to delete this invoice? there no way to recover just create new one!',
+                onCancel: () {},
+                cancel: TextButton(onPressed: () {}, child: Text('Canecl')),
+                onConfirm: () {
+                  databaseController.deleteInvoice(widget.invoice);
+                  Get.close(3);
+                },
+                textConfirm: 'Delete',
+              );
+            },
+            icon: Icon(
+              Icons.delete_forever,
+              color: Colors.red,
+            ),
+            label: Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),

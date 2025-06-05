@@ -22,7 +22,7 @@ class Invoice {
     for (var item in items) {
       price += (item.saledPrice()) * item.quantity;
     }
-    return price + discount();
+    return price;
   }
 
   double pricetoPay() {
@@ -30,15 +30,14 @@ class Invoice {
     for (var item in items) {
       pricetoPay += item.totalPrice();
     }
-    return pricetoPay;
+    return pricetoPay - discount();
   }
 
   double discount() {
-    double discount = 0.0; // إعادة تعيين السعر قبل الحساب
-    for (var item in items) {
-      discount += item.discount;
+    if (transactions.length == 3) {
+      return transactions[2].amount;
     }
-    return discount;
+    return 0;
   }
 
   // double left() => pricetoPay() - (transaction.target!.amount);
