@@ -22,6 +22,7 @@ import 'models/item.dart';
 import 'models/profits.dart';
 import 'models/transaction.dart';
 import 'models/voucher.dart';
+import 'models/voucher_item.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -320,7 +321,48 @@ final _entities = <obx_int.ModelEntity>[
       backlinks: <obx_int.ModelBacklink>[
         obx_int.ModelBacklink(
             name: 'transactions', srcEntity: 'Transaction', srcField: 'voucher')
-      ])
+      ]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(9, 6628242355342039944),
+      name: 'VoucherItem',
+      lastPropertyId: const obx_int.IdUid(6, 4926742530010534436),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 1666532185770478146),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 1632249200828984674),
+            name: 'discount',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 8990201832066556791),
+            name: 'quantity',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 6308655791272865478),
+            name: 'itemName',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 1446275257102773555),
+            name: 'itemSellPrice',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 4926742530010534436),
+            name: 'itemId',
+            type: 11,
+            flags: 520,
+            indexId: const obx_int.IdUid(10, 6583228234191008465),
+            relationTarget: 'Item')
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[])
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -358,8 +400,8 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(8, 2040636616337489913),
-      lastIndexId: const obx_int.IdUid(9, 5986636391927475670),
+      lastEntityId: const obx_int.IdUid(9, 6628242355342039944),
+      lastIndexId: const obx_int.IdUid(10, 6583228234191008465),
       lastRelationId: const obx_int.IdUid(2, 3435670366461490595),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [],
@@ -702,6 +744,48 @@ obx_int.ModelDefinition getObjectBoxModel() {
               obx_int.RelInfo<Transaction>.toOneBacklink(
                   4, object.id, (Transaction srcObject) => srcObject.voucher));
           return object;
+        }),
+    VoucherItem: obx_int.EntityDefinition<VoucherItem>(
+        model: _entities[8],
+        toOneRelations: (VoucherItem object) => [object.item],
+        toManyRelations: (VoucherItem object) => {},
+        getId: (VoucherItem object) => object.id,
+        setId: (VoucherItem object, int id) {
+          object.id = id;
+        },
+        objectToFB: (VoucherItem object, fb.Builder fbb) {
+          final itemNameOffset = fbb.writeString(object.itemName);
+          fbb.startTable(7);
+          fbb.addInt64(0, object.id);
+          fbb.addFloat64(1, object.discount);
+          fbb.addInt64(2, object.quantity);
+          fbb.addOffset(3, itemNameOffset);
+          fbb.addFloat64(4, object.itemSellPrice);
+          fbb.addInt64(5, object.item.targetId);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final discountParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 6, 0);
+          final quantityParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final itemNameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 10, '');
+          final itemSellPriceParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 12, 0);
+          final object = VoucherItem(
+              discount: discountParam,
+              quantity: quantityParam,
+              itemName: itemNameParam,
+              itemSellPrice: itemSellPriceParam)
+            ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          object.item.targetId =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0);
+          object.item.attach(store);
+          return object;
         })
   };
 
@@ -899,4 +983,31 @@ class Voucher_ {
   /// see [Voucher.transactions]
   static final transactions =
       obx.QueryBacklinkToMany<Transaction, Voucher>(Transaction_.voucher);
+}
+
+/// [VoucherItem] entity fields to define ObjectBox queries.
+class VoucherItem_ {
+  /// See [VoucherItem.id].
+  static final id =
+      obx.QueryIntegerProperty<VoucherItem>(_entities[8].properties[0]);
+
+  /// See [VoucherItem.discount].
+  static final discount =
+      obx.QueryDoubleProperty<VoucherItem>(_entities[8].properties[1]);
+
+  /// See [VoucherItem.quantity].
+  static final quantity =
+      obx.QueryIntegerProperty<VoucherItem>(_entities[8].properties[2]);
+
+  /// See [VoucherItem.itemName].
+  static final itemName =
+      obx.QueryStringProperty<VoucherItem>(_entities[8].properties[3]);
+
+  /// See [VoucherItem.itemSellPrice].
+  static final itemSellPrice =
+      obx.QueryDoubleProperty<VoucherItem>(_entities[8].properties[4]);
+
+  /// See [VoucherItem.item].
+  static final item =
+      obx.QueryRelationToOne<VoucherItem, Item>(_entities[8].properties[5]);
 }

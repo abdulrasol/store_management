@@ -293,10 +293,52 @@
           "targetId": "5:5466283271037108010"
         }
       ]
+    },
+    {
+      "id": "9:6628242355342039944",
+      "lastPropertyId": "6:4926742530010534436",
+      "name": "VoucherItem",
+      "properties": [
+        {
+          "id": "1:1666532185770478146",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1632249200828984674",
+          "name": "discount",
+          "type": 8
+        },
+        {
+          "id": "3:8990201832066556791",
+          "name": "quantity",
+          "type": 6
+        },
+        {
+          "id": "4:6308655791272865478",
+          "name": "itemName",
+          "type": 9
+        },
+        {
+          "id": "5:1446275257102773555",
+          "name": "itemSellPrice",
+          "type": 8
+        },
+        {
+          "id": "6:4926742530010534436",
+          "name": "itemId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "10:6583228234191008465",
+          "relationTarget": "Item"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "8:2040636616337489913",
-  "lastIndexId": "9:5986636391927475670",
+  "lastEntityId": "9:6628242355342039944",
+  "lastIndexId": "10:6583228234191008465",
   "lastRelationId": "2:3435670366461490595",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

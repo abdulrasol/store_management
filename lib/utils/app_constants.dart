@@ -107,7 +107,7 @@ var lightTheme = ThemeData(
     ),
     prefixIconColor: Colors.grey,
   ),
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     elevation: 0, // إزالة الظل من البطاقات
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
@@ -231,7 +231,7 @@ ThemeData darkTheme = ThemeData(
     ),
     prefixIconColor: Colors.grey,
   ),
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     elevation: 0,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),

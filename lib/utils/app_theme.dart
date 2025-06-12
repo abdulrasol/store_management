@@ -141,7 +141,7 @@ class AppTheme {
           color: Colors.grey.shade400,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 3,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
@@ -324,7 +324,7 @@ class AppTheme {
           color: Colors.grey.shade500,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 5,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
@@ -537,7 +537,7 @@ class AppThemeOld {
       ),
 
       // تخصيصات البطاقات
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 3,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
@@ -743,7 +743,7 @@ class AppThemeOld {
       ),
 
       // تخصيصات البطاقات
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 5,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
