@@ -2,6 +2,8 @@
 
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Windows%20%7C%20Linux%20%7C%20Web-informational?style=flat-square)
 
+[Download from Google Play](https://play.google.com/store/apps/details?id=io.github.abdulrasol.store_mangment)
+
 Store Management App is your all-in-one solution for effortless store management. Track inventory, manage invoices, analyze sales, and stay connected with customers and suppliers. Simplify your business operations and boost your profits today!
 
 ## Key Features
@@ -41,9 +43,7 @@ The following screenshots showcase the application's key features:
   <img src="https://github.com/abdulrasol/store_management/blob/master/screenshots/8.jpg" alt="Screenshot 8" width="150" style="margin-right: 5px; border: 1px solid #ccc;">
   <img src="https://github.com/abdulrasol/store_management/blob/master/screenshots/9.jpg" alt="Screenshot 9" width="150" style="margin-right: 5px; border: 1px solid #ccc;">
   <img src="https://github.com/abdulrasol/store_management/blob/master/screenshots/10.jpg" alt="Screenshot 10" width="150" style="margin-right: 5px; border: 1px solid #ccc;">
-
   <img src="https://github.com/abdulrasol/store_management/blob/master/screenshots/11.jpg" alt="Screenshot 11" width="150" style="margin-right: 5px; border: 1px solid #ccc;">
-  <img src="https://github.com/abdulrasol/store_management/blob/master/screenshots/12.jpg" alt="Screenshot 12" width="150" style="border: 1px solid #ccc;">
 </p>
 
 ## Getting Started
@@ -84,12 +84,6 @@ To get started with this application:
     flutter build linux
     ```
 
-    **For Web:**
-
-    ```bash
-    flutter build web
-    ```
-
     **To run on a connected device or emulator (for development):**
 
     ```bash
@@ -108,6 +102,7 @@ Currently, the application supports the following languages:
 - Arabic
 - Turkish
 - Persian
+- Chinese
 
 **How to Contribute:**
 
@@ -116,4 +111,3 @@ Currently, the application supports the following languages:
 3.  **Submit a pull request** with your proposed changes.
 
 We appreciate your contributions to making this application better!
-
