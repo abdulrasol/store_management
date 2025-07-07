@@ -148,7 +148,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                     TextFormField(
                       controller: buyControll,
                       decoration: inputDecoration.copyWith(
-                        label: Text('Buy Price'),
+                        label: Text('Buy Price'.tr),
                       ),
                       keyboardType: TextInputType.number,
                       validator: Validatorless.multiple([

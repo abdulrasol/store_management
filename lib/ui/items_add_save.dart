@@ -118,26 +118,27 @@ class VoucherView extends StatelessWidget {
                 Text(settingsController.currencyFormatter(newItems.fold(
                     0,
                     (previousValue, element) =>
-                        previousValue + element.buyPrice))),
+                        previousValue +
+                        (element.buyPrice * element.quantity)))),
               ],
             ),
             verSpace,
-            Row(
-              children: [
-                Text('paid amount'.tr),
-                Expanded(child: verSpace),
-                // Text(settingsController
-                //     .currencyFormatter(newItems.transactions[1].amount)),
-              ],
-            ),
-            verSpace,
-            Row(
-              children: [
-                Text('Supplier Balance'.tr),
-                Expanded(child: verSpace),
-                // Text(settingsController.currencyFormatter(newItems.balance())),
-              ],
-            ),
+            // Row(
+            //   children: [
+            //     Text('paid amount'.tr),
+            //     Expanded(child: verSpace),
+            //     Text(settingsController
+            //         .currencyFormatter(newItems)),
+            //   ],
+            // ),
+            // verSpace,
+            // Row(
+            //   children: [
+            //     Text('Supplier Balance'.tr),
+            //     Expanded(child: verSpace),
+            //     // Text(settingsController.currencyFormatter(newItems.balance())),
+            //   ],
+            // ),
             verSpace,
             verSpace,
             verSpace,

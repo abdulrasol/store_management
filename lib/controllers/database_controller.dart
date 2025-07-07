@@ -217,7 +217,7 @@ class DatabaseController extends GetxController {
   }
 
   num customerDebt() {
-    return custormers.where((customer) => customer.balance() > 0).toList().fold(
+    return custormers.where((customer) => customer.balance() < 0).toList().fold(
         0, (num previousValue, element) => previousValue + element.balance());
   }
 

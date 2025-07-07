@@ -25,8 +25,11 @@ class SettingsController extends GetxController {
 
   Future<void> getAppThemeAndLang() async {
     final theme = prefs.getString('app-theme') ?? 'system';
-    appLang.value = Locale(prefs.getString('languageCode') ?? 'en',
-        prefs.getString('countryCode'));
+
+    appLang.value = Locale(
+      prefs.getString('languageCode') ?? Get.deviceLocale?.languageCode ?? 'en',
+      prefs.getString('countryCode'),
+    );
     switch (theme) {
       case 'dark':
         appTheme.value = ThemeMode.dark;
