@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
@@ -39,7 +40,9 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
       
       disTran = widget.invoice.transactions[2];
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
 
     GlobalKey<FormState> formKey = GlobalKey<FormState>();

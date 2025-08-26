@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/expense.dart';
 import 'package:store_management/models/invoice.dart';
@@ -10,7 +9,6 @@ import 'package:store_management/models/transaction.dart';
 import 'package:store_management/models/voucher.dart';
 import 'package:store_management/objectbox.g.dart';
 
-import '../utils/printing/save_pdf.dart';
 
 class ObjectBox {
   late Store store;
@@ -35,8 +33,8 @@ class ObjectBox {
   }
 
   static Future<ObjectBox> create() async {
-    final Directory? appDocumentsDir = await getExternalStorageDirectory();
-    final store = await openStore(directory: appDocumentsDir!.path);
+    final appDocumentsDir = await getApplicationDocumentsDirectory();
+    final store = await openStore(directory: appDocumentsDir.path);
     return ObjectBox._create(store);
   }
 }

@@ -47,7 +47,7 @@ dependencies:
   intl: ^0.20.2
   printing: ^5.14.2
   vector_math: ^2.1.4
-  permission_handler: ^11.4.0
+  
   image_picker: ^1.1.2
   share_plus: ^10.1.4
   material_speed_dial: ^0.0.7
