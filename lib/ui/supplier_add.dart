@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/models/customer.dart';
+import 'package:store_management/shared/widgets.dart';
 import 'package:store_management/utils/app_constants.dart';
-import 'package:validatorless/validatorless.dart';
 
 class SupplierAdd extends StatefulWidget {
   const SupplierAdd({super.key});
@@ -12,7 +12,7 @@ class SupplierAdd extends StatefulWidget {
   State<SupplierAdd> createState() => _SupplierAddState();
 }
 
-class _SupplierAddState extends State<SupplierAdd> {
+class _SupplierAddState extends State<SupplierAdd> with FormWidget {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController nameControll = TextEditingController();
   TextEditingController phoneControll = TextEditingController();
@@ -42,26 +42,11 @@ class _SupplierAddState extends State<SupplierAdd> {
                 verSpace,
                 verSpace,
                 verSpace,
-                TextFormField(
-                  controller: nameControll,
-                  decoration: inputDecoration.copyWith(
-                    label: Text('name'.tr),
-                  ),
-                  keyboardType: TextInputType.text,
-                  validator: Validatorless.required('required'.tr),
-                ),
+                textInput(nameControll,
+                    label: 'name', validator: [requiredValidator]),
                 verSpace,
-                TextFormField(
-                  controller: phoneControll,
-                  decoration: inputDecoration.copyWith(
-                    label: Text('phone'.tr),
-                  ),
-                  keyboardType: TextInputType.phone,
-                  validator: Validatorless.multiple([
-                    Validatorless.required('required'.tr),
-                    Validatorless.number('number'.tr),
-                  ]),
-                ),
+                textInput(phoneControll,
+                    label: 'phone', validator: [numberValidator]),
                 verSpace,
                 verSpace,
                 ElevatedButton.icon(

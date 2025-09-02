@@ -4,7 +4,7 @@ description: "Your all-in-one solution for effortless store management. Track in
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-homepage: 
+homepage:
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
@@ -17,8 +17,7 @@ homepage:
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.0.0+1
-
+version: 2.0.0+2
 
 environment:
   sdk: ^3.6.1
@@ -47,7 +46,7 @@ dependencies:
   intl: ^0.20.2
   printing: ^5.14.2
   vector_math: ^2.1.4
-  
+
   image_picker: ^1.1.2
   share_plus: ^10.1.4
   material_speed_dial: ^0.0.7
@@ -83,7 +82,7 @@ flutter:
     - assets/png/invoce.png
     - assets/png/customer.png
     - assets/png/logo.png
-    - assets/png/logo.png
+    - shorebird.yaml
 
   fonts:
     - family: Cairo

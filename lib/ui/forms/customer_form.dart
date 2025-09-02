@@ -2,29 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/models/customer.dart';
+import 'package:store_management/shared/widgets.dart';
 import 'package:store_management/utils/app_constants.dart';
-import 'package:validatorless/validatorless.dart';
 
-class CustomerAdd extends StatefulWidget {
-  const CustomerAdd({super.key});
+class CustomerForm extends StatefulWidget {
+  const CustomerForm({super.key, this.update = false, this.customer});
+  final bool update;
+  final Customer? customer;
 
   @override
-  State<CustomerAdd> createState() => _CustomerAddState();
+  State<CustomerForm> createState() => _CustomerFormState();
 }
 
-class _CustomerAddState extends State<CustomerAdd> {
+class _CustomerFormState extends State<CustomerForm> with FormWidget {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController nameControll = TextEditingController();
   TextEditingController phoneControll = TextEditingController();
   DatabaseController databaseController = Get.find();
+  late Customer? customer;
+  late String pageTitle;
+
+  @override
+  void initState() {
+    if (widget.update && widget.customer != null) {
+      customer = widget.customer;
+      nameControll.text = widget.customer?.name ?? '';
+      phoneControll.text = widget.customer?.phone ?? '';
+    } else {
+      nameControll.text = Get.arguments ?? '';
+    }
+    pageTitle = widget.update
+        ? 'update_customer'.trParams({'name': widget.customer?.name ?? ''})
+        : 'add_new_custommer'.trParams({
+            'name': nameControll.text,
+          });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    nameControll.text = Get.arguments ?? '';
     return Scaffold(
       appBar: AppBar(
-        title: Text('add_new_custommer'.trParams({
-          'name': nameControll.text,
-        })),
+        title: Text(pageTitle),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -41,34 +60,22 @@ class _CustomerAddState extends State<CustomerAdd> {
                 verSpace,
                 verSpace,
                 verSpace,
-                TextFormField(
-                  controller: nameControll,
-                  decoration: inputDecoration.copyWith(
-                    label: Text('name'.tr),
-                  ),
-                  keyboardType: TextInputType.text,
-                  validator: Validatorless.required('required'.tr),
-                ),
+                textInput(nameControll,
+                    label: 'name', validator: [requiredValidator]),
                 verSpace,
-                TextFormField(
-                  controller: phoneControll,
-                  decoration: inputDecoration.copyWith(
-                    label: Text('phone'.tr),
-                  ),
-                  keyboardType: TextInputType.phone,
-                  validator: Validatorless.multiple([
-                    Validatorless.required('required'.tr),
-                    Validatorless.number('number'.tr),
-                  ]),
-                ),
+                textInput(phoneControll,
+                    label: 'phone', validator: [numberValidator]),
                 verSpace,
                 verSpace,
                 ElevatedButton.icon(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      Customer customer = Customer(
+                      customer = Customer(
                           name: nameControll.text, phone: phoneControll.text);
-                      databaseController.addCustomer(customer);
+                      if (widget.update && widget.customer != null) {
+                        customer!.id = widget.customer!.id;
+                      }
+                      databaseController.addCustomer(customer!);
                       Get.back(result: customer);
                     }
                   },

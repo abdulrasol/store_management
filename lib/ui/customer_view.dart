@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/customer.dart';
-import 'package:store_management/ui/customer_edit.dart';
+import 'package:store_management/ui/forms/customer_form.dart';
 import 'package:store_management/ui/transaction_add.dart';
 import 'package:store_management/utils/printing/customer_full_invoice_pdf.dart';
 import 'package:store_management/utils/printing/save_pdf.dart';
@@ -49,9 +49,10 @@ class CustomerView extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () {
-                Get.to(() => CustomerEdit(
+                Get.to(() => CustomerForm(
+                      update: true,
                       customer: customer,
-                    ));
+                    ))?.then((i) => Get.back());
               },
               label: Text('edit'.tr),
               icon: Icon(Icons.edit),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -73,7 +74,8 @@ class SettingsController extends GetxController {
     appName = prefs.getString('store_name').obs;
     logo = prefs.getString('logo').obs;
     if (logo.value == null) {
-      logo.value = base64Encode(File('assets/png/logo.png').readAsBytesSync());
+      final logoFile = await rootBundle.load('assets/png/logo.png');
+      logo.value = base64Encode(logoFile.buffer.asUint8List());
     }
   }
 

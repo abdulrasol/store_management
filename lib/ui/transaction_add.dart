@@ -5,7 +5,7 @@ import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/transaction.dart';
-import 'package:store_management/ui/customer_add.dart';
+import 'package:store_management/ui/forms/customer_form.dart';
 import 'package:store_management/utils/app_constants.dart';
 import 'package:validatorless/validatorless.dart';
 
@@ -52,7 +52,7 @@ class _TransactionAddState extends State<TransactionAdd> {
                       label: Text('name'.tr),
                       suffix: TextButton.icon(
                         onPressed: () async {
-                          customer = await Get.to(() => CustomerAdd(),
+                          customer = await Get.to(() => CustomerForm(),
                               arguments: customerNameControll.text);
                           customerNameControll.text = customer?.name ?? '';
                         },
@@ -95,7 +95,7 @@ class _TransactionAddState extends State<TransactionAdd> {
                     title: Text('no customer found'
                         .trParams({'name': customerNameControll.text})),
                     onTap: () async {
-                      customer = await Get.to(() => CustomerAdd(),
+                      customer = await Get.to(() => CustomerForm(),
                           arguments: customerNameControll.text);
                       customerNameControll.text = customer?.name ?? '';
                     },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/models/customer.dart';
-import 'package:store_management/ui/customer_add.dart';
+import 'package:store_management/ui/forms/customer_form.dart';
 import 'package:store_management/ui/customer_view.dart';
 
 DatabaseController databaseController = Get.find();
@@ -54,7 +54,7 @@ class CustomersPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Get.to(() => CustomerAdd());
+          Get.to(() => CustomerForm());
         },
         label: Text('Add'.tr),
         icon: Icon(Icons.add),

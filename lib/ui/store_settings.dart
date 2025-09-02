@@ -338,7 +338,7 @@ class StoreSettingsState extends State<StoreSettings> {
                               ),
                               const SizedBox(height: 16),
                               DropdownButtonFormField<ThemeMode>(
-                                value: Get.isDarkMode
+                                initialValue: Get.isDarkMode
                                     ? ThemeMode.dark
                                     : ThemeMode.light,
                                 decoration: InputDecoration(
@@ -372,7 +372,7 @@ class StoreSettingsState extends State<StoreSettings> {
                               ),
                               verSpace,
                               DropdownButtonFormField<String>(
-                                value: Get.locale?.languageCode ?? '',
+                                initialValue: Get.locale?.languageCode ?? '',
                                 decoration: InputDecoration(
                                   labelText: 'App Language'.tr,
                                   border: OutlineInputBorder(

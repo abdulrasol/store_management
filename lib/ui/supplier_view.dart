@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/customer.dart';
-import 'package:store_management/ui/customer_edit.dart';
+import 'package:store_management/ui/forms/customer_form.dart';
 import 'package:store_management/ui/item_view.dart';
 
 SettingsController settingsController = Get.find();
@@ -24,9 +24,10 @@ class SupplierView extends StatelessWidget {
           actions: [
             TextButton.icon(
               onPressed: () {
-                Get.to(() => CustomerEdit(
-                      customer: supplier,
-                    ));
+                Get.to(() => CustomerForm(
+                          customer: supplier,
+                        ))!
+                    .then((i) => Get.back());
               },
               label: Text('edit'.tr),
               icon: Icon(Icons.edit),

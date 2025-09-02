@@ -7,7 +7,7 @@ import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/invoice.dart';
 import 'package:store_management/models/profits.dart';
 import 'package:store_management/models/transaction.dart';
-import 'package:store_management/ui/customer_add.dart';
+import 'package:store_management/ui/forms/customer_form.dart';
 import 'package:store_management/ui/invoice_view.dart';
 import 'package:store_management/utils/app_constants.dart';
 import 'package:validatorless/validatorless.dart';
@@ -55,7 +55,7 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                       label: Text('custormer name'.tr),
                       suffix: TextButton.icon(
                         onPressed: () async {
-                          customer = await Get.to(() => CustomerAdd(),
+                          customer = await Get.to(() => CustomerForm(),
                               arguments: customerNameControll.text);
                           customerNameControll.text = customer?.name ?? '';
                         },
@@ -87,7 +87,7 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                     title: Text('no customer found'
                         .trParams({'name': customerNameControll.text})),
                     onTap: () async {
-                      customer = await Get.to(() => CustomerAdd(),
+                      customer = await Get.to(() => CustomerForm(),
                           arguments: customerNameControll.text);
                       customerNameControll.text = customer?.name ?? '';
                     },
