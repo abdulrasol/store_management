@@ -74,7 +74,8 @@ class _TransactionAddState extends State<TransactionAdd> {
                         .where((trans) =>
                             trans.customer.target!.id == customer!.id)
                         .toList()
-                        .where((trans) => trans.type() == TransactionType.pay)
+                        .where(
+                            (trans) => trans.gettype() == TransactionType.pay)
                         .toList();
                   });
                 },
@@ -149,9 +150,11 @@ class _TransactionAddState extends State<TransactionAdd> {
                         customer != null &&
                         customerNameControll.text.isNotEmpty) {
                       Transaction t = Transaction(
-                          date: DateTime.now().millisecondsSinceEpoch,
-                          amount: double.tryParse(payControll.text) ??
-                              double.parse('${payControll.text}.0'));
+                        date: DateTime.now().millisecondsSinceEpoch,
+                        amount: double.tryParse(payControll.text) ??
+                            double.parse('${payControll.text}.0'),
+                        type: 2,
+                      );
                       t.customer.target = customer!;
                       databaseController.newTransaction(t);
                       Get.back();

@@ -12,11 +12,13 @@ class Transaction {
   final invoice = ToOne<Invoice>();
   final voucher = ToOne<Voucher>();
   final customer = ToOne<Customer>();
+  final int type;
   int date;
 
   Transaction({
     required this.date,
     required this.amount,
+    required this.type,
   });
 
   String paymentDate() {
@@ -27,11 +29,15 @@ class Transaction {
     return '${s[0].substring(0, 10)}, ${s[1].substring(0, 5)}';
   }
 
-  TransactionType type() {
-    if (amount < 0) {
-      return TransactionType.buy;
-    } else {
-      return TransactionType.pay;
+  TransactionType gettype() {
+    switch (type) {
+      case 1:
+        return TransactionType.buy;
+      case 2:
+        return TransactionType.pay;
+
+      default:
+        return TransactionType.discount;
     }
   }
 

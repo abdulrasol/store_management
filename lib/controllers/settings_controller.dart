@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -67,6 +66,7 @@ class SettingsController extends GetxController {
 
   Future<void> updateSettings() async {
     currencyFormat = NumberFormat.currency(
+      locale: prefs.getString('languageCode') ?? 'en',
       name: prefs.getString('currency_name') ?? 'USD',
       symbol: prefs.getString('currency_symbol') ?? '\$',
       decimalDigits: prefs.getInt('decimal_digits') ?? 0,

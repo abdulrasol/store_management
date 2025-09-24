@@ -136,14 +136,14 @@ class DatabaseController extends GetxController {
     transactionSell.amount = invoice.pricetoPay();
     Transaction transactionPay = invoice.transactions[1];
     transactionPay.amount = paymentAmount;
-    Transaction transactionDiscount =
-        Transaction(date: invoice.date, amount: discount);
+    Transaction transactionDiscount = Transaction(
+        date: invoice.date, amount: discount, type: 3);
     try {
       transactionDiscount = invoice.transactions[2];
     } catch (e) {
       transactionDiscount.customer.target = invoice.customer.target;
       invoice.transactions.add(transactionDiscount);
-     // print(' old version without discount transacrion');
+      // print(' old version without discount transacrion');
     }
     transactionDiscount.amount = discount;
     int id = objectBox.invoiceBox.put(invoice);

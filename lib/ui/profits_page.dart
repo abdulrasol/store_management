@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:store_management/ui/invoice_view.dart';
 import 'package:store_management/ui/invoices_page.dart';
 
 import '../controllers/settings_controller.dart';
@@ -22,6 +23,9 @@ class ProfitsPage extends StatelessWidget {
             itemCount: databaseController.profits.length,
             itemBuilder: (context, index) {
               return ListTile(
+                onTap: () => Get.to(() => InvoiceView(
+                    invoice:
+                        databaseController.profits[index].invoice.target!)),
                 title: Text(
                     '${'Profit Amount'.tr} :${settingsController.currencyFormatter(databaseController.profits[index].profit())}'),
                 subtitle: Wrap(

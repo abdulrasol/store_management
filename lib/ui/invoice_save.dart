@@ -193,14 +193,20 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                         customerNameControll.text.isNotEmpty) {
                       widget.invoice.customer.target = customer;
                       Transaction transactionSell = Transaction(
-                          amount: (-1 * widget.invoice.pricetoPay()),
-                          date: widget.invoice.date);
+                        amount: (-1 * widget.invoice.pricetoPay()),
+                        date: widget.invoice.date,
+                        type: 1,
+                      );
                       Transaction transactionPay = Transaction(
-                          amount: double.tryParse(payControll.text) ?? 0,
-                          date: widget.invoice.date);
+                        amount: double.tryParse(payControll.text) ?? 0,
+                        date: widget.invoice.date,
+                        type: 2,
+                      );
                       Transaction transactionDiscount = Transaction(
-                          amount: (double.tryParse(discountControll.text) ?? 0),
-                          date: widget.invoice.date);
+                        amount: (double.tryParse(discountControll.text) ?? 0),
+                        date: widget.invoice.date,
+                        type: 3,
+                      );
                       transactionSell.customer.target =
                           widget.invoice.customer.target;
                       transactionPay.customer.target =

@@ -34,10 +34,10 @@ class _InvoiceSaveUpdateState extends State<InvoiceSaveUpdate> {
 
   @override
   Widget build(BuildContext context) {
-    Transaction disTran = Transaction(date: widget.invoice.date, amount: 0);
+    Transaction disTran = Transaction(
+        date: widget.invoice.date, amount: 0, type: 3);
 
     try {
-      
       disTran = widget.invoice.transactions[2];
     } catch (e) {
       if (kDebugMode) {

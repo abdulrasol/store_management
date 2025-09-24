@@ -9,6 +9,7 @@ import 'package:store_management/ui/item_view.dart';
 class SearchDelegateHelper extends SearchDelegate {
   DatabaseController databaseController = Get.find();
   SettingsController settingsController = Get.find();
+
   List elements = [];
   @override
   List<Widget>? buildActions(BuildContext context) {
