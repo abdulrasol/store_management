@@ -34,18 +34,12 @@ class Invoice {
   }
 
   double discount() {
-    if (transactions.length == 3) {
-      return transactions[2].amount;
-    }
-    return 0;
+    return transactions.where((t) => t.type == 3).fold(0.0, (sum, t) => sum + t.amount);
   }
 
   // double left() => pricetoPay() - (transaction.target!.amount);
   String invoiceDate() {
-    List s = DateTime.fromMillisecondsSinceEpoch(date)
-        .toLocal()
-        .toIso8601String()
-        .split('T');
+    List s = DateTime.fromMillisecondsSinceEpoch(date).toLocal().toIso8601String().split('T');
     return '${s[0].substring(0, 10)} ${s[1].substring(0, 5)}';
   }
 

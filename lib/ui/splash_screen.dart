@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/utils/app_constants.dart';
 
+import '../controllers/database_controller.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -19,7 +21,8 @@ class SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  SettingsController settingsController = Get.find();
+  // Don't initialize here immediately if SettingsController isn't ready
+  // SettingsController settingsController = Get.find(); 
 
   @override
   void initState() {
@@ -51,26 +54,53 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bool onboardingComplete =
-        prefs.getBool('onboarding_complete') ?? false;
+   try {
+      final prefs = await SharedPreferences.getInstance();
 
-    final bool appPolicyArgument =
-        prefs.getBool('app_policy_argument') ?? false;
+      // 1. Initialize Database Controller here (Wait for ObjectBox)
+      // This ensures DB is ready before the user enters the app
+      final dbController = Get.put(DatabaseController());
+      await dbController.init(); // Make sure your init() is async
 
-    if (!appPolicyArgument) {
-      // push app policy dialog
-      await Get.dialog(appPolicyDialog());
-    }
-    if (!mounted) return;
+      final bool onboardingComplete =
+          prefs.getBool('onboarding_complete') ?? false;
+      final bool appPolicyArgument =
+          prefs.getBool('app_policy_argument') ?? false;
 
-    if (onboardingComplete) {
-      // إذا تم إكمال شاشة البداية سابقًا، انتقل إلى الشاشة الرئيسية
-      Navigator.of(context).pushReplacementNamed('/home');
-    } else {
-      // إذا كانت هذه المرة الأولى، انتقل إلى شاشة البداية
-      Navigator.of(context).pushReplacementNamed('/onboarding');
-    }
+      if (!appPolicyArgument) {
+        await Get.dialog(
+          appPolicyDialog(),
+          barrierDismissible: false, // User MUST click a button
+        );
+
+        // Re-check if they actually agreed before proceeding
+        final updatedPrefs = await SharedPreferences.getInstance();
+        if (updatedPrefs.getBool('app_policy_argument') != true) {
+          // If they didn't agree (e.g. back button), exit or show dialog again
+          exit(0);
+        }
+      }
+
+      if (!mounted) return;
+
+      if (onboardingComplete) {
+        // إذا تم إكمال شاشة البداية سابقًا، انتقل إلى الشاشة الرئيسية
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        // إذا كانت هذه المرة الأولى، انتقل إلى شاشة البداية
+        Navigator.of(context).pushReplacementNamed('/onboarding');
+      }
+    } catch (e) {
+     Get.defaultDialog(
+         title: "Initialization Error",
+         middleText: "We couldn't load your data. Please restart the app.\nError: $e",
+         textConfirm: "Retry",
+         onConfirm: () {
+           Get.back();
+           _checkSettings(); // Try again
+         }
+     );
+   }
   }
 
   Directionality appPolicyDialog() {
@@ -129,6 +159,9 @@ class SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Retrieve controller safely inside build or use GetBuilder/Obx if needed
+    final settingsController = Get.find<SettingsController>();
+    
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -163,7 +196,7 @@ class SplashScreenState extends State<SplashScreen>
                           ),
                         ],
                       ),
-                      child: settingsController.logo.value != null
+                      child: Obx(() => settingsController.logo.value != null
                           ? SizedBox(
                               width: 120,
                               height: 120,
@@ -176,7 +209,7 @@ class SplashScreenState extends State<SplashScreen>
                               Icons.point_of_sale_outlined,
                               size: 80,
                               color: Colors.blue.shade700,
-                            )),
+                            ))),
                 ),
               ),
 

@@ -2,7 +2,7 @@
 
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Windows%20%7C%20Linux%20%7C%20Web-informational?style=flat-square)
 
-[![Get it on Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=io.github.abdulrasol.store_mangment) [![Get it on Huawei AppGallery](https://developer.huawei.com/consumer/en/doc/start/appgallery-badge-0000001050204636)](https://appgallery.huawei.com/#/app/C114458581)
+[![Get it on Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=io.github.abdulrasol.store_mangment) [![Explore it on AppGallery](https://huaweimobileservices.com/wp-content/uploads/2020/02/Badge-White.png)](https://appgallery.huawei.com/#/app/C114458581)
 
 Store Management App is your all-in-one solution for effortless store management. Track inventory, manage invoices, analyze sales, and stay connected with customers and suppliers. Simplify your business operations and boost your profits today!
 
@@ -17,6 +17,22 @@ Store Management App is your all-in-one solution for effortless store management
 - **Voucher Management:** Handle payment and receipt vouchers efficiently.
 - **Sales Overview:** Get a quick snapshot of total sales, last month's performance, and net revenue.
 - **Debt Tracking:** Monitor outstanding debts from customers.
+
+## Changelog
+
+- **New Features:**
+  - **Backup & Restore:** Securely save your store data and restore it whenever needed.
+  - **Advanced Analytics:** New dashboard with interactive charts for Sales, Profits, and Expenses (Weekly, Monthly, Yearly views).
+  - **Insights:** Added "Top Selling Items" and "Low Stock Alerts" for better inventory tracking.
+
+- **UI Redesign:**
+  - **Modern Drawer:** Completely redesigned navigation drawer with a clean, flat, and minimalist UI.
+  - **Icons:** Updated drawer icons to better represent each section.
+
+- **Improvements & Fixes:**
+  - **Translations:** Fixed language switching issues and standardized translation keys for 5 supported languages.
+  - **Performance:** optimized UI rendering and fixed deprecation warnings.
+  - **Documentation:** Updated README with correct badges and links.
 
 ## Platforms
 

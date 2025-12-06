@@ -42,6 +42,7 @@ dependencies:
   objectbox: ^4.1.0
   objectbox_flutter_libs: any
   path_provider: ^2.1.5
+  path: ^1.9.0
   pdf: ^3.11.3
   intl: ^0.20.2
   printing: ^5.14.2
@@ -52,6 +53,10 @@ dependencies:
   material_speed_dial: ^0.0.7
   file_selector: ^1.0.3
   icons_launcher: ^3.0.1
+  fl_chart: ^1.1.1
+  archive: ^4.0.7
+  file_picker: ^10.3.7
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -63,8 +68,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.15
+  build_runner: any
   objectbox_generator: any
+  source_gen: any
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -148,6 +154,9 @@ icons_launcher:
       enable: true
       image_path: "assets/png/logo.png"
     ios:
+      enable: true
+      image_path: "assets/png/logo.png"
+    macos:
       enable: true
       image_path: "assets/png/logo.png"
     linux:

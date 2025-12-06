@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:store_management/controllers/database_controller.dart';
-import 'package:store_management/database/objectbox.dart';
 import 'package:store_management/ui/splash_screen.dart';
 import 'package:store_management/ui/home.dart';
 import 'package:store_management/utils/app_theme.dart';
@@ -11,12 +9,6 @@ import 'ui/onboarding_screen.dart' show OnboardingScreen;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final database = Get.put(DatabaseController());
-
-  Get.put(SettingsController());
-  final objectBox = await ObjectBox.create();
-  await database.init(objectBox);
-
   runApp(MyApp());
 }
 
@@ -26,8 +18,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = Get.put(SettingsController());
+
     return Obx(() => GetMaterialApp(
-          // title: 'Store Management App',
           initialRoute: '/',
           routes: {
             '/': (context) => const SplashScreen(),
@@ -40,7 +32,7 @@ class MyApp extends StatelessWidget {
           themeMode: settings.appTheme.value,
           locale: settings.appLang.value,
           translations: AppTranslations(),
-          fallbackLocale: Locale('en', 'US'),
+          fallbackLocale: const Locale('en'),
         ));
   }
 }

@@ -10,11 +10,8 @@ import '../controllers/settings_controller.dart';
 
 SettingsController settingsController = Get.find();
 
-int currentMounthMilliSecond =
-    DateTime(DateTime.now().year, DateTime.now().month, 1)
-        .millisecondsSinceEpoch;
-int currentyearMilliSecond =
-    DateTime(DateTime.now().year, 1, 1).millisecondsSinceEpoch;
+int currentMounthMilliSecond = DateTime(DateTime.now().year, DateTime.now().month, 1).millisecondsSinceEpoch;
+int currentyearMilliSecond = DateTime(DateTime.now().year, 1, 1).millisecondsSinceEpoch;
 int all = DateTime(2024, 1, 1).millisecondsSinceEpoch;
 int viewExpenseFrom = all;
 int pickedViewExpenseFrom = viewExpenseFrom;
@@ -83,8 +80,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
                       lastDate: DateTime.now(),
                     ).then((date) {
                       setState(() {
-                        pickedViewExpenseFrom =
-                            date?.millisecondsSinceEpoch ?? viewExpenseFrom;
+                        pickedViewExpenseFrom = date?.millisecondsSinceEpoch ?? viewExpenseFrom;
                       });
                     });
                   },
@@ -98,14 +94,10 @@ class _ExpensesPageState extends State<ExpensesPage> {
                 () => ListView(
                   //   shrinkWrap: true,
                   children: databaseController.expenses
-                      .where((e) =>
-                          e.date.millisecondsSinceEpoch >=
-                          pickedViewExpenseFrom)
+                      .where((e) => e.date.millisecondsSinceEpoch >= pickedViewExpenseFrom)
                       .map((expense) => ListTile(
-                            onTap: () =>
-                                Get.to(() => ExpenseView(expense: expense)),
-                            title: Text(
-                                '${'Amount'.tr} :${settingsController.currencyFormatter(expense.amount)}'),
+                            onTap: () => Get.to(() => ExpenseView(expense: expense)),
+                            title: Text('${'Amount'.tr} :${settingsController.currencyFormatter(expense.amount)}'),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -146,15 +138,9 @@ class _ExpensesPageState extends State<ExpensesPage> {
               Text('Total Expenses'.tr),
               const Spacer(),
               Obx(
-                () => Text(settingsController.currencyFormatter(
-                    databaseController
-                        .getFilteriedExpenses(
-                            DateTime.fromMillisecondsSinceEpoch(
-                                pickedViewExpenseFrom))
-                        .fold(
-                            0,
-                            (previousValue, element) =>
-                                previousValue + element.amount))),
+                () => Text(settingsController.currencyFormatter(databaseController
+                    .getFilteriedExpenses(DateTime.fromMillisecondsSinceEpoch(pickedViewExpenseFrom))
+                    .fold(0, (previousValue, element) => previousValue + element.amount))),
               )
             ],
           ),
@@ -187,15 +173,12 @@ class Search extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    List<Expense> expenses = databaseController.expenses
-        .where((tra) => tra.description.contains(query))
-        .toList();
+    List<Expense> expenses = databaseController.expenses.where((tra) => tra.description.contains(query)).toList();
     return ListView.builder(
         itemCount: expenses.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(
-                settingsController.currencyFormatter(expenses[index].amount)),
+            title: Text(settingsController.currencyFormatter(expenses[index].amount)),
             subtitle: Wrap(
               alignment: WrapAlignment.spaceBetween,
               runAlignment: WrapAlignment.spaceBetween,
@@ -216,15 +199,12 @@ class Search extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<Expense> expenses = databaseController.expenses
-        .where((tra) => tra.description.contains(query))
-        .toList();
+    List<Expense> expenses = databaseController.expenses.where((tra) => tra.description.contains(query)).toList();
     return ListView.builder(
         itemCount: expenses.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(
-                settingsController.currencyFormatter(expenses[index].amount)),
+            title: Text(settingsController.currencyFormatter(expenses[index].amount)),
             subtitle: Wrap(
               alignment: WrapAlignment.spaceBetween,
               runAlignment: WrapAlignment.spaceBetween,

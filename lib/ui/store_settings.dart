@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_management/controllers/settings_controller.dart';
+import 'package:store_management/services/backup_service.dart';
 import 'package:store_management/utils/app_constants.dart';
 
 //DatabaseController databaseController = Get.find(); //put(DatabaseController());
@@ -22,8 +23,9 @@ class StoreSettingsState extends State<StoreSettings> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _storeNameController = TextEditingController();
   final TextEditingController _currencyNameController = TextEditingController();
-  final TextEditingController _currencySymbolController =
-      TextEditingController();
+  final TextEditingController _currencySymbolController = TextEditingController();
+  final TextEditingController _invoiceTermsController = TextEditingController();
+  final TextEditingController _invoiceFooterController = TextEditingController();
   int _decimalDigits = 0;
   String? logoString;
 
@@ -39,6 +41,8 @@ class StoreSettingsState extends State<StoreSettings> {
       _storeNameController.text = prefs.getString('store_name') ?? '';
       _currencyNameController.text = prefs.getString('currency_name') ?? '';
       _currencySymbolController.text = prefs.getString('currency_symbol') ?? '';
+      _invoiceTermsController.text = prefs.getString('invoice_terms') ?? '';
+      _invoiceFooterController.text = prefs.getString('invoice_footer') ?? '';
       _decimalDigits = prefs.getInt('decimal_digits') ?? 0;
       logoString = prefs.getString('logo');
     });
@@ -49,6 +53,8 @@ class StoreSettingsState extends State<StoreSettings> {
     _storeNameController.dispose();
     _currencyNameController.dispose();
     _currencySymbolController.dispose();
+    _invoiceTermsController.dispose();
+    _invoiceFooterController.dispose();
     super.dispose();
   }
 
@@ -58,14 +64,15 @@ class StoreSettingsState extends State<StoreSettings> {
       await prefs.setString('store_name', _storeNameController.text);
       await prefs.setString('currency_name', _currencyNameController.text);
       await prefs.setString('currency_symbol', _currencySymbolController.text);
+      await prefs.setString('invoice_terms', _invoiceTermsController.text);
+      await prefs.setString('invoice_footer', _invoiceFooterController.text);
       await prefs.setInt('decimal_digits', _decimalDigits);
       // await prefs.setBool('onboarding_complete', false);
       if (logoString != null) {
         await prefs.setString('logo', logoString!);
       }
-
-      if (!mounted) return;
       Get.appUpdate();
+      if (!mounted) return;
       Navigator.of(context).pop(); // العودة إلى الشاشة السابقة بعد الحفظ
     }
   }
@@ -143,8 +150,7 @@ class StoreSettingsState extends State<StoreSettings> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Please re-enter your store information'
-                            .tr, // تغيير النص
+                        'Please re-enter your store information'.tr, // تغيير النص
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey.shade700,
@@ -193,32 +199,24 @@ class StoreSettingsState extends State<StoreSettings> {
                                   onPressed: () async {
                                     if (!GetPlatform.isDesktop) {
                                       final ImagePicker picker = ImagePicker();
-                                      XFile? logo = await picker.pickImage(
-                                          source: ImageSource.gallery);
+                                      XFile? logo = await picker.pickImage(source: ImageSource.gallery);
                                       if (logo != null) {
                                         File file = File(logo.path);
-                                        logoString = base64Encode(
-                                            file.readAsBytesSync());
+                                        logoString = base64Encode(file.readAsBytesSync());
                                       }
                                     } else {
                                       const XTypeGroup typeGroup = XTypeGroup(
                                         label: 'images',
                                         extensions: <String>['jpg', 'png'],
                                       );
-                                      final XFile? file = await openFile(
-                                          acceptedTypeGroups: <XTypeGroup>[
-                                            typeGroup
-                                          ]);
+                                      final XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
                                       if (file != null) {
-                                        logoString = base64Encode(
-                                            await file.readAsBytes());
+                                        logoString = base64Encode(await file.readAsBytes());
                                         setState(() {});
                                       }
                                     }
                                   },
-                                  child: Text(logoString != null
-                                      ? 'Change Logo'.tr
-                                      : 'Select Store Logo'.tr))
+                                  child: Text(logoString != null ? 'Change Logo'.tr : 'Select Store Logo'.tr))
                             ],
                           ),
                         ),
@@ -285,13 +283,11 @@ class StoreSettingsState extends State<StoreSettings> {
                               const SizedBox(height: 8),
                               Container(
                                 decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: Colors.grey.shade400),
+                                  border: Border.all(color: Colors.grey.shade400),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<int>(
                                       isExpanded: true,
@@ -303,8 +299,7 @@ class StoreSettingsState extends State<StoreSettings> {
                                       },
                                       items: [0, 1, 2, 3]
                                           .map<DropdownMenuItem<int>>(
-                                            (int value) =>
-                                                DropdownMenuItem<int>(
+                                            (int value) => DropdownMenuItem<int>(
                                               value: value,
                                               child: Text('$value'),
                                             ),
@@ -338,9 +333,7 @@ class StoreSettingsState extends State<StoreSettings> {
                               ),
                               const SizedBox(height: 16),
                               DropdownButtonFormField<ThemeMode>(
-                                initialValue: Get.isDarkMode
-                                    ? ThemeMode.dark
-                                    : ThemeMode.light,
+                                initialValue: Get.isDarkMode ? ThemeMode.dark : ThemeMode.light,
                                 decoration: InputDecoration(
                                   labelText: 'App Theme'.tr,
                                   border: OutlineInputBorder(
@@ -364,8 +357,7 @@ class StoreSettingsState extends State<StoreSettings> {
                                 ],
                                 onChanged: (ThemeMode? value) async {
                                   Get.changeThemeMode(value!);
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
+                                  final prefs = await SharedPreferences.getInstance();
                                   //    print(value.name);
                                   prefs.setString('app-theme', value.name);
                                 },
@@ -404,11 +396,105 @@ class StoreSettingsState extends State<StoreSettings> {
                                 ],
                                 onChanged: (String? value) async {
                                   Get.updateLocale(Locale(value ?? 'en'));
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
+                                  final prefs = await SharedPreferences.getInstance();
 
                                   prefs.setString('languageCode', value!);
                                   Get.updateLocale(Locale(value));
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                      Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Invoice Customization'.tr,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _invoiceTermsController,
+                                decoration: InputDecoration(
+                                  labelText: 'Variables / Terms'.tr,
+                                  hintText: 'e.g. Warranty details'.tr,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  prefixIcon: const Icon(Icons.description),
+                                ),
+                                maxLines: 3,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _invoiceFooterController,
+                                decoration: InputDecoration(
+                                  labelText: 'Footer Message'.tr,
+                                  hintText: 'e.g. Thank you for your business!'.tr,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  prefixIcon: const Icon(Icons.short_text),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                      Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.security, color: Colors.blue.shade700),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Data Safety'.tr,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              ListTile(
+                                leading: const Icon(Icons.download, color: Colors.teal),
+                                title: Text('Backup Data'.tr),
+                                subtitle: Text('Save a copy of your data'.tr),
+                                onTap: () async {
+                                  await BackupService().createBackup();
+                                },
+                              ),
+                              const Divider(),
+                              ListTile(
+                                leading: const Icon(Icons.restore, color: Colors.orange),
+                                title: Text('Restore Data'.tr),
+                                subtitle: Text('Restore from a backup file'.tr),
+                                onTap: () async {
+                                  await BackupService().restoreBackup();
                                 },
                               ),
                             ],

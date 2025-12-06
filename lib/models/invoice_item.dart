@@ -11,6 +11,7 @@ class InvoiceItem {
   String itemName; // اسم العنصر
 
   double itemSellPrice; // سعر البيع وقت إنشاء الفاتورة
+  double itemBuyPrice; // سعر الشراء وقت إنشاء الفاتورة
 
   // العلاقة يمكن إبقاؤها للمرجعية فقط، لكن لا تعتمد عليها للسعر
   final item = ToOne<Item>();
@@ -20,6 +21,7 @@ class InvoiceItem {
     required this.quantity,
     required this.itemName,
     required this.itemSellPrice,
+    this.itemBuyPrice = 0.0,
   });
 
   double saledPrice() => itemSellPrice;
@@ -32,6 +34,7 @@ class InvoiceItem {
       'quantity': quantity,
       'itemName': itemName,
       'itemSellPrice': itemSellPrice,
+      'itemBuyPrice': itemBuyPrice,
     };
   }
 }

@@ -1,7 +1,6 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:store_management/models/invoice.dart';
 
-
 @Entity()
 class Profits {
   @Id()
@@ -15,21 +14,29 @@ class Profits {
   }
 //trasnsactions.fold<double>(0, (sum, trans) => sum + trans.amount)
   num profit() {
-    num total = 0;
-    num discount = 0;
+    if (invoice.target == null) return 0.0;
 
-    if (invoice.target != null) {
-      total = invoice.target!.items.fold(
-          0,
-          (sum, item) =>
-              sum + (item.itemSellPrice - item.item.target!.buyPrice));
+    num totalRevenue = 0;
+    num totalCost = 0;
 
-      if (invoice.target!.transactions.length == 3) {
-        discount = invoice.target!.transactions[2].amount;
-      }
-      return total - discount;
+    for (var item in invoice.target!.items) {
+      // Revenue for this item
+      totalRevenue += (item.itemSellPrice * item.quantity);
+
+      // Cost for this item
+      // Use historical buy price if available, otherwise current buy price
+      double buyPrice = item.itemBuyPrice > 0 ? item.itemBuyPrice : (item.item.target?.buyPrice ?? 0.0);
+
+      totalCost += (buyPrice * item.quantity);
     }
 
-    return 0.0;
+    // Gross Profit
+    num gross = totalRevenue - totalCost;
+
+    // Subtract Invoice Discount
+    // Discount reduces the profit
+    num discount = invoice.target!.discount();
+
+    return gross - discount;
   }
 }

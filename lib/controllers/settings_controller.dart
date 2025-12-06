@@ -7,29 +7,40 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsController extends GetxController {
-  late SharedPreferences prefs;
-  late Rx<String?> appName;
-  late Rx<String?> logo;
-  late NumberFormat currencyFormat;
+  SharedPreferences? prefs;
+  Rx<String?> appName = Rx<String?>(null);
+  Rx<String?> logo = Rx<String?>(null);
+  Rx<String> invoiceTerms = Rx<String>('');
+  Rx<String> invoiceFooter = Rx<String>('');
+  NumberFormat currencyFormat = NumberFormat.currency(locale: 'en', name: 'USD', symbol: '\$', decimalDigits: 0);
   Rx<ThemeMode> appTheme = Rx<ThemeMode>(ThemeMode.system);
   Rx<Locale> appLang = Rx<Locale>(Locale('en'));
-  late String countryCode;
+  String countryCode = '';
 
   @override
-  void onInit() async {
+  void onInit() {
+    super.onInit();
+    initPrefs();
+  }
+
+  Future<void> initPrefs() async {
     prefs = await SharedPreferences.getInstance();
     await getAppThemeAndLang();
     await updateSettings();
-    super.onInit();
   }
 
   Future<void> getAppThemeAndLang() async {
-    final theme = prefs.getString('app-theme') ?? 'system';
+    if (prefs == null) return;
+    final theme = prefs!.getString('app-theme') ?? 'system';
 
     appLang.value = Locale(
-      prefs.getString('languageCode') ?? Get.deviceLocale?.languageCode ?? 'en',
-      prefs.getString('countryCode'),
+      prefs!.getString('languageCode') ?? Get.deviceLocale?.languageCode ?? 'en',
+      prefs!.getString('countryCode'),
     );
+    // Explicitly update locale to ensure it's applied
+    Get.updateLocale(appLang.value);
+
+    countryCode = prefs!.getString('countryCode') ?? '';
     switch (theme) {
       case 'dark':
         appTheme.value = ThemeMode.dark;
@@ -43,11 +54,14 @@ class SettingsController extends GetxController {
     }
   }
 
-  Future<void> setAppThemeAndLang(
-      {String? lang, String? countryCode, String? themeMode}) async {
-    prefs.setString('languageCode', lang ?? appLang.value.languageCode);
-    prefs.setString(
-        'app-theme', themeMode ?? appTheme.value.name.toLowerCase());
+  Future<void> setAppThemeAndLang({String? lang, String? countryCode, String? themeMode}) async {
+    if (prefs == null) return;
+    prefs!.setString('languageCode', lang ?? appLang.value.languageCode);
+    prefs!.setString('app-theme', themeMode ?? appTheme.value.name.toLowerCase());
+    if (countryCode != null) {
+      prefs!.setString('countryCode', countryCode);
+      this.countryCode = countryCode;
+    }
     appLang.value = Locale(lang ?? appLang.value.languageCode, countryCode);
     switch (themeMode ?? appTheme.value.name.toLowerCase()) {
       case 'dark':
@@ -60,22 +74,31 @@ class SettingsController extends GetxController {
         appTheme.value = ThemeMode.system;
         break;
     }
-    // getAppThemeAndLang();
     Get.updateLocale(appLang.value);
   }
 
   Future<void> updateSettings() async {
+    if (prefs == null) return;
     currencyFormat = NumberFormat.currency(
-      locale: prefs.getString('languageCode') ?? 'en',
-      name: prefs.getString('currency_name') ?? 'USD',
-      symbol: prefs.getString('currency_symbol') ?? '\$',
-      decimalDigits: prefs.getInt('decimal_digits') ?? 0,
+      locale: prefs!.getString('languageCode') ?? 'en',
+      name: prefs!.getString('currency_name') ?? 'USD',
+      symbol: prefs!.getString('currency_symbol') ?? '\$',
+      decimalDigits: prefs!.getInt('decimal_digits') ?? 0,
     );
-    appName = prefs.getString('store_name').obs;
-    logo = prefs.getString('logo').obs;
-    if (logo.value == null) {
-      final logoFile = await rootBundle.load('assets/png/logo.png');
-      logo.value = base64Encode(logoFile.buffer.asUint8List());
+    appName.value = prefs!.getString('store_name');
+    invoiceTerms.value = prefs!.getString('invoice_terms') ?? '';
+    invoiceFooter.value = prefs!.getString('invoice_footer') ?? '';
+
+    String? logoStr = prefs!.getString('logo');
+    if (logoStr == null) {
+      try {
+        final logoFile = await rootBundle.load('assets/png/logo.png');
+        logo.value = base64Encode(logoFile.buffer.asUint8List());
+      } catch (e) {
+        debugPrint('Error loading default logo: $e');
+      }
+    } else {
+      logo.value = logoStr;
     }
   }
 

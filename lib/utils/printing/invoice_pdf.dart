@@ -80,19 +80,15 @@ class InvoiceTamplate {
     // Create a PDF document.
     final doc = pw.Document();
 
-    final fontDataRegular =
-        await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
+    final fontDataRegular = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
     final fontDataBold = await rootBundle.load('assets/fonts/Cairo-Bold.ttf');
     final fontDataLight = await rootBundle.load('assets/fonts/Cairo-Light.ttf');
 
-    final fullBackFont =
-        await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
+    final fullBackFont = await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
 
     final img = await rootBundle.load('assets/png/logo.png');
 
-    logo = settingsController.logo.value != null
-        ? base64Decode(settingsController.logo.value!)
-        : img.buffer.asUint8List();
+    logo = settingsController.logo.value != null ? base64Decode(settingsController.logo.value!) : img.buffer.asUint8List();
 
     doc.addPage(
       pw.MultiPage(
@@ -135,8 +131,7 @@ class InvoiceTamplate {
         width: double.infinity,
         //height: 100,
         child: pw.Directionality(
-          textDirection:
-              getTextDirection(settingsController.appName.value ?? ''),
+          textDirection: getTextDirection(settingsController.appName.value ?? ''),
           child: pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
             children: [
@@ -147,8 +142,7 @@ class InvoiceTamplate {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   mainAxisAlignment: pw.MainAxisAlignment.start,
                   children: [
-                    pw.Text(settingsController.appName.value ?? '',
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.Text(settingsController.appName.value ?? '', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                     pw.SizedBox(height: 10),
                     pw.Text(shortSlag, style: pw.TextStyle()),
                     pw.SizedBox(height: 10),
@@ -158,9 +152,7 @@ class InvoiceTamplate {
               pw.Container(
                 //  alignment: pw.Alignment.topRight,
                 //height: 250,
-                child: logo != null
-                    ? pw.Image(pw.MemoryImage(logo!), width: 100)
-                    : pw.PdfLogo(),
+                child: logo != null ? pw.Image(pw.MemoryImage(logo!), width: 100) : pw.PdfLogo(),
               ),
             ],
           ),
@@ -192,13 +184,11 @@ class InvoiceTamplate {
     );
   }
 
-  pw.PageTheme _buildTheme(PdfPageFormat pageFormat, pw.Font base, pw.Font bold,
-      pw.Font italic, pw.Font fullBackFont) {
+  pw.PageTheme _buildTheme(PdfPageFormat pageFormat, pw.Font base, pw.Font bold, pw.Font italic, pw.Font fullBackFont) {
     return pw.PageTheme(
         pageFormat: pageFormat,
         theme: pw.ThemeData(
-          defaultTextStyle: pw.TextStyle(
-              font: base, fontBold: base, fontFallback: [fullBackFont]),
+          defaultTextStyle: pw.TextStyle(font: base, fontBold: base, fontFallback: [fullBackFont]),
         )
         // theme: pw.ThemeData.withFont(
         //   base: base,
@@ -256,8 +246,7 @@ class InvoiceTamplate {
                           ),
                         ),
                         pw.Directionality(
-                          textDirection:
-                              getTextDirection(invoice.customer.target!.name),
+                          textDirection: getTextDirection(invoice.customer.target!.name),
                           child: pw.Text(
                             ' ${invoice.customer.target!.name}',
                             style: pw.TextStyle(
@@ -303,13 +292,43 @@ class InvoiceTamplate {
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(
-                'Thank you for your business'.tr,
-                style: pw.TextStyle(
-                  color: _darkColor,
-                  fontWeight: pw.FontWeight.bold,
+              pw.Directionality(
+                textDirection: getTextDirection(
+                    settingsController.invoiceFooter.value.isNotEmpty ? settingsController.invoiceFooter.value : 'Thank you for your business'.tr),
+                child: pw.Text(
+                  settingsController.invoiceFooter.value.isNotEmpty ? settingsController.invoiceFooter.value : 'Thank you for your business'.tr,
+                  style: pw.TextStyle(
+                    color: _darkColor,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
                 ),
               ),
+              if (settingsController.invoiceTerms.value.isNotEmpty)
+                pw.Container(
+                  margin: const pw.EdgeInsets.only(top: 10),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Terms & Conditions:',
+                        style: pw.TextStyle(
+                          color: baseColor,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.Directionality(
+                        textDirection: getTextDirection(settingsController.invoiceTerms.value),
+                        child: pw.Text(
+                          settingsController.invoiceTerms.value,
+                          style: const pw.TextStyle(
+                            fontSize: 8,
+                            color: _darkColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               pw.Container(
                 margin: const pw.EdgeInsets.only(top: 20, bottom: 8),
                 child: pw.Text(
@@ -346,12 +365,8 @@ class InvoiceTamplate {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Total Price:'),
-                    pw.Text(
-                        settingsController
-                            .currencyFormatter(invoice.price())
-                            .replaceAll('\u200F', ''),
-                        textDirection: getTextDirection(
-                            settingsController.currencyFormat.currencySymbol)),
+                    pw.Text(settingsController.currencyFormatter(invoice.price()).replaceAll('\u200F', ''),
+                        textDirection: getTextDirection(settingsController.currencyFormat.currencySymbol)),
                   ],
                 ),
                 // pw.SizedBox(height: 5),
@@ -359,12 +374,8 @@ class InvoiceTamplate {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Discount:'),
-                    pw.Text(
-                        settingsController
-                            .currencyFormatter(invoice.discount())
-                            .replaceAll('\u200F', ''),
-                        textDirection: getTextDirection(
-                            settingsController.currencyFormat.currencySymbol)),
+                    pw.Text(settingsController.currencyFormatter(invoice.discount()).replaceAll('\u200F', ''),
+                        textDirection: getTextDirection(settingsController.currencyFormat.currencySymbol)),
                   ],
                 ),
                 // pw.Divider(color: accentColor),
@@ -380,12 +391,8 @@ class InvoiceTamplate {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('Price To Pay:'),
-                      pw.Text(
-                          settingsController
-                              .currencyFormatter(invoice.pricetoPay())
-                              .replaceAll('\u200F', ''),
-                          textDirection: getTextDirection(settingsController
-                              .currencyFormat.currencySymbol)),
+                      pw.Text(settingsController.currencyFormatter(invoice.pricetoPay()).replaceAll('\u200F', ''),
+                          textDirection: getTextDirection(settingsController.currencyFormat.currencySymbol)),
                     ],
                   ),
                 ),
@@ -400,12 +407,8 @@ class InvoiceTamplate {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('Paid Amount:'),
-                      pw.Text(
-                          settingsController
-                              .currencyFormatter(invoice.transactions[1].amount)
-                              .replaceAll('\u200F', ''),
-                          textDirection: getTextDirection(settingsController
-                              .currencyFormat.currencySymbol)),
+                      pw.Text(settingsController.currencyFormatter(invoice.transactions[1].amount).replaceAll('\u200F', ''),
+                          textDirection: getTextDirection(settingsController.currencyFormat.currencySymbol)),
                     ],
                   ),
                 ),
@@ -423,13 +426,9 @@ class InvoiceTamplate {
                       pw.Text('Customer Balance:'),
                       pw.Text(
                           settingsController
-                              .currencyFormatter(invoice
-                                  .customer.target!.trasnsactions
-                                  .fold<double>(
-                                      0, (sum, trans) => sum + trans.amount))
+                              .currencyFormatter(invoice.customer.target!.trasnsactions.fold<double>(0, (sum, trans) => sum + trans.amount))
                               .replaceAll('\u200F', ''),
-                          textDirection: getTextDirection(settingsController
-                              .currencyFormat.currencySymbol)),
+                          textDirection: getTextDirection(settingsController.currencyFormat.currencySymbol)),
                     ],
                   ),
                 ),
@@ -513,8 +512,7 @@ class InvoiceTamplate {
               ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(5),
-                child: pw.Text(item.saledPrice().toString(),
-                    textAlign: pw.TextAlign.center),
+                child: pw.Text(item.saledPrice().toString(), textAlign: pw.TextAlign.center),
               ),
               // pw.Padding(
               //   padding: const pw.EdgeInsets.all(5),
@@ -523,13 +521,11 @@ class InvoiceTamplate {
               // ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(5),
-                child: pw.Text(item.quantity.toStringAsFixed(0),
-                    textAlign: pw.TextAlign.center),
+                child: pw.Text(item.quantity.toStringAsFixed(0), textAlign: pw.TextAlign.center),
               ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(5),
-                child: pw.Text('${item.totalPrice()}',
-                    textAlign: pw.TextAlign.center),
+                child: pw.Text('${item.totalPrice()}', textAlign: pw.TextAlign.center),
               ),
             ],
           ),
@@ -563,7 +559,5 @@ class Product {
 
 pw.TextDirection getTextDirection(String text) {
   final arabicRegex = RegExp(r'[\u0600-\u06FF]');
-  return arabicRegex.hasMatch(text)
-      ? pw.TextDirection.rtl
-      : pw.TextDirection.ltr;
+  return arabicRegex.hasMatch(text) ? pw.TextDirection.rtl : pw.TextDirection.ltr;
 }
