@@ -19,8 +19,7 @@ class OnboardingScreenState extends State<OnboardingScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _storeNameController = TextEditingController();
   final TextEditingController _currencyNameController = TextEditingController();
-  final TextEditingController _currencySymbolController =
-      TextEditingController();
+  final TextEditingController _currencySymbolController = TextEditingController();
   int decimalDigits = 0;
   String? logoString;
   bool appPolicyArgument = false;
@@ -109,6 +108,113 @@ class OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     const SizedBox(height: 40),
 
+                    // Language Settings
+                    Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'App Language'.tr,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            DropdownButtonFormField<String>(
+                              initialValue: Get.locale?.languageCode ?? 'en',
+                              decoration: InputDecoration(
+                                labelText: 'App Language'.tr,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                prefixIcon: const Icon(Icons.language),
+                              ),
+                              items: const [
+                                DropdownMenuItem<String>(
+                                  value: 'ar',
+                                  child: Text('العربية'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'en',
+                                  child: Text('English'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'fa',
+                                  child: Text('فارسى'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'tr',
+                                  child: Text('Türkçe'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'zh',
+                                  child: Text('简体中文'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'es',
+                                  child: Text('Español'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'fr',
+                                  child: Text('Français'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'de',
+                                  child: Text('Deutsch'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'ru',
+                                  child: Text('Русский'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'pt',
+                                  child: Text('Português'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'hi',
+                                  child: Text('हिन्दी'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'id',
+                                  child: Text('Indonesia'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'it',
+                                  child: Text('Italiano'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'th',
+                                  child: Text('ไทย'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'pl',
+                                  child: Text('Polski'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'ro',
+                                  child: Text('Română'),
+                                ),
+                              ],
+                              onChanged: (String? value) async {
+                                if (value == null) return;
+                                Get.updateLocale(Locale(value));
+                                final prefs = await SharedPreferences.getInstance();
+                                await prefs.setString('languageCode', value);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
                     // Store Name
                     Card(
                       elevation: 3,
@@ -149,25 +255,19 @@ class OnboardingScreenState extends State<OnboardingScreen> {
                               onPressed: () async {
                                 if (!GetPlatform.isDesktop) {
                                   final ImagePicker picker = ImagePicker();
-                                  XFile? logo = await picker.pickImage(
-                                      source: ImageSource.gallery);
+                                  XFile? logo = await picker.pickImage(source: ImageSource.gallery);
                                   if (logo != null) {
                                     File file = File(logo.path);
-                                    logoString =
-                                        base64Encode(file.readAsBytesSync());
+                                    logoString = base64Encode(file.readAsBytesSync());
                                   }
                                 } else {
                                   const XTypeGroup typeGroup = XTypeGroup(
                                     label: 'images',
                                     extensions: <String>['jpg', 'png'],
                                   );
-                                  final XFile? file = await openFile(
-                                      acceptedTypeGroups: <XTypeGroup>[
-                                        typeGroup
-                                      ]);
+                                  final XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
                                   if (file != null) {
-                                    logoString =
-                                        base64Encode(await file.readAsBytes());
+                                    logoString = base64Encode(await file.readAsBytes());
                                     setState(() {});
                                   }
                                 }
@@ -245,8 +345,7 @@ class OnboardingScreenState extends State<OnboardingScreen> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<int>(
                                     isExpanded: true,

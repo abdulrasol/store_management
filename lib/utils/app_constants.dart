@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-String appName = 'نظم المستقبل للطاقة الشمسية والانظمة الحديثة';
+String appName = 'Store Management';
 String shortSlag = '';
 
 var appTheme = ThemeData(
@@ -177,8 +177,7 @@ var lightTheme = ThemeData(
       color: Colors.blue,
     ),
   ),
-  colorScheme:
-      ColorScheme.fromSwatch().copyWith(secondary: Colors.blue.shade600),
+  colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.blue.shade600),
 );
 
 ThemeData darkTheme = ThemeData(

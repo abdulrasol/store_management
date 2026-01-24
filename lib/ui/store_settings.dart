@@ -372,28 +372,7 @@ class StoreSettingsState extends State<StoreSettings> {
                                   ),
                                   prefixIcon: const Icon(Icons.language),
                                 ),
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: 'ar',
-                                    child: const Text('العربية'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: 'en',
-                                    child: const Text('English'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: 'fa',
-                                    child: const Text('فارسى'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: 'tr',
-                                    child: const Text('Turkey'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: 'zh',
-                                    child: const Text('简体中文'),
-                                  ),
-                                ],
+                                items: _langs,
                                 onChanged: (String? value) async {
                                   Get.updateLocale(Locale(value ?? 'en'));
                                   final prefs = await SharedPreferences.getInstance();
@@ -537,4 +516,71 @@ class StoreSettingsState extends State<StoreSettings> {
       ),
     );
   }
+
+  final List<DropdownMenuItem<String>> _langs = [
+    DropdownMenuItem<String>(
+      value: 'ar',
+      child: const Text('العربية'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'en',
+      child: const Text('English'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'fa',
+      child: const Text('فارسى'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'tr',
+      child: const Text('Türkçe'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'zh',
+      child: const Text('简体中文'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'es',
+      child: const Text('Español'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'fr',
+      child: const Text('Français'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'de',
+      child: const Text('Deutsch'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'ru',
+      child: const Text('Русский'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'pt',
+      child: const Text('Português'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'hi',
+      child: const Text('हिन्दी'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'id',
+      child: const Text('Indonesia'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'it',
+      child: const Text('Italiano'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'th',
+      child: const Text('ไทย'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'pl',
+      child: const Text('Polski'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'ro',
+      child: const Text('Română'),
+    ),
+  ];
 }

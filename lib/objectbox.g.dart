@@ -164,7 +164,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(4, 2695172627718330469),
     name: 'InvoiceItem',
-    lastPropertyId: const obx_int.IdUid(6, 3902116048956274677),
+    lastPropertyId: const obx_int.IdUid(7, 1859691583752196729),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -204,6 +204,12 @@ final _entities = <obx_int.ModelEntity>[
         flags: 520,
         indexId: const obx_int.IdUid(3, 833268573922389180),
         relationTarget: 'Item',
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 1859691583752196729),
+        name: 'itemBuyPrice',
+        type: 8,
+        flags: 0,
       ),
     ],
     relations: <obx_int.ModelRelation>[],
@@ -687,13 +693,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (InvoiceItem object, fb.Builder fbb) {
         final itemNameOffset = fbb.writeString(object.itemName);
-        fbb.startTable(7);
+        fbb.startTable(8);
         fbb.addInt64(0, object.id);
         fbb.addFloat64(1, object.discount);
         fbb.addInt64(2, object.quantity);
         fbb.addOffset(3, itemNameOffset);
         fbb.addFloat64(4, object.itemSellPrice);
         fbb.addInt64(5, object.item.targetId);
+        fbb.addFloat64(6, object.itemBuyPrice);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -721,11 +728,18 @@ obx_int.ModelDefinition getObjectBoxModel() {
           12,
           0,
         );
+        final itemBuyPriceParam = const fb.Float64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          16,
+          0,
+        );
         final object = InvoiceItem(
           discount: discountParam,
           quantity: quantityParam,
           itemName: itemNameParam,
           itemSellPrice: itemSellPriceParam,
+          itemBuyPrice: itemBuyPriceParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
         object.item.targetId = const fb.Int64Reader().vTableGet(
           buffer,
@@ -1147,6 +1161,11 @@ class InvoiceItem_ {
   /// See [InvoiceItem.item].
   static final item = obx.QueryRelationToOne<InvoiceItem, Item>(
     _entities[3].properties[5],
+  );
+
+  /// See [InvoiceItem.itemBuyPrice].
+  static final itemBuyPrice = obx.QueryDoubleProperty<InvoiceItem>(
+    _entities[3].properties[6],
   );
 }
 

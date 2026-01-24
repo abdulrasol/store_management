@@ -31,11 +31,7 @@ class CustomerView extends StatelessWidget {
               IconButton(
                 onPressed: () async {
                   var pdf = await generateFullInvoice(customer: customer);
-                  await Share.shareXFiles([
-                    XFile.fromData(pdf)
-                  ], fileNameOverrides: [
-                    '${customer.name}-${DateTime.now()}.pdf'
-                  ]);
+                  await Share.shareXFiles([XFile.fromData(pdf)], fileNameOverrides: ['${customer.name}-${DateTime.now()}.pdf']);
                 },
                 icon: Icon(Icons.share_outlined),
               ),
@@ -63,21 +59,13 @@ class CustomerView extends StatelessWidget {
               Tab(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Invoices'.tr),
-                    horSpace,
-                    Icon(Icons.receipt_long)
-                  ],
+                  children: [Text('Invoices'.tr), horSpace, Icon(Icons.receipt_long)],
                 ),
               ),
               Tab(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Transactions'.tr),
-                    horSpace,
-                    Icon(Icons.payment_sharp)
-                  ],
+                  children: [Text('Transactions'.tr), horSpace, Icon(Icons.payment_sharp)],
                 ),
               ),
             ],
@@ -96,14 +84,20 @@ class CustomerView extends StatelessWidget {
           child: Icon(Icons.payment),
         ),
         bottomNavigationBar: BottomAppBar(
-          //  color: Colors.purple,
           child: IconTheme(
             data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
             child: Row(
               children: <Widget>[
                 Text('Customer Balance:'.tr),
                 const Spacer(),
-                Text(settingsController.currencyFormatter(customer.balance())),
+                Builder(builder: (context) {
+                  double balance = customer.balance();
+                  Color color = balance < 0 ? Colors.red : Colors.green;
+                  return Text(
+                    settingsController.currencyFormatter(balance),
+                    style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16),
+                  );
+                }),
               ],
             ),
           ),

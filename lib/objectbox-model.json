@@ -61,9 +61,9 @@
         {
           "id": "5:1644312305468993334",
           "name": "profitId",
+          "indexId": "1:8193307089440492171",
           "type": 11,
           "flags": 520,
-          "indexId": "1:8193307089440492171",
           "relationTarget": "Profits"
         }
       ],
@@ -88,9 +88,9 @@
         {
           "id": "3:3526374402466625193",
           "name": "customerId",
+          "indexId": "2:2747463722400663134",
           "type": 11,
           "flags": 520,
-          "indexId": "2:2747463722400663134",
           "relationTarget": "Customer"
         }
       ],
@@ -104,7 +104,7 @@
     },
     {
       "id": "4:2695172627718330469",
-      "lastPropertyId": "6:3902116048956274677",
+      "lastPropertyId": "7:1859691583752196729",
       "name": "InvoiceItem",
       "properties": [
         {
@@ -136,10 +136,15 @@
         {
           "id": "6:3902116048956274677",
           "name": "itemId",
+          "indexId": "3:833268573922389180",
           "type": 11,
           "flags": 520,
-          "indexId": "3:833268573922389180",
           "relationTarget": "Item"
+        },
+        {
+          "id": "7:1859691583752196729",
+          "name": "itemBuyPrice",
+          "type": 8
         }
       ],
       "relations": []
@@ -163,9 +168,9 @@
         {
           "id": "3:8888490874834464144",
           "name": "supplierId",
+          "indexId": "4:4951935553873381289",
           "type": 11,
           "flags": 520,
-          "indexId": "4:4951935553873381289",
           "relationTarget": "Customer"
         },
         {
@@ -205,9 +210,9 @@
         {
           "id": "3:7746294011363398487",
           "name": "invoiceId",
+          "indexId": "5:2871012218726092206",
           "type": 11,
           "flags": 520,
-          "indexId": "5:2871012218726092206",
           "relationTarget": "Invoice"
         }
       ],
@@ -232,25 +237,25 @@
         {
           "id": "3:7844487900522273277",
           "name": "invoiceId",
+          "indexId": "6:3169789909220924205",
           "type": 11,
           "flags": 520,
-          "indexId": "6:3169789909220924205",
           "relationTarget": "Invoice"
         },
         {
           "id": "4:6862687051892255699",
           "name": "voucherId",
+          "indexId": "7:513232969679809529",
           "type": 11,
           "flags": 520,
-          "indexId": "7:513232969679809529",
           "relationTarget": "Voucher"
         },
         {
           "id": "5:6700508805708819923",
           "name": "customerId",
+          "indexId": "8:760286481797192076",
           "type": 11,
           "flags": 520,
-          "indexId": "8:760286481797192076",
           "relationTarget": "Customer"
         },
         {
@@ -285,9 +290,9 @@
         {
           "id": "3:6070843974725984563",
           "name": "customerId",
+          "indexId": "9:5986636391927475670",
           "type": 11,
           "flags": 520,
-          "indexId": "9:5986636391927475670",
           "relationTarget": "Customer"
         }
       ],
@@ -333,9 +338,9 @@
         {
           "id": "6:4926742530010534436",
           "name": "itemId",
+          "indexId": "10:6583228234191008465",
           "type": 11,
           "flags": 520,
-          "indexId": "10:6583228234191008465",
           "relationTarget": "Item"
         }
       ],

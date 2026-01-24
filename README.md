@@ -24,6 +24,8 @@ Store Management App is your all-in-one solution for effortless store management
   - **Backup & Restore:** Securely save your store data and restore it whenever needed.
   - **Advanced Analytics:** New dashboard with interactive charts for Sales, Profits, and Expenses (Weekly, Monthly, Yearly views).
   - **Insights:** Added "Top Selling Items" and "Low Stock Alerts" for better inventory tracking.
+  - **New Tools:** Added "Fix Data Errors" tool for database integrity and "Debtors Card" for quick debt tracking.
+  - **About Page:** Developer info and donation support.
 
 - **UI Redesign:**
   - **Modern Drawer:** Completely redesigned navigation drawer with a clean, flat, and minimalist UI.
@@ -117,8 +119,11 @@ Currently, the application supports the following languages:
 - English
 - Arabic
 - Turkish
-- Persian
+- Persian (Farsi)
 - Chinese
+- French, Spanish, German, Italian, Portuguese, Russian, Hindi, and more!
+
+View the full list of changes in [WHATS_NEW.md](WHATS_NEW.md).
 
 **How to Contribute:**
 

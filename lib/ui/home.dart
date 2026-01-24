@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
+import 'package:store_management/services/version_check_service.dart';
+import 'package:store_management/ui/customer_view.dart';
 import 'package:store_management/ui/customers_page.dart';
 import 'package:store_management/ui/dashboard_page.dart';
 import 'package:store_management/ui/expenses_page.dart';
-import 'package:store_management/ui/invoice_create.dart';
+import 'package:store_management/ui/forms/invoice_form.dart';
 import 'package:store_management/ui/invoice_view.dart';
 import 'package:store_management/ui/invoices_page.dart';
 import 'package:store_management/ui/items_page.dart';
@@ -15,14 +17,30 @@ import 'package:store_management/ui/profits_page.dart';
 import 'package:store_management/ui/search_delegate.dart';
 import 'package:store_management/ui/store_settings.dart';
 import 'package:store_management/ui/suppliers_page.dart';
+import 'package:store_management/ui/about_page.dart';
 
-class Home extends StatelessWidget {
-  Home({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   final databaseController = Get.find<DatabaseController>();
   final settingsController = Get.find<SettingsController>();
 
   // Local state for chart toggle
+  final RxString _summaryPeriod = 'Month'.obs; // Week, Month, Year - Default Month
+  final RxString _chartPeriod = 'Week'.obs; // Week, Month, Year
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      VersionCheckService().checkVersion(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +71,11 @@ class Home extends StatelessWidget {
                   Expanded(child: _buildLowStockAlerts(context)),
                 ],
               ),
+
               const SizedBox(height: 24),
               _buildRecentInvoices(context),
+              const SizedBox(height: 24),
+              _buildDebtorsList(context),
               const SizedBox(height: 80), // Space for FAB
             ],
           ),
@@ -94,7 +115,6 @@ class Home extends StatelessWidget {
   }
 
   // --- Dashboard Widgets ---
-  final RxString _summaryPeriod = 'Month'.obs; // Week, Month, Year - Default Month
 
   Widget _buildSummaryCards(BuildContext context) {
     // 2 cards per row for better readability on mobile
@@ -237,8 +257,6 @@ class Home extends StatelessWidget {
   }
 
   // --- Dashboard Widgets ---
-
-  final RxString _chartPeriod = 'Week'.obs; // Week, Month, Year
 
   Widget _buildSalesChart(BuildContext context) {
     return Card(
@@ -523,6 +541,63 @@ class Home extends StatelessWidget {
     );
   }
 
+  Widget _buildDebtorsList(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Debts'.tr,
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: () => Get.to(() => CustomersPage()),
+                  child: Text('See All'.tr),
+                )
+              ],
+            ),
+            const SizedBox(height: 16),
+            Obx(() {
+              final debtors = databaseController.getDebtors();
+              if (debtors.isEmpty) {
+                return Text('OK'.tr, style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold));
+              }
+              // Sort by debt (largest debt first, so most negative balance)
+              debtors.sort((a, b) => a.balance().compareTo(b.balance())); // -100 vs -50. -100 is smaller.
+
+              return Column(
+                children: debtors.take(5).map((customer) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: InkWell(
+                      onTap: () => Get.to(() => CustomerView(customer: customer)),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.person, size: 16, color: Colors.redAccent),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(customer.name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14))),
+                          Text(settingsController.currencyFormatter(customer.balance()),
+                              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 13)),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
   // --- End Dashboard Widgets ---
 
   Widget _buildRecentInvoices(BuildContext context) {
@@ -565,7 +640,7 @@ class Home extends StatelessWidget {
   Widget _buildSpeedDial() {
     return FloatingActionButton.extended(
       onPressed: () {
-        Get.to(() => InvoiceCreate());
+        Get.to(() => InvoiceForm());
       },
       backgroundColor: Colors.teal,
       icon: const Icon(Icons.add),
@@ -635,16 +710,27 @@ class Home extends StatelessWidget {
                 ),
                 _drawerItem('Full Analytics'.tr, Icons.insights_outlined, () => Get.to(() => const DashboardPage())),
                 _drawerItem('App Settings'.tr, Icons.settings_outlined, () => Get.to(() => StoreSettings())),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              children: [
-                Text(
-                  'v1.0.0',
-                  style: TextStyle(color: Colors.grey.withValues(alpha: 0.5), fontSize: 12),
+                _drawerItem('About'.tr, Icons.info_outline, () => Get.to(() => const AboutPage())),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Get.back(); // Close drawer
+                      Get.defaultDialog(
+                          title: "Fix Database Checks".tr,
+                          middleText: "This will check all invoices and ensure debits are correctly recorded. Use this if Customer Balances look incorrect.".tr,
+                          textConfirm: "Run Fix".tr,
+                          confirmTextColor: Colors.white,
+                          onConfirm: () {
+                            databaseController.fixDatabaseTransactions();
+                            Get.back();
+                          },
+                          textCancel: "Cancel".tr,
+                          cancelTextColor: Colors.grey);
+                    },
+                    icon: Icon(Icons.build, size: 16),
+                    label: Text("Fix Data Errors".tr),
+                  ),
                 ),
               ],
             ),

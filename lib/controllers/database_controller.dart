@@ -87,10 +87,18 @@ class DatabaseController extends GetxController {
     }
     int id = objectBox.invoiceBox.put(invoice);
 
+    // Explicitly save transactions to ensure they are persisted
+    // The invoice.transactions list should already contain the new transactions
+    if (invoice.transactions.isNotEmpty) {
+      objectBox.transactionBox.putMany(invoice.transactions);
+    }
+
     for (var item in invoice.items) {
-      item.item.target!.quantity -= item.quantity.toInt();
-      item.item.target!.sellPrice = item.itemSellPrice;
-      objectBox.itemBox.put(item.item.target!);
+      if (item.item.target != null) {
+        item.item.target!.quantity -= item.quantity.toInt();
+        item.item.target!.sellPrice = item.itemSellPrice;
+        objectBox.itemBox.put(item.item.target!);
+      }
     }
     invoice.items;
     loading();
@@ -116,14 +124,18 @@ class DatabaseController extends GetxController {
         int newQ = invoiceItem.quantity;
         int leftQ = oldItemQuantity['total-quantity'].toInt();
 
-        invoiceItem.item.target!.quantity = (leftQ + oldQ) - newQ;
-
-        addItem(item: invoiceItem.item.target!);
+        // Only update stock if linked to a real item
+        if (invoiceItem.item.target != null) {
+          invoiceItem.item.target!.quantity = (leftQ + oldQ) - newQ;
+          addItem(item: invoiceItem.item.target!);
+        }
       }
       // now add
       else {
-        invoiceItem.item.target!.quantity -= invoiceItem.quantity.toInt();
-        addItem(item: invoiceItem.item.target!);
+        if (invoiceItem.item.target != null) {
+          invoiceItem.item.target!.quantity -= invoiceItem.quantity.toInt();
+          addItem(item: invoiceItem.item.target!);
+        }
       }
     }
 
@@ -140,7 +152,7 @@ class DatabaseController extends GetxController {
     }
 
     Transaction transactionSell = invoice.transactions[0];
-    transactionSell.amount = invoice.pricetoPay();
+    transactionSell.amount = -1 * invoice.pricetoPay();
     Transaction transactionPay = invoice.transactions[1];
     transactionPay.amount = paymentAmount;
     Transaction transactionDiscount = Transaction(date: invoice.date, amount: discount, type: 3);
@@ -217,6 +229,10 @@ class DatabaseController extends GetxController {
 
   num customerDebt() {
     return custormers.where((customer) => customer.balance() < 0).toList().fold(0, (num previousValue, element) => previousValue + element.balance());
+  }
+
+  List<Customer> getDebtors() {
+    return custormers.where((customer) => customer.balance() < 0).toList();
   }
 
   // Transactions
@@ -301,8 +317,10 @@ class DatabaseController extends GetxController {
     List<InvoiceItem> items = invoice.items;
 
     for (InvoiceItem item in items) {
-      item.item.target!.quantity += item.quantity;
-      objectBox.itemBox.put(item.item.target!);
+      if (item.item.target != null) {
+        item.item.target!.quantity += item.quantity;
+        objectBox.itemBox.put(item.item.target!);
+      }
       objectBox.invoiceItemBox.remove(item.id);
     }
     for (Transaction tran in trans) {
@@ -546,5 +564,42 @@ class DatabaseController extends GetxController {
   // Get low stock items (quantity < 5)
   List<Item> getLowStockItems() {
     return items.where((item) => item.quantity < 5).toList();
+  }
+
+  // Fix Database Transactions (Utility)
+  void fixDatabaseTransactions() {
+    // debugPrint("Starting Database Fix...");
+    int fixedCount = 0;
+    for (var invoice in inovices) {
+      // Check if invoice has a valid Sell transaction (Type 1)
+      bool hasSellTransaction = false;
+      try {
+        hasSellTransaction = invoice.transactions.any((t) => t.type == 1);
+      } catch (e) {
+        hasSellTransaction = false;
+      }
+
+      if (!hasSellTransaction) {
+        // print("Fixing Invoice ID: ${invoice.id}");
+        // Create missing Sell Transaction
+        Transaction transactionSell = Transaction(
+          amount: -1 * invoice.pricetoPay(),
+          date: invoice.date,
+          type: 1, // Sell
+        );
+        transactionSell.invoice.target = invoice;
+        transactionSell.customer.target = invoice.customer.target;
+
+        objectBox.transactionBox.put(transactionSell);
+        fixedCount++;
+      }
+    }
+    // print("Database Fix Complete. Fixed $fixedCount invoices.");
+    if (fixedCount > 0) {
+      loading();
+      Get.snackbar("Success", "Fixed $fixedCount missing transactions.");
+    } else {
+      Get.snackbar("Info", "Database is already clean.");
+    }
   }
 }
