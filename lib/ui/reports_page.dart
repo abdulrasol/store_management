@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
@@ -568,11 +569,28 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
   Future<void> _generatePDF() async {
     final pdf = pw.Document();
 
+    final fontDataRegular = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
+    final fontDataBold = await rootBundle.load('assets/fonts/Cairo-Bold.ttf');
+    final fontDataLight = await rootBundle.load('assets/fonts/Cairo-Light.ttf');
+
+    final baseFont = pw.Font.ttf(fontDataRegular);
+    final boldFont = pw.Font.ttf(fontDataBold);
+    final fallbackFont = pw.Font.ttf(fontDataLight);
+
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
+        theme: pw.ThemeData(
+          defaultTextStyle: pw.TextStyle(
+            font: baseFont,
+            fontBold: boldFont,
+            fontFallback: [fallbackFont],
+          ),
+        ),
         build: (pw.Context context) {
-          return pw.Column(
+          return pw.Directionality(
+            textDirection: pw.TextDirection.rtl,
+            child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               // Header
@@ -705,7 +723,8 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                 ),
               ),
             ],
-          );
+          ),
+        );
         },
       ),
     );
