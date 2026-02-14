@@ -70,7 +70,7 @@ class JobOrder {
     this.updatedAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  double get totalSheetsNeeded => quantityCopies * pagesCount;
+  double get totalSheetsNeeded => (quantityCopies * pagesCount).toDouble();
   double get totalCost => materialCosts.total + laborCosts.total + overheadCosts.total;
   double get profitAmount => pricing.totalPrice - totalCost - (pricing.vatAmount ?? 0);
   double get profitMargin => totalCost > 0 ? (profitAmount / totalCost) * 100 : 0;

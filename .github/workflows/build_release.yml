@@ -62,6 +62,13 @@ jobs:
           flutter pub run build_runner clean
           flutter pub run build_runner build --delete-conflicting-outputs
       
+      - name: Update CocoaPods
+        run: |
+          cd ios
+          rm -f Podfile.lock
+          pod repo update
+          pod update ObjectBox --repo-update
+
       - name: Build iOS
         run: flutter build ios --release --no-codesign
       

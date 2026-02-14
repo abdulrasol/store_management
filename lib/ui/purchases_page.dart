@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/models/purchase.dart';
-import 'package:store_management/ui/components/custom_buttons.dart';
 
 class PurchasesPage extends StatefulWidget {
   const PurchasesPage({super.key});
