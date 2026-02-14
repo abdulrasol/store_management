@@ -48,9 +48,8 @@ jobs:
       - name: Upload App Bundle
         uses: actions/upload-artifact@v4
         with:
-          name: android-release
-          path: build/app/outputs/bundle/release/app-release.aab
-
+          - name: Build Android APK
+    run: flutter build apk --release
   build-ios:
     name: Build iOS
     runs-on: macos-latest
