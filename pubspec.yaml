@@ -39,7 +39,7 @@ dependencies:
   flutter_typeahead: ^5.2.0
   shared_preferences: ^2.5.2
   get_storage: ^2.1.1
-  objectbox: ^4.1.0
+  objectbox: ^5.2.0
   objectbox_flutter_libs: any
   path_provider: ^2.1.5
   path: ^1.9.0
@@ -71,7 +71,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   build_runner: ^2.4.15
-  objectbox_generator: ^4.1.0
+  objectbox_generator: ^5.2.0
+  source_gen: ^4.2.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
