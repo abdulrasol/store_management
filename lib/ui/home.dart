@@ -15,6 +15,7 @@ import 'package:store_management/ui/invoices_page.dart';
 import 'package:store_management/ui/items_page.dart';
 import 'package:store_management/ui/profits_page.dart';
 import 'package:store_management/ui/purchases_page.dart';
+import 'package:store_management/ui/reports_page.dart';
 import 'package:store_management/ui/salaries_page.dart';
 import 'package:store_management/ui/search_delegate.dart';
 import 'package:store_management/ui/store_settings.dart';
@@ -712,6 +713,7 @@ class _HomeState extends State<Home> {
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Divider(),
                 ),
+                _drawerItem('التقارير', Icons.article_outlined, () => Get.to(() => const ReportsPage())),
                 _drawerItem('Full Analytics'.tr, Icons.insights_outlined, () => Get.to(() => const DashboardPage())),
                 _drawerItem('App Settings'.tr, Icons.settings_outlined, () => Get.to(() => StoreSettings())),
                 _drawerItem('About'.tr, Icons.info_outline, () => Get.to(() => const AboutPage())),
