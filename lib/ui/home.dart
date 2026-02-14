@@ -5,14 +5,11 @@ import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/services/version_check_service.dart';
-import 'package:store_management/ui/customer_view.dart';
-import 'package:store_management/ui/customers_page.dart';
 import 'package:store_management/ui/dashboard_page.dart';
 import 'package:store_management/ui/expenses_page.dart';
 import 'package:store_management/ui/forms/invoice_form.dart';
 import 'package:store_management/ui/invoice_view.dart';
 import 'package:store_management/ui/invoices_page.dart';
-import 'package:store_management/ui/items_page.dart';
 import 'package:store_management/ui/profits_page.dart';
 import 'package:store_management/ui/purchases_page.dart';
 import 'package:store_management/ui/reports_page.dart';
@@ -78,7 +75,6 @@ class _HomeState extends State<Home> {
               const SizedBox(height: 24),
               _buildRecentInvoices(context),
               const SizedBox(height: 24),
-              _buildDebtorsList(context),
               const SizedBox(height: 80), // Space for FAB
             ],
           ),
@@ -544,63 +540,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildDebtorsList(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Debts'.tr,
-                  style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-                ),
-                TextButton(
-                  onPressed: () => Get.to(() => CustomersPage()),
-                  child: Text('See All'.tr),
-                )
-              ],
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              final debtors = databaseController.getDebtors();
-              if (debtors.isEmpty) {
-                return Text('OK'.tr, style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold));
-              }
-              // Sort by debt (largest debt first, so most negative balance)
-              debtors.sort((a, b) => a.balance().compareTo(b.balance())); // -100 vs -50. -100 is smaller.
-
-              return Column(
-                children: debtors.take(5).map((customer) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: InkWell(
-                      onTap: () => Get.to(() => CustomerView(customer: customer)),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.person, size: 16, color: Colors.redAccent),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(customer.name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14))),
-                          Text(settingsController.currencyFormatter(customer.balance()),
-                              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 13)),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
   // --- End Dashboard Widgets ---
 
   Widget _buildRecentInvoices(BuildContext context) {
@@ -703,8 +642,6 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.symmetric(vertical: 10),
               children: [
                 _drawerItem('Home'.tr, Icons.store_outlined, () => Get.back()),
-                _drawerItem('items'.tr, Icons.shopping_bag_outlined, () => Get.to(() => ItemsPage())),
-                _drawerItem('customers'.tr, Icons.groups_outlined, () => Get.to(() => CustomersPage())),
                 _drawerItem('Suppliers'.tr, Icons.local_shipping_outlined, () => Get.to(() => SupplierPage())),
                 _drawerItem('المشتريات', Icons.shopping_cart_outlined, () => Get.to(() => const PurchasesPage())),
                 _drawerItem('Expenses'.tr, Icons.receipt_long_outlined, () => Get.to(() => ExpensesPage())),
