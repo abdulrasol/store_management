@@ -65,7 +65,6 @@ jobs:
       - name: Update CocoaPods
         run: |
           cd ios
-          rm -f Podfile.lock
           pod repo update
           pod update ObjectBox --repo-update
           pod install --repo-update
