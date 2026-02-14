@@ -48,5 +48,6 @@ app.*.map.json
 /android/key.properties
 /android/*.keystore
 /android/*.jks
+/android/*.keystore.b64
 
 .qodo
