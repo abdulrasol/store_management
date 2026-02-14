@@ -75,13 +75,39 @@ class Purchase {
   }
 }
 
+class PurchaseCategory {
+  final String id;
+  final String name;
+
+  PurchaseCategory({
+    required this.id,
+    required this.name,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+    };
+  }
+
+  factory PurchaseCategory.fromMap(Map<String, dynamic> map) {
+    return PurchaseCategory(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+    );
+  }
+}
+
 class PurchaseItem {
   final String itemName;
+  final String? categoryId;
   final double quantity;
   final double unitPrice;
 
   PurchaseItem({
     required this.itemName,
+    this.categoryId,
     required this.quantity,
     required this.unitPrice,
   });
@@ -91,6 +117,7 @@ class PurchaseItem {
   Map<String, dynamic> toMap() {
     return {
       'itemName': itemName,
+      'categoryId': categoryId,
       'quantity': quantity,
       'unitPrice': unitPrice,
     };
@@ -99,6 +126,7 @@ class PurchaseItem {
   factory PurchaseItem.fromMap(Map<String, dynamic> map) {
     return PurchaseItem(
       itemName: map['itemName'] ?? '',
+      categoryId: map['categoryId'],
       quantity: (map['quantity'] ?? 0).toDouble(),
       unitPrice: (map['unitPrice'] ?? 0).toDouble(),
     );

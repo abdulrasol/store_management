@@ -16,6 +16,7 @@ class PurchasesPage extends StatefulWidget {
 class _PurchasesPageState extends State<PurchasesPage> {
   final DatabaseController databaseController = Get.find<DatabaseController>();
   List<Purchase> purchases = [];
+  List<PurchaseCategory> categories = [];
   bool isLoading = false;
   DateTime? startDate;
   DateTime? endDate;
@@ -29,6 +30,11 @@ class _PurchasesPageState extends State<PurchasesPage> {
   void initState() {
     super.initState();
     loadPurchases();
+    loadCategories();
+  }
+
+  Future<void> loadCategories() async {
+    categories = await databaseController.getPurchaseCategories();
   }
 
   Future<void> loadPurchases() async {
@@ -236,6 +242,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
     String paymentStatus = 'paid';
     String notes = '';
     List<PurchaseItem> items = [];
+    PurchaseCategory? selectedCategory;
 
     // For adding items
     final itemNameController = TextEditingController();
@@ -343,6 +350,27 @@ class _PurchasesPageState extends State<PurchasesPage> {
                     ),
                     const SizedBox(height: 8),
 
+                    // Category Dropdown
+                    DropdownButtonFormField<PurchaseCategory>(
+                      value: selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: 'الفئة'.tr,
+                        prefixIcon: const Icon(Icons.category),
+                        border: const OutlineInputBorder(),
+                      ),
+                      hint: Text('اختر الفئة'.tr),
+                      items: categories.map((cat) {
+                        return DropdownMenuItem(
+                          value: cat,
+                          child: Text(cat.name),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setDialogState(() => selectedCategory = value);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+
                     // Add Item Row
                     Row(
                       children: [
@@ -378,26 +406,32 @@ class _PurchasesPageState extends State<PurchasesPage> {
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle, color: Colors.blue),
-                          onPressed: () {
-                            if (itemNameController.text.isNotEmpty &&
-                                itemQuantityController.text.isNotEmpty &&
-                                itemPriceController.text.isNotEmpty) {
-                              setDialogState(() {
-                                items.add(PurchaseItem(
-                                  itemName: itemNameController.text,
-                                  quantity: double.parse(itemQuantityController.text),
-                                  unitPrice: double.parse(itemPriceController.text),
-                                ));
-                                itemNameController.clear();
-                                itemQuantityController.clear();
-                                itemPriceController.clear();
-                              });
-                            }
-                          },
-                        ),
                       ],
+                    ),
+                    const SizedBox(height: 8),
+                    // Add Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (itemNameController.text.isNotEmpty &&
+                              itemQuantityController.text.isNotEmpty &&
+                              itemPriceController.text.isNotEmpty) {
+                            setDialogState(() {
+                              items.add(PurchaseItem(
+                                itemName: itemNameController.text,
+                                quantity: double.parse(itemQuantityController.text),
+                                unitPrice: double.parse(itemPriceController.text),
+                              ));
+                              itemNameController.clear();
+                              itemQuantityController.clear();
+                              itemPriceController.clear();
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.add),
+                        label: Text('إضافة الصنف'.tr),
+                      ),
                     ),
                     const SizedBox(height: 8),
 

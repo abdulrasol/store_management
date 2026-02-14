@@ -662,6 +662,59 @@ class DatabaseController extends GetxController {
     await file.writeAsString(jsonEncode(data));
   }
 
+  // ==================== PURCHASE CATEGORIES ====================
+
+  Future<List<PurchaseCategory>> getPurchaseCategories() async {
+    final file = await _getPurchaseCategoriesFile();
+    if (!await file.exists()) {
+      // Return default categories
+      return [
+        PurchaseCategory(id: '1', name: 'ورق طباعة'),
+        PurchaseCategory(id: '2', name: 'حبر'),
+        PurchaseCategory(id: '3', name: 'قطع غيار آلات'),
+        PurchaseCategory(id: '4', name: 'مواد خام'),
+        PurchaseCategory(id: '5', name: 'تغليف'),
+      ];
+    }
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => PurchaseCategory.fromMap(m)).toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+  }
+
+  Future<void> addPurchaseCategory(PurchaseCategory category) async {
+    final categories = await getPurchaseCategories();
+    categories.add(category);
+    await _savePurchaseCategories(categories);
+  }
+
+  Future<void> updatePurchaseCategory(PurchaseCategory updated) async {
+    final categories = await getPurchaseCategories();
+    final index = categories.indexWhere((c) => c.id == updated.id);
+    if (index != -1) {
+      categories[index] = updated;
+      await _savePurchaseCategories(categories);
+    }
+  }
+
+  Future<void> deletePurchaseCategory(String id) async {
+    final categories = await getPurchaseCategories();
+    categories.removeWhere((c) => c.id == id);
+    await _savePurchaseCategories(categories);
+  }
+
+  Future<File> _getPurchaseCategoriesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/purchase_categories.json');
+  }
+
+  Future<void> _savePurchaseCategories(List<PurchaseCategory> categories) async {
+    final file = await _getPurchaseCategoriesFile();
+    final data = categories.map((c) => c.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
   // ==================== SALARIES ====================
 
   Future<List<Employee>> getEmployees() async {

@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
+import 'package:store_management/models/purchase.dart';
 import 'package:store_management/services/backup_service.dart';
 import 'package:store_management/utils/app_constants.dart';
 
@@ -480,9 +482,37 @@ class StoreSettingsState extends State<StoreSettings> {
                           ),
                         ),
                       ),
-
+                      const SizedBox(height: 24),
+                      Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'إعدادات المشتريات'.tr,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ListTile(
+                                leading: const Icon(Icons.category, color: Colors.blue),
+                                title: Text('فئات المشتريات'.tr),
+                                subtitle: Text('إدارة قائمة فئات المشتريات'.tr),
+                                trailing: const Icon(Icons.arrow_forward_ios),
+                                onTap: () => _showPurchaseCategoriesDialog(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 40),
-
                       // Submit Button
                       SizedBox(
                         width: double.infinity,
@@ -527,4 +557,203 @@ class StoreSettingsState extends State<StoreSettings> {
       child: Text('English'),
     ),
   ];
+
+  void _showPurchaseCategoriesDialog() {
+    final DatabaseController databaseController = Get.find<DatabaseController>();
+    
+    Get.dialog(
+      AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.category, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text('فئات المشتريات'.tr),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: FutureBuilder<List<PurchaseCategory>>(
+            future: databaseController.getPurchaseCategories(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final categories = snapshot.data!;
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Add New Category
+                  ElevatedButton.icon(
+                    onPressed: () => _showAddCategoryDialog(databaseController),
+                    icon: const Icon(Icons.add),
+                    label: Text('إضافة فئة جديدة'.tr),
+                  ),
+                  const SizedBox(height: 16),
+                  // Categories List
+                  categories.isEmpty
+                      ? Text('لا توجد فئات'.tr)
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: categories.length,
+                          itemBuilder: (context, index) {
+                            final category = categories[index];
+                            return ListTile(
+                              title: Text(category.name),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () => _showEditCategoryDialog(
+                                      databaseController,
+                                      category,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => _deleteCategory(
+                                      databaseController,
+                                      category,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                ],
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('إغلاق'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddCategoryDialog(DatabaseController controller) {
+    final TextEditingController nameController = TextEditingController();
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('إضافة فئة جديدة'.tr),
+        content: TextField(
+          controller: nameController,
+          decoration: InputDecoration(
+            labelText: 'اسم الفئة'.tr,
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('إلغاء'.tr),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.isNotEmpty) {
+                final category = PurchaseCategory(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: nameController.text,
+                );
+                await controller.addPurchaseCategory(category);
+                Get.back();
+                _showPurchaseCategoriesDialog(); // Refresh
+                Get.snackbar(
+                  'نجاح'.tr,
+                  'تم إضافة الفئة بنجاح'.tr,
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
+              }
+            },
+            child: Text('حفظ'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditCategoryDialog(DatabaseController controller, PurchaseCategory category) {
+    final TextEditingController nameController = TextEditingController(text: category.name);
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('تعديل فئة'.tr),
+        content: TextField(
+          controller: nameController,
+          decoration: InputDecoration(
+            labelText: 'اسم الفئة'.tr,
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('إلغاء'.tr),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.isNotEmpty) {
+                final updated = PurchaseCategory(
+                  id: category.id,
+                  name: nameController.text,
+                );
+                await controller.updatePurchaseCategory(updated);
+                Get.back();
+                _showPurchaseCategoriesDialog(); // Refresh
+                Get.snackbar(
+                  'نجاح'.tr,
+                  'تم تحديث الفئة بنجاح'.tr,
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
+              }
+            },
+            child: Text('حفظ'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteCategory(DatabaseController controller, PurchaseCategory category) async {
+    final confirm = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('تأكيد الحذف'.tr),
+        content: Text('هل أنت متأكد من حذف ${category.name}؟'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('إلغاء'.tr),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('حذف'.tr),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await controller.deletePurchaseCategory(category.id);
+      _showPurchaseCategoriesDialog(); // Refresh
+      Get.snackbar(
+        'نجاح'.tr,
+        'تم حذف الفئة بنجاح'.tr,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    }
+  }
 }
