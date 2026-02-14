@@ -37,6 +37,7 @@ jobs:
       - name: Install CocoaPods dependencies
         run: |
           cd ios
+          pod update ObjectBox --repo-update
           pod install --repo-update
 
       - name: Build iOS (Debug)
