@@ -19,11 +19,14 @@ class _SalariesPageState extends State<SalariesPage> {
   DateTime selectedMonth = DateTime.now();
   int currentTab = 0;
 
-  final NumberFormat currencyFormat = NumberFormat.currency(
-    locale: 'ar_AE',
-    symbol: 'AED ',
-    decimalDigits: 2,
-  );
+  NumberFormat get currencyFormat {
+    final localeCode = Get.locale?.languageCode == 'ar' ? 'ar_AE' : 'en_AE';
+    return NumberFormat.currency(
+      locale: localeCode,
+      symbol: 'AED ',
+      decimalDigits: 2,
+    );
+  }
 
   @override
   void initState() {
@@ -175,7 +178,7 @@ class _SalariesPageState extends State<SalariesPage> {
               const Icon(Icons.calendar_month, color: Colors.teal),
               const SizedBox(width: 8),
               Text(
-                DateFormat('MMMM yyyy', 'ar').format(selectedMonth),
+                _formatMonth(selectedMonth),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -762,7 +765,7 @@ class _SalariesPageState extends State<SalariesPage> {
             _buildDetailRow('الموظف'.tr, salary.employeeName),
             _buildDetailRow(
               'الشهر'.tr,
-              DateFormat('MMMM yyyy', 'ar').format(salary.month),
+              _formatMonth(salary.month),
             ),
             _buildDetailRow('الراتب الأساسي'.tr, currencyFormat.format(salary.baseSalary)),
             if (salary.bonus > 0)
@@ -854,6 +857,15 @@ class _SalariesPageState extends State<SalariesPage> {
         selectedMonth = DateTime(picked.year, picked.month);
       });
       loadData();
+    }
+  }
+
+  String _formatMonth(DateTime month) {
+    final locale = Get.locale?.languageCode == 'ar' ? 'ar' : 'en';
+    try {
+      return DateFormat('MMMM yyyy', locale).format(month);
+    } catch (_) {
+      return DateFormat('MMMM yyyy', 'en').format(month);
     }
   }
 
