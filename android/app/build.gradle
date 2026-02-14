@@ -9,7 +9,7 @@ plugins {
 
 // ابدأ من هنا: إضافة الكود لتحميل ملف key.properties
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('/Users/rasol/MEGA/Dot.IT/App Dev /store_managment/key.properties')
+def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.withInputStream {
         keystoreProperties.load(it)
