@@ -57,7 +57,7 @@ dependencies:
   archive: ^4.0.7
   file_picker: ^10.3.7
   url_launcher: ^6.3.2
-  new_version_plus: ^1.0.1
+
   package_info_plus: ^9.0.0
 
 dev_dependencies:
