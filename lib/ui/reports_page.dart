@@ -588,8 +588,15 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
           ),
         ),
         build: (pw.Context context) {
+          final localeCode = Get.locale?.languageCode == 'ar' ? 'ar' : 'en';
+          final isRtl = localeCode == 'ar';
+          final dateFormat = DateFormat('yyyy-MM-dd', localeCode);
+          final monthFormat = DateFormat('MMMM yyyy', localeCode);
+          final dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm', localeCode);
+          final appName = settingsController.appName.value ?? 'app_name'.tr;
+
           return pw.Directionality(
-            textDirection: pw.TextDirection.rtl,
+            textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
             child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
@@ -598,7 +605,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                 child: pw.Column(
                   children: [
                     pw.Text(
-                      'مطبعة الروعة',
+                      appName,
                       style: pw.TextStyle(
                         fontSize: 24,
                         fontWeight: pw.FontWeight.bold,
@@ -606,7 +613,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                     ),
                     pw.SizedBox(height: 8),
                     pw.Text(
-                      'تقرير مالي',
+                      'تقرير مالي'.tr,
                       style: pw.TextStyle(
                         fontSize: 18,
                         color: PdfColors.grey700,
@@ -614,7 +621,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                     ),
                     pw.SizedBox(height: 8),
                     pw.Text(
-                      'الفترة: ${DateFormat('yyyy-MM-dd').format(startDate)} - ${DateFormat('yyyy-MM-dd').format(endDate)}',
+                      '${'الفترة'.tr}: ${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}',
                       style: const pw.TextStyle(fontSize: 12),
                     ),
                   ],
@@ -631,13 +638,13 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                 ),
                 child: pw.Column(
                   children: [
-                    _buildPDFRow('المبيعات', totalSales),
-                    _buildPDFRow('المشتريات', -totalPurchases),
-                    _buildPDFRow('الرواتب', -totalSalaries),
-                    _buildPDFRow('المصروفات', -totalExpenses),
+                    _buildPDFRow('المبيعات'.tr, totalSales),
+                    _buildPDFRow('المشتريات'.tr, -totalPurchases),
+                    _buildPDFRow('الرواتب'.tr, -totalSalaries),
+                    _buildPDFRow('المصروفات'.tr, -totalExpenses),
                     pw.Divider(thickness: 2),
                     _buildPDFRow(
-                      'صافي الربح',
+                      'صافي الربح'.tr,
                       netProfit,
                       isBold: true,
                       color: netProfit >= 0 ? PdfColors.green : PdfColors.red,
@@ -650,7 +657,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
               // Purchases Details
               if (purchases.isNotEmpty) ...[
                 pw.Text(
-                  'تفاصيل المشتريات',
+                  'تفاصيل المشتريات'.tr,
                   style: pw.TextStyle(
                     fontSize: 16,
                     fontWeight: pw.FontWeight.bold,
@@ -658,11 +665,11 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                 ),
                 pw.SizedBox(height: 10),
                 pw.Table.fromTextArray(
-                  headers: ['المورد', 'رقم الفاتورة', 'التاريخ', 'المبلغ'],
+                  headers: ['المورد'.tr, 'رقم الفاتورة'.tr, 'التاريخ'.tr, 'المبلغ'.tr],
                   data: purchases.map((p) => [
                     p.supplierName,
                     p.receiptNumber,
-                    DateFormat('yyyy-MM-dd').format(p.purchaseDate),
+                    dateFormat.format(p.purchaseDate),
                     currencyFormat.format(p.totalAmount),
                   ]).toList(),
                 ),
@@ -672,7 +679,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
               // Salaries Details
               if (salaries.isNotEmpty) ...[
                 pw.Text(
-                  'تفاصيل الرواتب',
+                  'تفاصيل الرواتب'.tr,
                   style: pw.TextStyle(
                     fontSize: 16,
                     fontWeight: pw.FontWeight.bold,
@@ -680,10 +687,10 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                 ),
                 pw.SizedBox(height: 10),
                 pw.Table.fromTextArray(
-                  headers: ['الموظف', 'الشهر', 'الراتب الأساسي', 'الإجمالي'],
+                  headers: ['الموظف'.tr, 'الشهر'.tr, 'الراتب الأساسي'.tr, 'الإجمالي'.tr],
                   data: salaries.map((s) => [
                     s.employeeName,
-                    DateFormat('MMMM yyyy', 'ar').format(s.month),
+                    monthFormat.format(s.month),
                     currencyFormat.format(s.baseSalary),
                     currencyFormat.format(s.totalSalary),
                   ]).toList(),
@@ -694,7 +701,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
               // Expenses Details
               if (expenses.isNotEmpty) ...[
                 pw.Text(
-                  'تفاصيل المصروفات',
+                  'تفاصيل المصروفات'.tr,
                   style: pw.TextStyle(
                     fontSize: 16,
                     fontWeight: pw.FontWeight.bold,
@@ -702,10 +709,10 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                 ),
                 pw.SizedBox(height: 10),
                 pw.Table.fromTextArray(
-                  headers: ['البيان', 'التاريخ', 'المبلغ'],
+                  headers: ['البيان'.tr, 'التاريخ'.tr, 'المبلغ'.tr],
                   data: expenses.map((e) => [
                     e.description,
-                    DateFormat('yyyy-MM-dd').format(e.date),
+                    dateFormat.format(e.date),
                     currencyFormat.format(e.amount),
                   ]).toList(),
                 ),
@@ -715,7 +722,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
               pw.Spacer(),
               pw.Center(
                 child: pw.Text(
-                  'تم إنشاء هذا التقرير في ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}',
+                  '${'تم إنشاء هذا التقرير في'.tr} ${dateTimeFormat.format(DateTime.now())}',
                   style: const pw.TextStyle(
                     fontSize: 10,
                     color: PdfColors.grey,
@@ -761,16 +768,20 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
   void _shareReport() {
     final StringBuffer report = StringBuffer();
     
-    report.writeln('📊 تقرير مالي - مطبعة الروعة');
-    report.writeln('📅 الفترة: ${DateFormat('yyyy-MM-dd').format(startDate)} - ${DateFormat('yyyy-MM-dd').format(endDate)}');
-    report.writeln('');
-    report.writeln('📈 المبيعات: ${currencyFormat.format(totalSales)}');
-    report.writeln('🛒 المشتريات: ${currencyFormat.format(totalPurchases)}');
-    report.writeln('👥 الرواتب: ${currencyFormat.format(totalSalaries)}');
-    report.writeln('💸 المصروفات: ${currencyFormat.format(totalExpenses)}');
-    report.writeln('━' * 20);
-    report.writeln('${netProfit >= 0 ? "✅" : "❌"} صافي الربح: ${currencyFormat.format(netProfit)}');
+    final localeCode = Get.locale?.languageCode == 'ar' ? 'ar' : 'en';
+    final dateFormat = DateFormat('yyyy-MM-dd', localeCode);
+    final appName = settingsController.appName.value ?? 'app_name'.tr;
 
-    Share.share(report.toString(), subject: 'تقرير مالي - مطبعة الروعة');
+    report.writeln('📊 ${'تقرير مالي'.tr} - $appName');
+    report.writeln('📅 ${'الفترة'.tr}: ${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}');
+    report.writeln('');
+    report.writeln('📈 ${'المبيعات'.tr}: ${currencyFormat.format(totalSales)}');
+    report.writeln('🛒 ${'المشتريات'.tr}: ${currencyFormat.format(totalPurchases)}');
+    report.writeln('👥 ${'الرواتب'.tr}: ${currencyFormat.format(totalSalaries)}');
+    report.writeln('💸 ${'المصروفات'.tr}: ${currencyFormat.format(totalExpenses)}');
+    report.writeln('━' * 20);
+    report.writeln('${netProfit >= 0 ? "✅" : "❌"} ${'صافي الربح'.tr}: ${currencyFormat.format(netProfit)}');
+
+    Share.share(report.toString(), subject: '${'تقرير مالي'.tr} - $appName');
   }
 }
