@@ -287,6 +287,7 @@ final Map<String, String> en = {
   'غير مدفوع': 'Unpaid',
   'دفع جزئي': 'Partial Payment',
   'جزئي': 'Partial',
+  'تحويل بنكي': 'Bank Transfer',
   'بيان': 'Description',
   'الملاحظات': 'Notes',
   'لا توجد مشتريات': 'No Purchases',

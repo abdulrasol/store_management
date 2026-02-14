@@ -174,26 +174,14 @@ class _PurchasesPageState extends State<PurchasesPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: purchase.paymentStatus == 'paid'
-                    ? Colors.green.shade100
-                    : purchase.paymentStatus == 'partial'
-                        ? Colors.orange.shade100
-                        : Colors.red.shade100,
+                color: _paymentStatusColor(purchase.paymentStatus).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                purchase.paymentStatus == 'paid'
-                    ? 'مدفوع'.tr
-                    : purchase.paymentStatus == 'partial'
-                        ? 'جزئي'.tr
-                        : 'غير مدفوع'.tr,
+                _paymentStatusLabel(purchase.paymentStatus).tr,
                 style: TextStyle(
                   fontSize: 12,
-                  color: purchase.paymentStatus == 'paid'
-                      ? Colors.green.shade700
-                      : purchase.paymentStatus == 'partial'
-                          ? Colors.orange.shade700
-                          : Colors.red.shade700,
+                  color: _paymentStatusColor(purchase.paymentStatus),
                 ),
               ),
             ),
@@ -235,7 +223,8 @@ class _PurchasesPageState extends State<PurchasesPage> {
 
   void _showAddPurchaseDialog() {
     final formKey = GlobalKey<FormState>();
-    String supplierName = '';
+    final supplierNames = databaseController.suppliers.map((s) => s.name).toSet().toList()..sort();
+    String? supplierName = supplierNames.isNotEmpty ? supplierNames.first : null;
     String receiptNumber = '';
     DateTime purchaseDate = DateTime.now();
     String paymentStatus = 'paid';
@@ -266,15 +255,24 @@ class _PurchasesPageState extends State<PurchasesPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Supplier Name
-                    TextFormField(
+                    DropdownButtonFormField<String>(
+                      value: supplierName,
                       decoration: InputDecoration(
                         labelText: 'اسم المورد *'.tr,
                         prefixIcon: const Icon(Icons.person),
                         border: const OutlineInputBorder(),
                       ),
+                      items: supplierNames.map((name) {
+                        return DropdownMenuItem(
+                          value: name,
+                          child: Text(name),
+                        );
+                      }).toList(),
+                      onChanged: supplierNames.isEmpty
+                          ? null
+                          : (value) => setDialogState(() => supplierName = value),
                       validator: (value) =>
-                          value?.isEmpty ?? true ? 'مطلوب'.tr : null,
-                      onSaved: (value) => supplierName = value ?? '',
+                          value == null || value.isEmpty ? 'مطلوب'.tr : null,
                     ),
                     const SizedBox(height: 12),
 
@@ -336,6 +334,10 @@ class _PurchasesPageState extends State<PurchasesPage> {
                         DropdownMenuItem(
                           value: 'unpaid',
                           child: Text('غير مدفوع'.tr),
+                        ),
+                        DropdownMenuItem(
+                          value: 'bank_transfer',
+                          child: Text('تحويل بنكي'.tr),
                         ),
                       ],
                       onChanged: (value) => paymentStatus = value!,
@@ -517,7 +519,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
                 
                 final purchase = Purchase(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  supplierName: supplierName,
+                  supplierName: supplierName ?? '',
                   receiptNumber: receiptNumber,
                   purchaseDate: purchaseDate,
                   items: items,
@@ -572,11 +574,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
               ),
               _buildDetailRow(
                 'حالة الدفع'.tr,
-                purchase.paymentStatus == 'paid'
-                    ? 'مدفوع'.tr
-                    : purchase.paymentStatus == 'partial'
-                        ? 'دفع جزئي'.tr
-                        : 'غير مدفوع'.tr,
+                _paymentStatusLabel(purchase.paymentStatus).tr,
               ),
               if (purchase.notes != null)
                 _buildDetailRow('ملاحظات'.tr, purchase.notes!),
@@ -666,6 +664,35 @@ class _PurchasesPageState extends State<PurchasesPage> {
         ],
       ),
     );
+  }
+
+  String _paymentStatusLabel(String status) {
+    switch (status) {
+      case 'paid':
+        return 'مدفوع بالكامل';
+      case 'partial':
+        return 'دفع جزئي';
+      case 'unpaid':
+        return 'غير مدفوع';
+      case 'bank_transfer':
+        return 'تحويل بنكي';
+      default:
+        return 'غير مدفوع';
+    }
+  }
+
+  Color _paymentStatusColor(String status) {
+    switch (status) {
+      case 'paid':
+        return Colors.green.shade700;
+      case 'partial':
+        return Colors.orange.shade700;
+      case 'bank_transfer':
+        return Colors.blue.shade700;
+      case 'unpaid':
+      default:
+        return Colors.red.shade700;
+    }
   }
 
   Widget _buildDetailRow(String label, String value) {
