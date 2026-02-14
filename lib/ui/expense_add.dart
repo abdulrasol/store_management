@@ -23,6 +23,15 @@ class _ExpenseAddState extends State<ExpenseAdd> {
   DatabaseController databaseController = Get.find();
   SettingsController settingsController = Get.find();
   DateTime? picker = DateTime.now();
+  String selectedExpenseType = '';
+
+  final List<String> expenseTypes = [
+    'Electricity Bill',
+    'Rent',
+    'Petrol',
+    'Maintenance',
+    'Spare Parts'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -38,33 +47,36 @@ class _ExpenseAddState extends State<ExpenseAdd> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verSpace,
-
-              //   },
-              //   suggestionsCallback: (text) {
-              //     List<Customer> customers = [];
-              //     customers = [
-              //       ...databaseController.custormers,
-              //       ...databaseController.suppliers
-              //     ];
-              //     return customers.where((custormer) {
-              //       return custormer.name
-              //           .toLowerCase()
-              //           .contains(text.toLowerCase());
-              //     }).toList();
-              //   },
-              //   emptyBuilder: (context) {
-              //     return ListTile(
-              //       title: Text(
-              //           'no customer found click to add ${customerNameControll.text}'),
-              //       onTap: () async {
-              //         customer = await Get.to(() => CustomerAdd(),
-              //             arguments: customerNameControll.text);
-              //         customerNameControll.text = customer?.name ?? '';
-              //       },
-              //     );
-              //   },
-              // ),
-              // verSpace,
+              // قائمة أنواع المصروفات
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      hint: Text('Expense Type'.tr),
+                      value: selectedExpenseType.isEmpty ? null : selectedExpenseType,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedExpenseType = newValue!;
+                          descControll.text = selectedExpenseType;
+                        });
+                      },
+                      items: expenseTypes.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value.tr),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+              verSpace,
               TextFormField(
                 controller: amountControll,
                 decoration: inputDecoration.copyWith(

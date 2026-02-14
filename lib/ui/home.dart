@@ -14,6 +14,8 @@ import 'package:store_management/ui/invoice_view.dart';
 import 'package:store_management/ui/invoices_page.dart';
 import 'package:store_management/ui/items_page.dart';
 import 'package:store_management/ui/profits_page.dart';
+import 'package:store_management/ui/purchases_page.dart';
+import 'package:store_management/ui/salaries_page.dart';
 import 'package:store_management/ui/search_delegate.dart';
 import 'package:store_management/ui/store_settings.dart';
 import 'package:store_management/ui/suppliers_page.dart';
@@ -703,7 +705,9 @@ class _HomeState extends State<Home> {
                 _drawerItem('items'.tr, Icons.shopping_bag_outlined, () => Get.to(() => ItemsPage())),
                 _drawerItem('customers'.tr, Icons.groups_outlined, () => Get.to(() => CustomersPage())),
                 _drawerItem('Suppliers'.tr, Icons.local_shipping_outlined, () => Get.to(() => SupplierPage())),
+                _drawerItem('المشتريات', Icons.shopping_cart_outlined, () => Get.to(() => const PurchasesPage())),
                 _drawerItem('Expenses'.tr, Icons.receipt_long_outlined, () => Get.to(() => ExpensesPage())),
+                _drawerItem('الرواتب', Icons.payments_outlined, () => Get.to(() => const SalariesPage())),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Divider(),

@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:store_management/database/objectbox.dart';
 import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/expense.dart';
@@ -6,6 +9,8 @@ import 'package:store_management/models/invoice.dart';
 import 'package:store_management/models/invoice_item.dart';
 import 'package:store_management/models/item.dart';
 import 'package:store_management/models/profits.dart';
+import 'package:store_management/models/purchase.dart';
+import 'package:store_management/models/salary.dart';
 import 'package:store_management/models/transaction.dart';
 import 'package:store_management/models/voucher.dart';
 import 'package:store_management/objectbox.g.dart';
@@ -601,5 +606,160 @@ class DatabaseController extends GetxController {
     } else {
       Get.snackbar("Info", "Database is already clean.");
     }
+  }
+
+  // ==================== PURCHASES ====================
+
+  Future<List<Purchase>> getPurchases({DateTime? startDate, DateTime? endDate}) async {
+    final file = await _getPurchasesFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    final purchases = data.map((m) => Purchase.fromMap(m)).toList();
+
+    if (startDate != null) {
+      purchases.retainWhere((p) =>
+          p.purchaseDate.isAfter(startDate.subtract(const Duration(days: 1))));
+    }
+    if (endDate != null) {
+      purchases.retainWhere(
+          (p) => p.purchaseDate.isBefore(endDate.add(const Duration(days: 1))));
+    }
+
+    return purchases..sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
+  }
+
+  Future<void> addPurchase(Purchase purchase) async {
+    final purchases = await getPurchases();
+    purchases.add(purchase);
+    await _savePurchases(purchases);
+  }
+
+  Future<void> updatePurchase(Purchase updated) async {
+    final purchases = await getPurchases();
+    final index = purchases.indexWhere((p) => p.id == updated.id);
+    if (index != -1) {
+      purchases[index] = updated;
+      await _savePurchases(purchases);
+    }
+  }
+
+  Future<void> deletePurchase(String id) async {
+    final purchases = await getPurchases();
+    purchases.removeWhere((p) => p.id == id);
+    await _savePurchases(purchases);
+  }
+
+  Future<File> _getPurchasesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/purchases.json');
+  }
+
+  Future<void> _savePurchases(List<Purchase> purchases) async {
+    final file = await _getPurchasesFile();
+    final data = purchases.map((p) => p.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // ==================== SALARIES ====================
+
+  Future<List<Employee>> getEmployees() async {
+    final file = await _getEmployeesFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => Employee.fromMap(m)).toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+  }
+
+  Future<void> addEmployee(Employee employee) async {
+    final employees = await getEmployees();
+    employees.add(employee);
+    await _saveEmployees(employees);
+  }
+
+  Future<void> updateEmployee(Employee updated) async {
+    final employees = await getEmployees();
+    final index = employees.indexWhere((e) => e.id == updated.id);
+    if (index != -1) {
+      employees[index] = updated;
+      await _saveEmployees(employees);
+    }
+  }
+
+  Future<void> deleteEmployee(String id) async {
+    final employees = await getEmployees();
+    employees.removeWhere((e) => e.id == id);
+    await _saveEmployees(employees);
+  }
+
+  Future<File> _getEmployeesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/employees.json');
+  }
+
+  Future<void> _saveEmployees(List<Employee> employees) async {
+    final file = await _getEmployeesFile();
+    final data = employees.map((e) => e.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // Salaries
+
+  Future<List<Salary>> getSalariesByMonth(DateTime month) async {
+    final file = await _getSalariesFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    final salaries = data.map((m) => Salary.fromMap(m)).toList();
+
+    return salaries
+        .where((s) => s.month.year == month.year && s.month.month == month.month)
+        .toList()
+      ..sort((a, b) => a.employeeName.compareTo(b.employeeName));
+  }
+
+  Future<void> addSalary(Salary salary) async {
+    final salaries = await _getAllSalaries();
+    salaries.add(salary);
+    await _saveSalaries(salaries);
+  }
+
+  Future<void> updateSalary(Salary updated) async {
+    final salaries = await _getAllSalaries();
+    final index = salaries.indexWhere((s) => s.id == updated.id);
+    if (index != -1) {
+      salaries[index] = updated;
+      await _saveSalaries(salaries);
+    }
+  }
+
+  Future<void> deleteSalary(String id) async {
+    final salaries = await _getAllSalaries();
+    salaries.removeWhere((s) => s.id == id);
+    await _saveSalaries(salaries);
+  }
+
+  Future<List<Salary>> _getAllSalaries() async {
+    final file = await _getSalariesFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => Salary.fromMap(m)).toList();
+  }
+
+  Future<File> _getSalariesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/salaries.json');
+  }
+
+  Future<void> _saveSalaries(List<Salary> salaries) async {
+    final file = await _getSalariesFile();
+    final data = salaries.map((s) => s.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
   }
 }
