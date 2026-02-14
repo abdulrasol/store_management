@@ -34,6 +34,14 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: 'Cairo',
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(fontSize: 13),
+        bodyMedium: TextStyle(fontSize: 13),
+        bodySmall: TextStyle(fontSize: 13),
+        titleLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        titleMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        titleSmall: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      ),
       colorScheme: ColorScheme(
         brightness: Brightness.light,
         primary: primaryLight,
@@ -135,10 +143,12 @@ class AppTheme {
         ),
         labelStyle: TextStyle(
           fontFamily: 'Cairo',
+          fontSize: 13,
           color: Colors.grey.shade700,
         ),
         hintStyle: TextStyle(
           fontFamily: 'Cairo',
+          fontSize: 13,
           color: Colors.grey.shade400,
         ),
       ),
@@ -154,7 +164,7 @@ class AppTheme {
       dropdownMenuTheme: DropdownMenuThemeData(
         textStyle: const TextStyle(
           fontFamily: 'Cairo',
-          fontSize: 16,
+          fontSize: 13,
           color: Colors.black87,
         ),
         menuStyle: MenuStyle(
@@ -169,7 +179,7 @@ class AppTheme {
       ),
       iconTheme: IconThemeData(
         color: primaryLight,
-        size: 24,
+        size: 18,
       ),
       dividerTheme: DividerThemeData(
         color: Colors.grey.shade300,
@@ -185,7 +195,7 @@ class AppTheme {
         titleTextStyle: const TextStyle(
           fontFamily: 'Cairo',
           fontWeight: FontWeight.bold,
-          fontSize: 20,
+          fontSize: 15,
           color: primaryDark,
         ),
         iconTheme: IconThemeData(
@@ -218,6 +228,14 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: 'Cairo',
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(fontSize: 13),
+        bodyMedium: TextStyle(fontSize: 13),
+        bodySmall: TextStyle(fontSize: 13),
+        titleLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        titleMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        titleSmall: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      ),
       colorScheme: ColorScheme(
         brightness: Brightness.dark,
         primary: primaryDarkMode,
@@ -322,6 +340,7 @@ class AppTheme {
         ),
         hintStyle: TextStyle(
           fontFamily: 'Cairo',
+          fontSize: 13,
           color: Colors.grey.shade500,
         ),
       ),
@@ -337,7 +356,7 @@ class AppTheme {
       dropdownMenuTheme: DropdownMenuThemeData(
         textStyle: const TextStyle(
           fontFamily: 'Cairo',
-          fontSize: 16,
+          fontSize: 13,
           color: Colors.white,
         ),
         menuStyle: MenuStyle(
@@ -352,7 +371,7 @@ class AppTheme {
       ),
       iconTheme: IconThemeData(
         color: Colors.blue.shade300,
-        size: 24,
+        size: 18,
       ),
       dividerTheme: DividerThemeData(
         color: Colors.grey.shade800,
@@ -368,7 +387,7 @@ class AppTheme {
         titleTextStyle: const TextStyle(
           fontFamily: 'Cairo',
           fontWeight: FontWeight.bold,
-          fontSize: 20,
+          fontSize: 15,
           color: Colors.white,
         ),
         iconTheme: IconThemeData(
@@ -529,10 +548,12 @@ class AppThemeOld {
         ),
         labelStyle: TextStyle(
           fontFamily: 'Cairo',
+          fontSize: 13,
           color: Colors.grey.shade700,
         ),
         hintStyle: TextStyle(
           fontFamily: 'Cairo',
+          fontSize: 13,
           color: Colors.grey.shade400,
         ),
       ),
@@ -552,7 +573,7 @@ class AppThemeOld {
       dropdownMenuTheme: DropdownMenuThemeData(
         textStyle: const TextStyle(
           fontFamily: 'Cairo',
-          fontSize: 16,
+          fontSize: 13,
           color: Colors.black87,
         ),
         menuStyle: MenuStyle(
@@ -569,7 +590,7 @@ class AppThemeOld {
       // تخصيصات للأيقونات
       iconTheme: IconThemeData(
         color: primaryLight,
-        size: 24,
+        size: 18,
       ),
 
       // تخصيصات للرسوم البيانية
@@ -591,7 +612,7 @@ class AppThemeOld {
         titleTextStyle: const TextStyle(
           fontFamily: 'Cairo',
           fontWeight: FontWeight.bold,
-          fontSize: 20,
+          fontSize: 15,
           color: primaryDark,
         ),
         iconTheme: IconThemeData(
@@ -739,6 +760,7 @@ class AppThemeOld {
         ),
         hintStyle: TextStyle(
           fontFamily: 'Cairo',
+          fontSize: 13,
           color: Colors.grey.shade500,
         ),
       ),
@@ -758,7 +780,7 @@ class AppThemeOld {
       dropdownMenuTheme: DropdownMenuThemeData(
         textStyle: const TextStyle(
           fontFamily: 'Cairo',
-          fontSize: 16,
+          fontSize: 13,
           color: Colors.white,
         ),
         menuStyle: MenuStyle(
@@ -775,7 +797,7 @@ class AppThemeOld {
       // تخصيصات للأيقونات
       iconTheme: IconThemeData(
         color: Colors.blue.shade300,
-        size: 24,
+        size: 18,
       ),
 
       // تخصيصات للرسوم البيانية
@@ -797,7 +819,7 @@ class AppThemeOld {
         titleTextStyle: const TextStyle(
           fontFamily: 'Cairo',
           fontWeight: FontWeight.bold,
-          fontSize: 20,
+          fontSize: 15,
           color: Colors.white,
         ),
         iconTheme: IconThemeData(
