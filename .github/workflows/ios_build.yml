@@ -2,9 +2,9 @@ name: iOS Build
 
 on:
   push:
-    branches: ["main"]
+    branches: ["master", "feature/*", "feature/purchases-salaries-expenses"]
   pull_request:
-    branches: ["main"]
+    branches: ["master", "feature/*", "feature/purchases-salaries-expenses"]
   workflow_dispatch:
 
 jobs:
