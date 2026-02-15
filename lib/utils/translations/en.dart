@@ -504,4 +504,21 @@ final Map<String, String> en = {
   'البند': 'Item',
   'القيمة': 'Value',
   'بدون مورد': 'No Supplier',
+
+  // Purchases
+  'تصفية': 'Filter',
+  'غير محدد': 'Unspecified',
+  'المبلغ الإجمالي *': 'Total Amount *',
+  'اسم المورد *': 'Supplier Name *',
+  'رقم الفاتورة': 'Receipt Number',
+  'رقم الفاتورة:': 'Receipt No:',
+  'حالة الدفع': 'Payment Status',
+  'مدفوع': 'Paid',
+  'جزئي': 'Partial',
+  'غير مدفوع': 'Unpaid',
+  'تحويل بنكي': 'Bank Transfer',
+  'تفاصيل العملية': 'Transaction Details',
+  'المورد': 'Supplier',
+  'إلغاء التصفية؟': 'Cancel Filter?',
+  'الفئة': 'Category',
 };

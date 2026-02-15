@@ -3,7 +3,9 @@ class Purchase {
   final String supplierName;
   final String receiptNumber;
   final DateTime purchaseDate;
-  final List<PurchaseItem> items;
+  // final List<PurchaseItem> items; // Removed
+  final double amount;
+  final String? categoryId; // Added category to main purchase
   final String paymentStatus; // 'paid', 'partial', 'unpaid'
   final String? notes;
   final DateTime createdAt;
@@ -13,13 +15,14 @@ class Purchase {
     required this.supplierName,
     required this.receiptNumber,
     required this.purchaseDate,
-    required this.items,
+    required this.amount,
+    this.categoryId,
     this.paymentStatus = 'paid',
     this.notes,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  double get totalAmount => items.fold(0, (sum, item) => sum + item.total);
+  double get totalAmount => amount;
 
   Map<String, dynamic> toMap() {
     return {
@@ -27,7 +30,8 @@ class Purchase {
       'supplierName': supplierName,
       'receiptNumber': receiptNumber,
       'purchaseDate': purchaseDate.toIso8601String(),
-      'items': items.map((item) => item.toMap()).toList(),
+      'amount': amount,
+      'categoryId': categoryId,
       'paymentStatus': paymentStatus,
       'notes': notes,
       'createdAt': createdAt.toIso8601String(),
@@ -35,15 +39,22 @@ class Purchase {
   }
 
   factory Purchase.fromMap(Map<String, dynamic> map) {
+    // Migration logic for old data with items
+    double amount = (map['amount'] ?? 0).toDouble();
+    if (amount == 0 && map['items'] != null) {
+      final items = (map['items'] as List<dynamic>)
+          .map((item) => PurchaseItem.fromMap(item))
+          .toList();
+      amount = items.fold(0, (sum, item) => sum + item.total);
+    }
+
     return Purchase(
       id: map['id'] ?? '',
       supplierName: map['supplierName'] ?? '',
       receiptNumber: map['receiptNumber'] ?? '',
       purchaseDate: DateTime.parse(map['purchaseDate']),
-      items: (map['items'] as List<dynamic>?)
-              ?.map((item) => PurchaseItem.fromMap(item))
-              .toList() ??
-          [],
+      amount: amount,
+      categoryId: map['categoryId'],
       paymentStatus: map['paymentStatus'] ?? 'paid',
       notes: map['notes'],
       createdAt: map['createdAt'] != null
@@ -57,7 +68,8 @@ class Purchase {
     String? supplierName,
     String? receiptNumber,
     DateTime? purchaseDate,
-    List<PurchaseItem>? items,
+    double? amount,
+    String? categoryId,
     String? paymentStatus,
     String? notes,
     DateTime? createdAt,
@@ -67,7 +79,8 @@ class Purchase {
       supplierName: supplierName ?? this.supplierName,
       receiptNumber: receiptNumber ?? this.receiptNumber,
       purchaseDate: purchaseDate ?? this.purchaseDate,
-      items: items ?? this.items,
+      amount: amount ?? this.amount,
+      categoryId: categoryId ?? this.categoryId,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
