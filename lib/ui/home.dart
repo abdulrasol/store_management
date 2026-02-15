@@ -679,11 +679,19 @@ class _HomeState extends State<Home> {
                             height: 70,
                           ),
                         )
-                      : const Icon(Icons.storefront, size: 35, color: Colors.teal),
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(35),
+                          child: Image.asset(
+                            'assets/png/logo.png',
+                            fit: BoxFit.cover,
+                            width: 70,
+                            height: 70,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  settingsController.appName.value ?? 'Sales Management App'.tr,
+                  settingsController.appName.value ?? 'Alrwah Management',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
