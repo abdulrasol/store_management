@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "io.github.abdulrasol.store_mangment" "\0"
-            VALUE "FileDescription", "store_management" "\0"
+            VALUE "FileDescription", "Alrwah Management" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "store_management" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 io.github.abdulrasol.store_mangment. All rights reserved." "\0"
             VALUE "OriginalFilename", "store_management.exe" "\0"
-            VALUE "ProductName", "store_management" "\0"
+            VALUE "ProductName", "Alrwah Management" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
