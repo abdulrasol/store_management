@@ -19,6 +19,7 @@ import 'package:store_management/ui/store_settings.dart';
 import 'package:store_management/ui/suppliers_page.dart';
 import 'package:store_management/ui/about_page.dart';
 import 'package:store_management/ui/urgent_orders_page.dart';
+import 'package:store_management/models/urgent_order.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -40,7 +41,69 @@ class _HomeState extends State<Home> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       VersionCheckService().checkVersion(context);
+      _checkOverdueUrgentOrders();
     });
+  }
+
+  Future<void> _checkOverdueUrgentOrders() async {
+    try {
+      final orders = await databaseController.getUrgentOrders();
+      final now = DateTime.now();
+      final overdueOrders = orders.where((o) {
+        if (o.isCompleted) return false;
+        final diff = now.difference(o.date).inDays;
+        return diff > 3;
+      }).toList();
+
+      if (overdueOrders.isEmpty) return;
+
+      final String title;
+      final String message;
+      if (overdueOrders.length == 1) {
+        title = 'تنبيه - طلب متأخر'.tr;
+        message = 'الطلب "${overdueOrders.first.name}" متأخر منذ ${now.difference(overdueOrders.first.date).inDays} يوم'.tr;
+      } else {
+        title = 'تنبيه - ${overdueOrders.length} طلبات متأخرة'.tr;
+        message = overdueOrders
+            .map((o) => '• ${o.name} (منذ ${now.difference(o.date).inDays} يوم)')
+            .join('\n');
+      }
+
+      Get.dialog(
+        AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.warning_rounded, color: Colors.red, size: 28),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text('إغلاق'.tr),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Get.back();
+                Get.to(() => const UrgentOrdersPage());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: Text('عرض الطلبات'.tr),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {}
   }
 
   @override

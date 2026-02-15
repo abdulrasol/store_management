@@ -442,4 +442,6 @@ final Map<String, String> en = {
   'تم اكتمال الطلب': 'Order completed',
   'تم الاكتمال': 'Completed',
   'المكتملة': 'Completed',
+  'تنبيه - طلب متأخر': 'Alert - Overdue Order',
+  'عرض الطلبات': 'View Orders',
 };
