@@ -117,7 +117,7 @@ class _SalariesPageState extends State<SalariesPage>
             IconButton(
               icon: const Icon(Icons.account_balance_wallet),
               onPressed: () {
-                Get.to(() => const SalaryAdvancesPage());
+                Get.to(() => SalaryAdvancesPage());
               },
               tooltip: 'السلف والقروض'.tr,
             ),
