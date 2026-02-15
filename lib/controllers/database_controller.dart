@@ -918,14 +918,14 @@ class DatabaseController extends GetxController {
 
   Future<double> getTotalPendingAdvances() async {
     final pending = await getPendingAdvances();
-    return pending.fold(0, (sum, a) => sum + a.amount);
+    return pending.fold<double>(0, (sum, a) => sum + a.amount);
   }
 
   Future<double> getEmployeePendingAdvances(String employeeId) async {
     final employeeAdvances = await getEmployeeAdvances(employeeId);
     return employeeAdvances
         .where((a) => !a.isPaidOff)
-        .fold(0, (sum, a) => sum + a.amount);
+        .fold<double>(0, (sum, a) => sum + a.amount);
   }
 
   Future<void> addSalaryAdvance(SalaryAdvance advance) async {

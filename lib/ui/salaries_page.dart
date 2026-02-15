@@ -116,7 +116,9 @@ class _SalariesPageState extends State<SalariesPage>
             ),
             IconButton(
               icon: const Icon(Icons.account_balance_wallet),
-              onPressed: () => Get.to(() => const SalaryAdvancesPage()),
+              onPressed: () {
+                Get.to(() => const SalaryAdvancesPage());
+              },
               tooltip: 'السلف والقروض'.tr,
             ),
           ],
@@ -1114,7 +1116,7 @@ class _SalariesPageState extends State<SalariesPage>
   }
 
   Widget _buildLastSalaryCard(String employeeId) {
-    final lastSalary = _getLastSalaryForEmployee(employee.id);
+    final lastSalary = _getLastSalaryForEmployee(employeeId);
     if (lastSalary == null) return const SizedBox.shrink();
     
     return Card(
