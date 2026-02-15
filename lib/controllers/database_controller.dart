@@ -611,6 +611,20 @@ class DatabaseController extends GetxController {
     }
   }
 
+  // ==================== PURCHASES & SALARIES TOTALS ====================
+
+  Future<double> getPurchasesTotal(DateTime start, DateTime end) async {
+    final purchases = await getPurchases(startDate: start, endDate: end);
+    return purchases.fold(0.0, (sum, p) => sum + p.totalAmount);
+  }
+
+  Future<double> getSalariesTotal(DateTime start, DateTime end) async {
+    final salaries = await _getAllSalaries();
+    return salaries
+        .where((s) => s.month.isAfter(start.subtract(const Duration(days: 1))) && s.month.isBefore(end))
+        .fold(0.0, (sum, s) => sum + s.totalSalary);
+  }
+
   // ==================== PURCHASES ====================
 
   Future<List<Purchase>> getPurchases({DateTime? startDate, DateTime? endDate}) async {

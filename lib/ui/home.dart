@@ -32,9 +32,11 @@ class _HomeState extends State<Home> {
   final databaseController = Get.find<DatabaseController>();
   final settingsController = Get.find<SettingsController>();
 
-  // Local state for chart toggle
-  final RxString _summaryPeriod = 'Month'.obs; // Week, Month, Year - Default Month
-  final RxString _chartPeriod = 'Week'.obs; // Week, Month, Year
+  final RxString _summaryPeriod = 'Month'.obs;
+  final RxString _chartPeriod = 'Week'.obs;
+
+  final Rx<double> _purchasesTotal = 0.0.obs;
+  final Rx<double> _salariesTotal = 0.0.obs;
 
   @override
   void initState() {
@@ -42,7 +44,33 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       VersionCheckService().checkVersion(context);
       _checkOverdueUrgentOrders();
+      _loadAsyncTotals();
     });
+    ever(_summaryPeriod, (_) => _loadAsyncTotals());
+  }
+
+  void _loadAsyncTotals() async {
+    final range = _getDateRange(_summaryPeriod.value);
+    final pTotal = await databaseController.getPurchasesTotal(range.$1, range.$2);
+    final sTotal = await databaseController.getSalariesTotal(range.$1, range.$2);
+    _purchasesTotal.value = pTotal;
+    _salariesTotal.value = sTotal;
+  }
+
+  (DateTime, DateTime) _getDateRange(String period) {
+    DateTime now = DateTime.now();
+    DateTime start;
+    DateTime end = now.add(const Duration(days: 1));
+    if (period == 'Week') {
+      start = now.subtract(const Duration(days: 6));
+      start = DateTime(start.year, start.month, start.day);
+    } else if (period == 'Month') {
+      start = now.subtract(const Duration(days: 29));
+      start = DateTime(start.year, start.month, start.day);
+    } else {
+      start = DateTime(now.year, 1, 1);
+    }
+    return (start, end);
   }
 
   Future<void> _checkOverdueUrgentOrders() async {
@@ -113,8 +141,8 @@ class _HomeState extends State<Home> {
       drawer: _buildDrawer(context),
       body: RefreshIndicator(
         onRefresh: () async {
-          // await databaseController.loadData();
-          databaseController.loading(); // Refresh data manually just in case
+          databaseController.loading();
+          _loadAsyncTotals();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -122,9 +150,12 @@ class _HomeState extends State<Home> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSummaryCards(context),
+              _buildPeriodToggle(),
+              const SizedBox(height: 16),
+              _buildFinancialOverview(context),
               const SizedBox(height: 24),
-              // _buildProfitOverview(context), // Removed per request
+              _buildQuickActions(context),
+              const SizedBox(height: 24),
               _buildSalesChart(context),
               const SizedBox(height: 24),
               Row(
@@ -135,11 +166,9 @@ class _HomeState extends State<Home> {
                   Expanded(child: _buildLowStockAlerts(context)),
                 ],
               ),
-
               const SizedBox(height: 24),
               _buildRecentInvoices(context),
-              const SizedBox(height: 24),
-              const SizedBox(height: 80), // Space for FAB
+              const SizedBox(height: 80),
             ],
           ),
         ),
@@ -177,111 +206,199 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // --- Dashboard Widgets ---
+  Widget _buildPeriodToggle() {
+    return Container(
+      height: 40,
+      decoration: BoxDecoration(
+        color: Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Obx(
+        () => Row(
+          children: [
+            _chartToggleButton(context, 'Week', _summaryPeriod.value == 'Week', () => _summaryPeriod.value = 'Week'),
+            _chartToggleButton(context, 'Month', _summaryPeriod.value == 'Month', () => _summaryPeriod.value = 'Month'),
+            _chartToggleButton(context, 'Year', _summaryPeriod.value == 'Year', () => _summaryPeriod.value = 'Year'),
+          ],
+        ),
+      ),
+    );
+  }
 
-  Widget _buildSummaryCards(BuildContext context) {
-    // 2 cards per row for better readability on mobile
+  Widget _buildFinancialOverview(BuildContext context) {
     double cardWidth = MediaQuery.of(context).size.width / 2 - 24;
 
-    return Column(
-      children: [
-        // Analytics Period Toggles
-        Container(
-          height: 40,
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: Colors.grey.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+    return Obx(() {
+      final range = _getDateRange(_summaryPeriod.value);
+      final sales = databaseController.getSales(range.$1, range.$2);
+      final expenses = databaseController.getExpenses(range.$1, range.$2);
+      final profit = databaseController.getNetRevenue(range.$1, range.$2);
+      final purchases = _purchasesTotal.value;
+      final salaries = _salariesTotal.value;
+      final debts = databaseController.customerDebt();
+
+      final totalOutgoing = expenses + purchases + salaries;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildMainCard(
+            context,
+            title: 'Net Profit'.tr,
+            value: settingsController.currencyFormatter(profit),
+            icon: Icons.account_balance_wallet,
+            color: profit >= 0 ? Colors.green.shade700 : Colors.red.shade700,
+            gradient: profit >= 0
+                ? [Colors.green.shade600, Colors.green.shade800]
+                : [Colors.red.shade600, Colors.red.shade800],
           ),
-          child: Obx(
-            () => Row(
-              children: [
-                _chartToggleButton(context, 'Week', _summaryPeriod.value == 'Week', () => _summaryPeriod.value = 'Week'),
-                _chartToggleButton(context, 'Month', _summaryPeriod.value == 'Month', () => _summaryPeriod.value = 'Month'),
-                _chartToggleButton(context, 'Year', _summaryPeriod.value == 'Year', () => _summaryPeriod.value = 'Year'),
-              ],
-            ),
-          ),
-        ),
-
-        Obx(() {
-          DateTime now = DateTime.now();
-          DateTime start;
-          DateTime end = now.add(const Duration(days: 1)); // Include today fully
-
-          if (_summaryPeriod.value == 'Week') {
-            // Last 7 days
-            start = now.subtract(const Duration(days: 6));
-            start = DateTime(start.year, start.month, start.day);
-          } else if (_summaryPeriod.value == 'Month') {
-            // Last 30 days
-            start = now.subtract(const Duration(days: 29));
-            start = DateTime(start.year, start.month, start.day);
-          } else {
-            // This Year (Jan 1)
-            start = DateTime(now.year, 1, 1);
-          }
-
-          return Wrap(
-            spacing: 16,
-            runSpacing: 16,
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
             children: [
               _statCard(
                 onTap: () => Get.to(() => InvoicesPage()),
                 title: 'Total Sales'.tr,
-                icon: Icons.attach_money,
+                icon: Icons.point_of_sale,
                 color: Colors.teal,
                 value: Text(
-                  settingsController.currencyFormatter(
-                    databaseController.getSales(start, end),
-                  ),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  settingsController.currencyFormatter(sales),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 width: cardWidth,
               ),
               _statCard(
-                onTap: () => Get.to(() => ProfitsPage()),
-                title: 'Net Profit'.tr, // Renamed from Net Revenue for clarity in context
-                icon: Icons.bar_chart,
-                color: Colors.deepPurple,
+                onTap: () => Get.to(() => const PurchasesPage()),
+                title: 'Purchases'.tr,
+                icon: Icons.shopping_cart,
+                color: Colors.indigo,
                 value: Text(
-                  settingsController.currencyFormatter(databaseController.getNetRevenue(start, end)),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  settingsController.currencyFormatter(purchases),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 width: cardWidth,
               ),
               _statCard(
-                onTap: () => Get.to(() => ProfitsPage()),
-                title: 'Profits'.tr, // New Card replacing Items Count
-                icon: Icons.trending_up,
-                color: Colors.green,
+                onTap: () => Get.to(() => ExpensesPage()),
+                title: 'Expenses'.tr,
+                icon: Icons.receipt_long,
+                color: Colors.orange,
                 value: Text(
-                  settingsController.currencyFormatter(databaseController.getProfit(start, end)),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  settingsController.currencyFormatter(expenses),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 width: cardWidth,
               ),
               _statCard(
-                title: 'Debts'.tr,
-                icon: Icons.money_off_csred,
-                color: Colors.redAccent,
+                onTap: () => Get.to(() => const SalariesPage()),
+                title: 'Salaries'.tr,
+                icon: Icons.payments,
+                color: Colors.purple,
                 value: Text(
-                  settingsController.currencyFormatter(databaseController.customerDebt()),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  settingsController.currencyFormatter(salaries),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 width: cardWidth,
               ),
             ],
-          );
-        }),
-      ],
-    );
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _miniStatCard(
+                  title: 'Total Outgoing'.tr,
+                  value: settingsController.currencyFormatter(totalOutgoing),
+                  icon: Icons.arrow_upward,
+                  color: Colors.red,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _miniStatCard(
+                  title: 'Debts'.tr,
+                  value: settingsController.currencyFormatter(debts),
+                  icon: Icons.money_off,
+                  color: Colors.amber.shade800,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    });
   }
 
-  // Helper for toggle buttons (reused from chart section, moved up or kept here)
-  /* Widget _chartToggleButton... is already defined below at line 364. 
-     We can reuse it if scope allows, or move it up. 
-     Since it's an instance method, it can be called from here. */
+  Widget _buildMainCard(
+    BuildContext context, {
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required List<Color> gradient,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: gradient.first.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: Colors.white, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _statCard({
     required String title,
@@ -307,10 +424,13 @@ class _HomeState extends State<Home> {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Icon(icon, color: color, size: 28), if (onTap != null) Icon(Icons.arrow_forward_ios, size: 12, color: color.withValues(alpha: 0.5))],
+              children: [
+                Icon(icon, color: color, size: 24),
+                if (onTap != null) Icon(Icons.arrow_forward_ios, size: 12, color: color.withValues(alpha: 0.5)),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 13)),
+            const SizedBox(height: 10),
+            Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12)),
             const SizedBox(height: 4),
             value,
           ],
@@ -319,7 +439,126 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // --- Dashboard Widgets ---
+  Widget _miniStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    value,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Quick Actions'.tr, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _quickActionButton(
+                icon: Icons.add_circle_outline,
+                label: 'New Sale'.tr,
+                color: Colors.teal,
+                onTap: () => Get.to(() => InvoiceForm()),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _quickActionButton(
+                icon: Icons.shopping_cart_outlined,
+                label: 'Purchases'.tr,
+                color: Colors.indigo,
+                onTap: () => Get.to(() => const PurchasesPage()),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _quickActionButton(
+                icon: Icons.receipt_long_outlined,
+                label: 'Expenses'.tr,
+                color: Colors.orange,
+                onTap: () => Get.to(() => ExpensesPage()),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _quickActionButton(
+                icon: Icons.payments_outlined,
+                label: 'Salaries'.tr,
+                color: Colors.purple,
+                onTap: () => Get.to(() => const SalariesPage()),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _quickActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 26),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildSalesChart(BuildContext context) {
     return Card(
@@ -337,11 +576,7 @@ class _HomeState extends State<Home> {
                 children: [
                   Text(
                     '${_chartPeriod.value}ly Sales'.tr.replaceAll('Week ly', 'Weekly').replaceAll('Month ly', 'Monthly').replaceAll('Year ly', 'Yearly'),
-                    // Fallback to simple keys if translation complex, but let's try to map:
-                    // 'Week' -> 'Weekly Sales', 'Month' -> 'Monthly Sales', 'Year' -> 'Yearly Sales'
-                    // actually better to just translate the full string based on value
                   ),
-                  // Toggle Button
                   Container(
                     height: 32,
                     decoration: BoxDecoration(
@@ -362,7 +597,6 @@ class _HomeState extends State<Home> {
               AspectRatio(
                 aspectRatio: 1.7,
                 child: Builder(builder: (context) {
-                  // Prepare Data
                   Map<DateTime, double> dataMap;
                   switch (_chartPeriod.value) {
                     case 'Month':
@@ -438,15 +672,12 @@ class _HomeState extends State<Home> {
                               if (_chartPeriod.value == 'Week') {
                                 text = _getWeekdayName(date.weekday).substring(0, 3);
                               } else if (_chartPeriod.value == 'Month') {
-                                // Show every 5th day to avoid clutter or logic ok for 30 bars?
-                                // 30 bars is tight. Let's show only if index % 5 == 0
                                 if (date.day % 5 == 0 || date.day == 1) {
                                   text = '${date.day}';
                                 } else {
                                   return const SizedBox.shrink();
                                 }
                               } else {
-                                // Year
                                 text = _getMonthName(date.month).substring(0, 3);
                               }
 
@@ -477,7 +708,7 @@ class _HomeState extends State<Home> {
                             BarChartRodData(
                               toY: dataMap[keys[index]] ?? 0,
                               color: _chartPeriod.value == 'Year' ? Colors.orange : (_chartPeriod.value == 'Month' ? Colors.indigo : Colors.teal),
-                              width: _chartPeriod.value == 'Month' ? 6 : 12, // thinner bars for month
+                              width: _chartPeriod.value == 'Month' ? 6 : 12,
                               borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                             )
                           ],
@@ -504,7 +735,7 @@ class _HomeState extends State<Home> {
           borderRadius: BorderRadius.circular(6),
           boxShadow: isActive ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)] : null,
         ),
-        child: Text(text.tr, // Translate button text
+        child: Text(text.tr,
             style: TextStyle(fontSize: 12, fontWeight: isActive ? FontWeight.bold : FontWeight.normal, color: isActive ? Colors.black : Colors.grey)),
       ),
     );
@@ -603,8 +834,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
-  // --- End Dashboard Widgets ---
 
   Widget _buildRecentInvoices(BuildContext context) {
     return Column(
@@ -731,7 +960,7 @@ class _HomeState extends State<Home> {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      Get.back(); // Close drawer
+                      Get.back();
                       Get.defaultDialog(
                           title: "Fix Database Checks".tr,
                           middleText: "This will check all invoices and ensure debits are correctly recorded. Use this if Customer Balances look incorrect.".tr,
@@ -765,7 +994,7 @@ class _HomeState extends State<Home> {
       ),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
-      horizontalTitleGap: 12, // Reduce gap for a tighter look
+      horizontalTitleGap: 12,
     );
   }
 }
