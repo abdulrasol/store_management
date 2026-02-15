@@ -1114,33 +1114,33 @@ class _SalariesPageState extends State<SalariesPage>
   }
 
   Widget _buildLastSalaryCard(String employeeId) {
-  final lastSalary = _getLastSalaryForEmployee(employeeId);
-  if (lastSalary == null) return const SizedBox.shrink();
-  
-  return Card(
-    color: Colors.teal.shade50,
-    child: Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.payments, size: 18, color: Colors.teal),
-              const SizedBox(width: 8),
-              Text('آخر راتب مسجل'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          _buildDetailRow('الشهر'.tr, _formatMonth(lastSalary.month)),
-          _buildDetailRow('الإجمالي'.tr, currencyFormat.format(lastSalary.totalSalary)),
-        ],
+    final lastSalary = _getLastSalaryForEmployee(employee.id);
+    if (lastSalary == null) return const SizedBox.shrink();
+    
+    return Card(
+      color: Colors.teal.shade50,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.payments, size: 18, color: Colors.teal),
+                const SizedBox(width: 8),
+                Text('آخر راتب مسجل'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _buildDetailRow('الشهر'.tr, _formatMonth(lastSalary.month)),
+            _buildDetailRow('الإجمالي'.tr, currencyFormat.format(lastSalary.totalSalary)),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
