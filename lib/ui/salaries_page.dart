@@ -192,7 +192,7 @@ class _SalariesPageState extends State<SalariesPage>
               Text(
                 _formatMonth(selectedMonth),
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Colors.teal,
                 ),
@@ -221,7 +221,7 @@ class _SalariesPageState extends State<SalariesPage>
                       Text(
                         currencyFormat.format(totalSalaries),
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -230,7 +230,7 @@ class _SalariesPageState extends State<SalariesPage>
                 ),
                 Text(
                   '${salaries.length} ${'موظف'.tr}',
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
@@ -300,7 +300,7 @@ class _SalariesPageState extends State<SalariesPage>
           currencyFormat.format(salary.totalSalary),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 16,
+            fontSize: 14,
             color: Colors.teal,
           ),
         ),
@@ -332,6 +332,7 @@ class _SalariesPageState extends State<SalariesPage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
+                  style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     labelText: 'اسم الموظف *'.tr,
                     prefixIcon: const Icon(Icons.person),
@@ -343,6 +344,7 @@ class _SalariesPageState extends State<SalariesPage>
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
+                  style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     labelText: 'رقم الهاتف *'.tr,
                     prefixIcon: const Icon(Icons.phone),
@@ -355,6 +357,7 @@ class _SalariesPageState extends State<SalariesPage>
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
+                  style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     labelText: 'البريد الإلكتروني'.tr,
                     prefixIcon: const Icon(Icons.email),
@@ -365,6 +368,7 @@ class _SalariesPageState extends State<SalariesPage>
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
+                  style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     labelText: 'ملاحظات'.tr,
                     prefixIcon: const Icon(Icons.note),
@@ -435,6 +439,7 @@ class _SalariesPageState extends State<SalariesPage>
               children: [
                 TextFormField(
                   initialValue: name,
+                  style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     labelText: 'اسم الموظف *'.tr,
                     prefixIcon: const Icon(Icons.person),
@@ -447,6 +452,7 @@ class _SalariesPageState extends State<SalariesPage>
                 const SizedBox(height: 12),
                 TextFormField(
                   initialValue: phone,
+                  style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     labelText: 'رقم الهاتف *'.tr,
                     prefixIcon: const Icon(Icons.phone),
@@ -460,6 +466,7 @@ class _SalariesPageState extends State<SalariesPage>
                 const SizedBox(height: 12),
                 TextFormField(
                   initialValue: email,
+                  style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     labelText: 'البريد الإلكتروني'.tr,
                     prefixIcon: const Icon(Icons.email),
@@ -471,6 +478,7 @@ class _SalariesPageState extends State<SalariesPage>
                 const SizedBox(height: 12),
                 TextFormField(
                   initialValue: notes,
+                  style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     labelText: 'ملاحظات'.tr,
                     prefixIcon: const Icon(Icons.note),
@@ -545,7 +553,7 @@ class _SalariesPageState extends State<SalariesPage>
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('إغلاق'.tr),
+            child: Text('إغلاق'.tr, style: const TextStyle(fontSize: 14)),
           ),
         ],
       ),
@@ -638,6 +646,7 @@ class _SalariesPageState extends State<SalariesPage>
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
+                      style: const TextStyle(fontSize: 12),
                       decoration: InputDecoration(
                         labelText: 'الراتب الأساسي *'.tr,
                         prefixIcon: const Icon(Icons.money),
@@ -654,6 +663,7 @@ class _SalariesPageState extends State<SalariesPage>
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
+                      style: const TextStyle(fontSize: 12),
                       decoration: InputDecoration(
                         labelText: 'مكافآت'.tr,
                         prefixIcon: const Icon(Icons.add_circle, color: Colors.green),
@@ -669,6 +679,7 @@ class _SalariesPageState extends State<SalariesPage>
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
+                      style: const TextStyle(fontSize: 12),
                       decoration: InputDecoration(
                         labelText: 'خصومات'.tr,
                         prefixIcon: const Icon(Icons.remove_circle, color: Colors.red),
@@ -684,6 +695,7 @@ class _SalariesPageState extends State<SalariesPage>
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
+                      style: const TextStyle(fontSize: 12),
                       decoration: InputDecoration(
                         labelText: 'ملاحظات'.tr,
                         prefixIcon: const Icon(Icons.note),
@@ -704,13 +716,13 @@ class _SalariesPageState extends State<SalariesPage>
                         children: [
                           Text(
                             'الإجمالي:'.tr,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                           Text(
                             currencyFormat.format(total),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: 14,
                               color: Colors.teal,
                             ),
                           ),
