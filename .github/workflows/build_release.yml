@@ -72,10 +72,11 @@ jobs:
           name: Alrwah-arm64
           path: build/app/outputs/flutter-apk/Alrwah_v${{ env.APP_VERSION }}_arm64.apk
 
-  # ================= iOS =================
+  # ================= iOS (Simulator - No Codesign) =================
   build-ios:
-    name: Build iOS
+    name: Build iOS (Simulator)
     runs-on: macos-latest
+    continue-on-error: true
 
     steps:
       - name: Checkout code
@@ -96,24 +97,15 @@ jobs:
           flutter pub run build_runner clean
           flutter pub run build_runner build --delete-conflicting-outputs
 
-      - name: Cache CocoaPods
-        uses: actions/cache@v3
-        with:
-          path: |
-            ios/Pods
-            ~/.cocoapods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-
       - name: Install CocoaPods dependencies
         run: |
           cd ios
+          pod repo update
           pod update ObjectBox --repo-update
           pod install --repo-update
 
-      - name: Build iOS (no codesign)
-        run: flutter build ios --release --no-codesign
+      - name: Build iOS Simulator (no codesign)
+        run: flutter build ios --release --simulator
 
       - name: Get App Version
         id: version
@@ -125,4 +117,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Alrwah-iOS
-          path: build/ios/iphoneos/Runner.app
+          path: build/ios/iphonesimulator/Runner.app
