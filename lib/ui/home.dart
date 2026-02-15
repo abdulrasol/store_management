@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/services/version_check_service.dart';
-import 'package:store_management/ui/expense_add.dart';
+import 'package:store_management/ui/employees/employees_page.dart';
 import 'package:store_management/ui/expenses_page.dart';
 import 'package:store_management/ui/purchases_page.dart';
 import 'package:store_management/ui/reports_page.dart';
@@ -804,6 +804,7 @@ class _HomeState extends State<Home> {
                 _drawerItem('Expenses'.tr, Icons.receipt_long_outlined, () => Get.to(() => ExpensesPage())),
 
                 _drawerItem('Suppliers'.tr, Icons.local_shipping_outlined, () => Get.to(() => SupplierPage())),
+                _drawerItem('Employees'.tr, Icons.people_outline, () => Get.to(() => const EmployeesPage())),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4), child: Divider()),
                 _drawerItem('الطلبات المستعجلة'.tr, Icons.priority_high_rounded, () => Get.to(() => const UrgentOrdersPage())),
                 _drawerItem('التقارير'.tr, Icons.article_outlined, () => Get.to(() => const ReportsPage())),

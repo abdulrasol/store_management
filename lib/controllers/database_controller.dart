@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:store_management/database/objectbox.dart';
 import 'package:store_management/models/customer.dart';
+import 'package:store_management/models/employee.dart';
+import 'package:store_management/models/salary_transaction.dart';
 import 'package:store_management/models/expense.dart';
 import 'package:store_management/models/invoice.dart';
 import 'package:store_management/models/invoice_item.dart';
@@ -785,6 +787,122 @@ class DatabaseController extends GetxController {
   }
 
 
+
+
+  // ==================== EMPLOYEES ====================
+
+  Future<List<Employee>> getEmployees() async {
+    try {
+      final file = await _getEmployeesFile();
+      if (!await file.exists()) return [];
+
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+
+      final List<dynamic> data = decoded;
+      return data.map((m) => Employee.fromMap(m)).toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
+    } catch (e) {
+      debugPrint('Error loading employees: $e');
+      return [];
+    }
+  }
+
+  Future<void> addEmployee(Employee employee) async {
+    final employees = await getEmployees();
+    employees.add(employee);
+    await _saveEmployees(employees);
+  }
+
+  Future<void> updateEmployee(Employee updated) async {
+    final employees = await getEmployees();
+    final index = employees.indexWhere((e) => e.id == updated.id);
+    if (index != -1) {
+      employees[index] = updated;
+      await _saveEmployees(employees);
+    }
+  }
+
+  Future<void> deleteEmployee(String id) async {
+    final employees = await getEmployees();
+    employees.removeWhere((e) => e.id == id);
+    await _saveEmployees(employees);
+  }
+
+  Future<File> _getEmployeesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/employees.json');
+  }
+
+  Future<void> _saveEmployees(List<Employee> employees) async {
+    final file = await _getEmployeesFile();
+    final data = employees.map((e) => e.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // Backup wrapper
+  Future<void> saveEmployees(List<Employee> employees) async {
+    await _saveEmployees(employees);
+  }
+
+
+  // ==================== SALARY TRANSACTIONS (WITHDRAW/DEDUCT) ====================
+
+  Future<List<SalaryTransaction>> getSalaryTransactions() async {
+    try {
+      final file = await _getSalaryTransactionsFile();
+      if (!await file.exists()) return [];
+
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+
+      final List<dynamic> data = decoded;
+      return data.map((m) => SalaryTransaction.fromMap(m)).toList()
+        ..sort((a, b) => b.date.compareTo(a.date));
+    } catch (e) {
+      debugPrint('Error loading salary transactions: $e');
+      return [];
+    }
+  }
+
+  Future<List<SalaryTransaction>> getEmployeeTransactions(String employeeId) async {
+    final all = await getSalaryTransactions();
+    return all.where((t) => t.employeeId == employeeId).toList();
+  }
+
+  Future<void> addSalaryTransaction(SalaryTransaction transaction) async {
+    final transactions = await getSalaryTransactions();
+    transactions.add(transaction);
+    await _saveSalaryTransactions(transactions);
+  }
+
+  Future<void> deleteSalaryTransaction(String id) async {
+    final transactions = await getSalaryTransactions();
+    transactions.removeWhere((t) => t.id == id);
+    await _saveSalaryTransactions(transactions);
+  }
+
+  Future<File> _getSalaryTransactionsFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/salary_transactions.json');
+  }
+
+  Future<void> _saveSalaryTransactions(List<SalaryTransaction> transactions) async {
+    final file = await _getSalaryTransactionsFile();
+    final data = transactions.map((t) => t.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // Backup wrapper
+  Future<void> saveSalaryTransactions(List<SalaryTransaction> transactions) async {
+    await _saveSalaryTransactions(transactions);
+  }
 
   // ==================== INVENTORY - PAPER STOCK ====================
 
