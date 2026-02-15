@@ -40,8 +40,6 @@ class DatabaseController extends GetxController {
     loadProfits();
     loadVouchers();
     loadExpenses();
-    loadEmployees();
-    loadSalaries();
   }
 
   // items
