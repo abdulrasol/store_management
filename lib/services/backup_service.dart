@@ -1,147 +1,215 @@
-import 'dart:io';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:archive/archive_io.dart';
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:path/path.dart' as p;
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/database_controller.dart';
-import 'package:store_management/models/purchase.dart';
+import 'package:store_management/controllers/settings_controller.dart';
+import 'package:store_management/models/customer.dart';
 import 'package:store_management/models/expense.dart';
-import 'package:store_management/models/profits.dart';
+import 'package:store_management/models/inventory.dart';
+import 'package:store_management/models/invoice.dart';
+import 'package:store_management/models/purchase.dart';
 import 'package:store_management/models/salary.dart';
 import 'package:store_management/models/urgent_order.dart';
 
 class BackupService {
-  final DatabaseController dbController = Get.find<DatabaseController>();
+  final DatabaseController _db = Get.find<DatabaseController>();
 
-  final List<String> jsonFiles = [
-    'purchases.json',
-    'purchase_categories.json',
-    'expense_types.json',
-    'employees.json',
-    'salaries.json',
-    'urgent_orders.json',
-  ];
+  Future<Map<String, dynamic>> _collectAllData() async {
+    return {
+      'metadata': {
+        'version': '1.0',
+        'createdAt': DateTime.now().toIso8601String(),
+        'appName': 'Store Management',
+      },
+      'purchases': (await _db.getPurchases()).map((e) => e.toMap()).toList(),
+      'purchaseCategories': (await _db.getPurchaseCategories()).map((e) => e.toMap()).toList(),
+      'expenses': _db.expenses.map((e) => e.toMap()).toList(), // Assuming loaded in memory
+      'expenseTypes': (await _db.getExpenseTypes()).map((e) => e.toMap()).toList(),
+      'employees': (await _db.getEmployees()).map((e) => e.toMap()).toList(),
+      'salaries': (await _db.getSalaries()).map((e) => e.toMap()).toList(),
+      'salaryAdvances': (await _db.getSalaryAdvances()).map((e) => e.toMap()).toList(),
+      'urgentOrders': await _db.getUrgentOrders().then((list) => list.map((e) => e.toMap()).toList()),
+      'paperStock': (await _db.getPaperStock()).map((e) => e.toMap()).toList(),
+      'inkStock': (await _db.getInkStock()).map((e) => e.toMap()).toList(),
+      // Add other models as needed (invoices, items, etc. if they are in JSON)
+    };
+  }
 
   Future<void> createBackup() async {
     try {
-      final appDocsDir = await getApplicationDocumentsDirectory();
-      final tempDir = await getTemporaryDirectory();
-      final timestamp = DateTime.now().toIso8601String().split('T')[0];
-      final jsonName = 'store_backup_$timestamp.json';
-      final jsonPath = p.join(tempDir.path, jsonName);
+      Get.dialog(
+        const Center(child: CircularProgressIndicator()),
+        barrierDismissible: false,
+      );
 
-      Map<String, dynamic> backupData = {
-        'timestamp': DateTime.now().toIso8601String(),
-      };
+      final data = await _collectAllData();
+      final jsonString = jsonEncode(data);
+      
+      final dateStr = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+      final fileName = 'store_backup_$dateStr.json';
+      
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/$fileName');
+      await file.writeAsString(jsonString);
 
-      // Purchases
-      backupData['purchases'] = (await dbController.getPurchases()).map((p) => p.toMap()).toList();
+      Get.back(); // Close loading
 
-      // Purchase Categories
-      backupData['purchase_categories'] = (await dbController.getPurchaseCategories()).map((c) => c.toMap()).toList();
-
-      // Expense Types
-      backupData['expense_types'] = (await dbController.getExpenseTypes()).map((t) => t.toMap()).toList();
-
-      // Employees
-      backupData['employees'] = (await dbController.getEmployees()).map((e) => e.toMap()).toList();
-
-      // Salaries
-      backupData['salaries'] = (await dbController.getSalaries()).map((s) => s.toMap()).toList();
-
-      // Urgent Orders
-      backupData['urgent_orders'] = (await dbController.getUrgentOrders()).map((o) => o.toMap()).toList();
-
-      final jsonString = jsonEncode(backupData);
-      await File(jsonPath).writeAsString(jsonString);
-
-      await Share.shareXFiles([XFile(jsonPath)], text: 'Store Management JSON Backup');
-      Get.snackbar('نجاح', 'تم إنشاء JSON النسخة الاحتياطية بنجاح');
+      await Share.shareXFiles([XFile(file.path)], text: 'نسخة احتياطية - $dateStr');
+      
     } catch (e) {
-      Get.snackbar('خطأ', 'فشل النسخ الاحتياطي: $e');
-      debugPrint('Backup Error: $e');
+      Get.back(); // Close loading if error
+      Get.snackbar(
+        'خطأ'.tr,
+        'فشل إنشاء النسخة الاحتياطية: $e'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
+
   Future<void> restoreBackup() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = File(result.files.single.path!);
+      final content = await file.readAsString();
+      final Map<String, dynamic> data = jsonDecode(content);
+
+      Get.dialog(
+        AlertDialog(
+          title: Text('تأكيد الاستعادة'.tr),
+          content: Text('سيتم استبدال البيانات الحالية بالبيانات الموجودة في ملف النسخ الاحتياطي. هل أنت متأكد؟'.tr),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text('إلغاء'.tr),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Get.back();
+                _processRestore(data);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text('استعادة'.tr),
+            ),
+          ],
+        ),
+      );
+
+    } catch (e) {
+      Get.snackbar(
+        'خطأ'.tr,
+        'ملف غير صالح أو تالف'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> _processRestore(Map<String, dynamic> data) async {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
     );
-
-    if (result == null) return;
-
-    File pickedFile = File(result.files.single.path!);
-
-    // Confirm
-    bool? confirm = await Get.dialog<bool>(
-      AlertDialog(
-        title: Text('استعادة JSON'.tr),
-        content: Text('سيتم استبدال جميع بيانات JSON. هل أنت متأكد؟'.tr),
-        actions: [
-          TextButton(onPressed: () => Get.back(result: false), child: Text('إلغاء'.tr)),
-          ElevatedButton(
-            onPressed: () => Get.back(result: true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('استعادة'.tr),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
 
     try {
-      final content = await pickedFile.readAsString();
-      final data = jsonDecode(content) as Map<String, dynamic>;
-
-      final appDocsDir = await getApplicationDocumentsDirectory();
-
-      // Purchases
-      if (data['purchases'] != null) {
-        final purchases = (data['purchases'] as List).map<Purchase>((m) => Purchase.fromMap(m)).toList();
-        await dbController.savePurchases(purchases);
+      // 1. Purchases
+      if (data.containsKey('purchases')) {
+        final List<dynamic> list = data['purchases'];
+        final items = list.map((e) => Purchase.fromMap(e)).toList();
+        await _db.savePurchases(items);
       }
 
-      // Purchase Categories
-      if (data['purchase_categories'] != null) {
-        final categories = (data['purchase_categories'] as List).map<PurchaseCategory>((m) => PurchaseCategory.fromMap(m)).toList();
-        await dbController.savePurchaseCategories(categories);
+      // 2. Purchase Categories
+      if (data.containsKey('purchaseCategories')) {
+        final List<dynamic> list = data['purchaseCategories'];
+        final items = list.map((e) => PurchaseCategory.fromMap(e)).toList();
+        await _db.savePurchaseCategories(items);
       }
 
-      // Expense Types
-      if (data['expense_types'] != null) {
-        final types = (data['expense_types'] as List).map<ExpenseType>((m) => ExpenseType.fromMap(m)).toList();
-        await dbController.saveExpenseTypes(types);
+      // 3. Employees
+      if (data.containsKey('employees')) {
+        final List<dynamic> list = data['employees'];
+        final items = list.map((e) => Employee.fromMap(e)).toList();
+        await _db.saveEmployees(items);
       }
 
-      // Employees
-      if (data['employees'] != null) {
-        final employees = (data['employees'] as List).map<Employee>((m) => Employee.fromMap(m)).toList();
-        await dbController.saveEmployees(employees);
+      // 4. Salaries
+      if (data.containsKey('salaries')) {
+        final List<dynamic> list = data['salaries'];
+        final items = list.map((e) => Salary.fromMap(e)).toList();
+        await _db.saveSalaries(items);
       }
 
-      // Salaries
-      if (data['salaries'] != null) {
-        final salaries = (data['salaries'] as List).map<Salary>((m) => Salary.fromMap(m)).toList();
-        await dbController.saveSalaries(salaries);
+      // 5. Salary Advances
+      if (data.containsKey('salaryAdvances')) {
+        final List<dynamic> list = data['salaryAdvances'];
+        final items = list.map((e) => SalaryAdvance.fromMap(e)).toList();
+        await _db.saveSalaryAdvances(items);
       }
 
-      // Urgent Orders
-      if (data['urgent_orders'] != null) {
-        final orders = (data['urgent_orders'] as List).map<UrgentOrder>((m) => UrgentOrder.fromMap(m)).toList();
-        await dbController.saveUrgentOrders(orders);
+      // 6. Expense Types
+      if (data.containsKey('expenseTypes')) {
+        final List<dynamic> list = data['expenseTypes'];
+        final items = list.map((e) => ExpenseType.fromMap(e)).toList();
+        await _db.saveExpenseTypes(items);
       }
 
-      Get.snackbar('نجاح', 'تمت استعادة JSON بنجاح. أعد تحميل البيانات');
-      dbController.loading();
+      // 7. Urgent Orders
+      if (data.containsKey('urgentOrders')) {
+        final List<dynamic> list = data['urgentOrders'];
+        final items = list.map((e) => UrgentOrder.fromMap(e)).toList();
+        await _db.saveUrgentOrders(items);
+      }
+      
+      // 8. Paper Stock
+      if (data.containsKey('paperStock')) {
+        final List<dynamic> list = data['paperStock'];
+        final items = list.map((e) => PaperStock.fromMap(e)).toList();
+        await _db.savePaperStock(items);
+      }
+      
+      // 9. Ink Stock
+      if (data.containsKey('inkStock')) {
+        final List<dynamic> list = data['inkStock'];
+        final items = list.map((e) => InkStock.fromMap(e)).toList();
+        await _db.saveInkStock(items);
+      }
+
+      // Note: ObjectBox data (Invoices, Items) handle separately if needed
+      // Currently focusing on JSON-based data as requested for "All in one JSON" models
+
+      Get.back(); // Close loading
+      
+      // Refresh Data
+      _db.loading(); 
+      Get.find<SettingsController>().update(); // Refresh UI if listening
+
+      Get.snackbar(
+        'نجاح'.tr,
+        'تم استعادة البيانات بنجاح'.tr,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
     } catch (e) {
-      Get.snackbar('خطأ', 'فشل الاستعادة: $e');
-      debugPrint('Restore Error: $e');
+      Get.back();
+      Get.snackbar(
+        'خطأ'.tr,
+        'فشل الاستعادة: $e'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 }

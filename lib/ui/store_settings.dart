@@ -529,6 +529,53 @@ class StoreSettingsState extends State<StoreSettings> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 24),
+
+                      // Data Management
+                      Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Data Management'.tr,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ListTile(
+                                leading: const Icon(Icons.category, color: Colors.blue),
+                                title: Text('فئات المشتريات'.tr),
+                                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                onTap: _showPurchaseCategoriesDialog,
+                              ),
+                              const Divider(),
+                              ListTile(
+                                leading: const Icon(Icons.money_off, color: Colors.orange),
+                                title: Text('أنواع المصروفات'.tr),
+                                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                onTap: _showExpenseTypesDialog,
+                              ),
+                              const Divider(),
+                              ListTile(
+                                leading: const Icon(Icons.backup, color: Colors.green),
+                                title: Text('النسخ الاحتياطي والاستعادة'.tr),
+                                subtitle: Text('حفظ واستعادة بيانات التطبيق'.tr),
+                                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                onTap: _showBackupDialog,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 40),
                       // Submit Button
                       SizedBox(
@@ -1023,5 +1070,55 @@ class StoreSettingsState extends State<StoreSettings> {
         colorText: Colors.white,
       );
     }
+  void _showBackupDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.settings_backup_restore, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text('النسخ الاحتياطي والاستعادة'.tr),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: Colors.green,
+                child: Icon(Icons.download, color: Colors.white),
+              ),
+              title: Text('إنشاء نسخة احتياطية'.tr),
+              subtitle: Text('تصدير جميع البيانات إلى ملف'.tr),
+              onTap: () async {
+                Get.back();
+                final backupService = BackupService();
+                await backupService.createBackup();
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: Colors.orange,
+                child: Icon(Icons.upload, color: Colors.white),
+              ),
+              title: Text('استعادة نسخة احتياطية'.tr),
+              subtitle: Text('استيراد البيانات من ملف'.tr),
+              onTap: () async {
+                Get.back();
+                final backupService = BackupService();
+                await backupService.restoreBackup();
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('إغلاق'.tr),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1289,5 +1289,21 @@ class DatabaseController extends GetxController {
   Future<void> saveSalaryAdvances(List<SalaryAdvance> advances) async {
     await _saveSalaryAdvances(advances);
   }
+
+  Future<void> savePurchases(List<Purchase> purchases) async {
+    await _savePurchases(purchases);
+  }
+
+  Future<void> savePurchaseCategories(List<PurchaseCategory> categories) async {
+    await _savePurchaseCategories(categories);
+  }
+
+  Future<void> savePaperStock(List<PaperStock> stock) async {
+    await _savePaperStock(stock);
+  }
+
+  Future<void> saveInkStock(List<InkStock> stock) async {
+    await _saveInkStock(stock);
+  }
 }
 
