@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -165,17 +164,24 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
       padding: const EdgeInsets.all(16),
       children: [
         _buildSectionHeader('توزيع المصروفات'.tr),
-        SizedBox(
-          height: 200,
-          child: filteredExpenses.isEmpty 
-            ? Center(child: Text('لا توجد بيانات'.tr))
-            : _buildExpensesPieChart(),
-        ),
+        if (filteredExpenses.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Text('لا توجد بيانات'.tr, style: const TextStyle(color: Colors.grey)),
+            ),
+          )
+        else
+          ..._buildExpensesList(),
+          
         const SizedBox(height: 20),
+        const Divider(),
+        const SizedBox(height: 10),
+        
         _buildSectionHeader('آخر المشتريات'.tr),
-        ...filteredPurchases.take(5).map((p) => ListTile(
+        ...filteredPurchases.take(10).map((p) => ListTile(
           leading: const Icon(Icons.shopping_bag, color: Colors.blue),
-          title: Text(p.supplierName ?? 'بدون مورد'.tr), // Assuming supplierName exists or handled
+          title: Text(p.supplierName ?? 'بدون مورد'.tr), 
           subtitle: Text(DateFormat('yyyy-MM-dd').format(p.purchaseDate)),
           trailing: Text(
             settingsController.currencyFormatter(p.totalAmount),
@@ -184,6 +190,55 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
         )),
       ],
     );
+  }
+
+  List<Widget> _buildExpensesList() {
+    // Group expenses by description/type
+    Map<String, double> grouped = {};
+    for (var e in filteredExpenses) {
+      grouped[e.description] = (grouped[e.description] ?? 0) + e.amount;
+    }
+    
+    // Sort by amount descending
+    var sortedEntries = grouped.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    double total = grouped.values.fold(0, (sum, val) => sum + val);
+
+    return sortedEntries.map((entry) {
+      double percentage = total == 0 ? 0 : (entry.value / total);
+      return Column(
+        children: [
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.orange.withOpacity(0.2),
+              child: const Icon(Icons.money_off, color: Colors.orange, size: 18),
+            ),
+            title: Text(entry.key),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  settingsController.currencyFormatter(entry.value),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${(percentage * 100).toStringAsFixed(1)}%',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          LinearProgressIndicator(
+            value: percentage,
+            backgroundColor: Colors.grey.shade200,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade400),
+          ),
+          const SizedBox(height: 8),
+        ],
+      );
+    }).toList();
   }
 
   Widget _buildSalesSalariesTab() {
@@ -290,48 +345,6 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
           Text(label, style: const TextStyle(fontSize: 14)),
           Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
         ],
-      ),
-    );
-  }
-
-  Widget _buildExpensesPieChart() {
-    // Group expenses by description/type
-    Map<String, double> grouped = {};
-    for (var e in filteredExpenses) {
-      grouped[e.description] = (grouped[e.description] ?? 0) + e.amount;
-    }
-    
-    final List<Color> colors = [Colors.blue, Colors.red, Colors.green, Colors.orange, Colors.purple, Colors.teal];
-    int colorIndex = 0;
-
-    return PieChart(
-      PieChartData(
-        sections: grouped.entries.map((entry) {
-          final color = colors[colorIndex % colors.length];
-          colorIndex++;
-          return PieChartSectionData(
-            color: color,
-            value: entry.value,
-            title: '',
-            radius: 50,
-            badgeWidget: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
-              ),
-              child: Text(
-                '${entry.key}\n${settingsController.currencyFormatter(entry.value)}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 10),
-              ),
-            ),
-            badgePositionPercentageOffset: 1.3,
-          );
-        }).toList(),
-        sectionsSpace: 2,
-        centerSpaceRadius: 40,
       ),
     );
   }
