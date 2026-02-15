@@ -9,8 +9,7 @@ import 'package:store_management/ui/expense_add.dart';
 import 'package:store_management/ui/expenses_page.dart';
 import 'package:store_management/ui/purchases_page.dart';
 import 'package:store_management/ui/reports_page.dart';
-import 'package:store_management/ui/salaries_page.dart';
-import 'package:store_management/ui/salary_advances_page.dart';
+
 import 'package:store_management/ui/store_settings.dart';
 import 'package:store_management/ui/suppliers_page.dart';
 import 'package:store_management/ui/about_page.dart';
@@ -33,7 +32,7 @@ class _HomeState extends State<Home> {
   final RxString _chartType = 'expenses'.obs;
 
   final Rx<double> _purchasesTotal = 0.0.obs;
-  final Rx<double> _salariesTotal = 0.0.obs;
+
 
   @override
   void initState() {
@@ -49,9 +48,7 @@ class _HomeState extends State<Home> {
   void _loadAsyncTotals() async {
     final range = _getDateRange(_summaryPeriod.value);
     final pTotal = await databaseController.getPurchasesTotal(range.$1, range.$2);
-    final sTotal = await databaseController.getSalariesTotal(range.$1, range.$2);
     _purchasesTotal.value = pTotal;
-    _salariesTotal.value = sTotal;
   }
 
   (DateTime, DateTime) _getDateRange(String period) {
@@ -209,8 +206,7 @@ class _HomeState extends State<Home> {
       final range = _getDateRange(_summaryPeriod.value);
       final expenses = databaseController.getExpenses(range.$1, range.$2);
       final purchases = _purchasesTotal.value;
-      final salaries = _salariesTotal.value;
-      final totalSpending = expenses + purchases + salaries;
+      final totalSpending = expenses + purchases;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,17 +246,6 @@ class _HomeState extends State<Home> {
                 width: cardWidth,
               ),
               _statCard(
-                onTap: () => Get.to(() => const SalariesPage()),
-                title: 'Salaries'.tr,
-                icon: Icons.payments,
-                color: Colors.purple,
-                value: Text(
-                  settingsController.currencyFormatter(salaries),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                width: cardWidth,
-              ),
-              _statCard(
                 onTap: () => Get.to(() => SupplierPage()),
                 title: 'Debts'.tr,
                 icon: Icons.money_off,
@@ -274,17 +259,16 @@ class _HomeState extends State<Home> {
             ],
           ),
           const SizedBox(height: 12),
-          _buildBreakdownBar(context, purchases, expenses, salaries, totalSpending),
+          _buildBreakdownBar(context, purchases, expenses, totalSpending),
         ],
       );
     });
   }
 
-  Widget _buildBreakdownBar(BuildContext context, double purchases, double expenses, double salaries, double total) {
+  Widget _buildBreakdownBar(BuildContext context, double purchases, double expenses, double total) {
     if (total == 0) return const SizedBox.shrink();
     final pPct = purchases / total;
     final ePct = expenses / total;
-    final sPct = salaries / total;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,7 +281,6 @@ class _HomeState extends State<Home> {
               children: [
                 Expanded(flex: (pPct * 1000).round().clamp(1, 1000), child: Container(color: Colors.indigo)),
                 Expanded(flex: (ePct * 1000).round().clamp(1, 1000), child: Container(color: Colors.orange)),
-                Expanded(flex: (sPct * 1000).round().clamp(1, 1000), child: Container(color: Colors.purple)),
               ],
             ),
           ),
@@ -308,7 +291,6 @@ class _HomeState extends State<Home> {
           children: [
             _legendDot(Colors.indigo, 'Purchases'.tr, '${(pPct * 100).toStringAsFixed(0)}%'),
             _legendDot(Colors.orange, 'Expenses'.tr, '${(ePct * 100).toStringAsFixed(0)}%'),
-            _legendDot(Colors.purple, 'Salaries'.tr, '${(sPct * 100).toStringAsFixed(0)}%'),
           ],
         ),
       ],
@@ -435,14 +417,6 @@ class _HomeState extends State<Home> {
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(
-              child: _quickActionButton(
-                icon: Icons.payments_outlined,
-                label: 'Salaries'.tr,
-                color: Colors.purple,
-                onTap: () => Get.to(() => const SalariesPage()),
-              ),
-            ),
             const SizedBox(width: 10),
             Expanded(
               child: _quickActionButton(
@@ -828,8 +802,7 @@ class _HomeState extends State<Home> {
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4), child: Divider()),
                 _drawerItem('Purchases'.tr, Icons.shopping_cart_outlined, () => Get.to(() => const PurchasesPage())),
                 _drawerItem('Expenses'.tr, Icons.receipt_long_outlined, () => Get.to(() => ExpensesPage())),
-                _drawerItem('Salaries'.tr, Icons.payments_outlined, () => Get.to(() => const SalariesPage())),
-                _drawerItem('السلف والقروض'.tr, Icons.account_balance_wallet_outlined, () => Get.to(() => SalaryAdvancesPage())),
+
                 _drawerItem('Suppliers'.tr, Icons.local_shipping_outlined, () => Get.to(() => SupplierPage())),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4), child: Divider()),
                 _drawerItem('الطلبات المستعجلة'.tr, Icons.priority_high_rounded, () => Get.to(() => const UrgentOrdersPage())),

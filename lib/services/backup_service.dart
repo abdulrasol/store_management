@@ -13,7 +13,7 @@ import 'package:store_management/models/expense.dart';
 import 'package:store_management/models/inventory.dart';
 import 'package:store_management/models/invoice.dart';
 import 'package:store_management/models/purchase.dart';
-import 'package:store_management/models/salary.dart';
+
 import 'package:store_management/models/urgent_order.dart';
 
 class BackupService {
@@ -34,9 +34,7 @@ class BackupService {
         'date': e.date.toIso8601String(),
       }).toList(),
       'expenseTypes': (await _db.getExpenseTypes()).map((e) => e.toMap()).toList(),
-      'employees': (await _db.getEmployees()).map((e) => e.toMap()).toList(),
-      'salaries': (await _db.getSalaries()).map((e) => e.toMap()).toList(),
-      'salaryAdvances': (await _db.getSalaryAdvances()).map((e) => e.toMap()).toList(),
+
       'urgentOrders': await _db.getUrgentOrders().then((list) => list.map((e) => e.toMap()).toList()),
       'paperStock': (await _db.getPaperStock()).map((e) => e.toMap()).toList(),
       'inkStock': (await _db.getInkStock()).map((e) => e.toMap()).toList(),
@@ -141,26 +139,7 @@ class BackupService {
         await _db.savePurchaseCategories(items);
       }
 
-      // 3. Employees
-      if (data.containsKey('employees')) {
-        final List<dynamic> list = data['employees'];
-        final items = list.map((e) => Employee.fromMap(e)).toList();
-        await _db.saveEmployees(items);
-      }
 
-      // 4. Salaries
-      if (data.containsKey('salaries')) {
-        final List<dynamic> list = data['salaries'];
-        final items = list.map((e) => Salary.fromMap(e)).toList();
-        await _db.saveSalaries(items);
-      }
-
-      // 5. Salary Advances
-      if (data.containsKey('salaryAdvances')) {
-        final List<dynamic> list = data['salaryAdvances'];
-        final items = list.map((e) => SalaryAdvance.fromMap(e)).toList();
-        await _db.saveSalaryAdvances(items);
-      }
 
       // 6. Expenses
       if (data.containsKey('expenses')) {

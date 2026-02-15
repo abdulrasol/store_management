@@ -623,17 +623,7 @@ class DatabaseController extends GetxController {
     return total;
   }
 
-  Future<double> getSalariesTotal(DateTime start, DateTime end) async {
-    final salaries = await _getAllSalaries();
-    double total = 0.0;
-    for (var s in salaries) {
-      if (s.month.isAfter(start.subtract(const Duration(days: 1))) && 
-          s.month.isBefore(end)) {
-        total += s.totalSalary;
-      }
-    }
-    return total;
-  }
+
 
   // ==================== PURCHASES ====================
 
@@ -794,223 +784,7 @@ class DatabaseController extends GetxController {
     await file.writeAsString(jsonEncode(data));
   }
 
-  // ==================== SALARIES ====================
 
-  Future<List<Employee>> getEmployees() async {
-    try {
-      final file = await _getEmployeesFile();
-      if (!await file.exists()) return [];
-
-      final content = await file.readAsString();
-      if (content.trim().isEmpty) return [];
-      
-      final dynamic decoded = jsonDecode(content);
-      if (decoded is! List) return [];
-      
-      final List<dynamic> data = decoded;
-      return data.map((m) => Employee.fromMap(m)).toList()
-        ..sort((a, b) => a.name.compareTo(b.name));
-    } catch (e) {
-      debugPrint('Error loading employees: $e');
-      return [];
-    }
-  }
-
-  Future<void> addEmployee(Employee employee) async {
-    final employees = await getEmployees();
-    employees.add(employee);
-    await _saveEmployees(employees);
-  }
-
-  Future<void> updateEmployee(Employee updated) async {
-    final employees = await getEmployees();
-    final index = employees.indexWhere((e) => e.id == updated.id);
-    if (index != -1) {
-      employees[index] = updated;
-      await _saveEmployees(employees);
-    }
-  }
-
-  Future<void> deleteEmployee(String id) async {
-    final employees = await getEmployees();
-    employees.removeWhere((e) => e.id == id);
-    await _saveEmployees(employees);
-  }
-
-  Future<File> _getEmployeesFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/employees.json');
-  }
-
-  Future<void> _saveEmployees(List<Employee> employees) async {
-    final file = await _getEmployeesFile();
-    final data = employees.map((e) => e.toMap()).toList();
-    await file.writeAsString(jsonEncode(data));
-  }
-
-  // Salaries
-
-  Future<List<Salary>> getSalaries() async {
-    return await _getAllSalaries();
-  }
-
-  Future<List<Salary>> getSalariesByMonth(DateTime month) async {
-    try {
-      final salaries = await _getAllSalaries();
-      return salaries
-          .where((s) => s.month.year == month.year && s.month.month == month.month)
-          .toList()
-        ..sort((a, b) => a.employeeName.compareTo(b.employeeName));
-    } catch (e) {
-      debugPrint('Error loading salaries by month: $e');
-      return [];
-    }
-  }
-
-  Future<void> addSalary(Salary salary) async {
-    final salaries = await _getAllSalaries();
-    salaries.add(salary);
-    await _saveSalaries(salaries);
-  }
-
-  Future<void> updateSalary(Salary updated) async {
-    final salaries = await _getAllSalaries();
-    final index = salaries.indexWhere((s) => s.id == updated.id);
-    if (index != -1) {
-      salaries[index] = updated;
-      await _saveSalaries(salaries);
-    }
-  }
-
-  Future<void> deleteSalary(String id) async {
-    final salaries = await _getAllSalaries();
-    salaries.removeWhere((s) => s.id == id);
-    await _saveSalaries(salaries);
-  }
-
-  Future<List<Salary>> _getAllSalaries() async {
-    try {
-      final file = await _getSalariesFile();
-      if (!await file.exists()) return [];
-
-      final content = await file.readAsString();
-      if (content.trim().isEmpty) return [];
-
-      final dynamic decoded = jsonDecode(content);
-      if (decoded is! List) return [];
-
-      final List<dynamic> data = decoded;
-      return data.map((m) => Salary.fromMap(m)).toList();
-    } catch (e) {
-      debugPrint('Error loading all salaries: $e');
-      return [];
-    }
-  }
-
-  Future<File> _getSalariesFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/salaries.json');
-  }
-
-  Future<void> _saveSalaries(List<Salary> salaries) async {
-    final file = await _getSalariesFile();
-    final data = salaries.map((s) => s.toMap()).toList();
-    await file.writeAsString(jsonEncode(data));
-  }
-
-  // ==================== SALARY ADVANCES ====================
-
-  Future<List<SalaryAdvance>> getSalaryAdvances() async {
-    return await _getAllSalaryAdvances();
-  }
-
-  Future<List<SalaryAdvance>> getPendingAdvances() async {
-    final all = await _getAllSalaryAdvances();
-    return all.where((a) => !a.isPaidOff).toList()
-      ..sort((a, b) => a.requestDate.compareTo(b.requestDate));
-  }
-
-  Future<List<SalaryAdvance>> getEmployeeAdvances(String employeeId) async {
-    final all = await _getAllSalaryAdvances();
-    return all.where((a) => a.employeeId == employeeId).toList()
-      ..sort((a, b) => b.requestDate.compareTo(a.requestDate));
-  }
-
-  Future<double> getTotalPendingAdvances() async {
-    final pending = await getPendingAdvances();
-    return pending.fold<double>(0, (sum, a) => sum + a.amount);
-  }
-
-  Future<double> getEmployeePendingAdvances(String employeeId) async {
-    final employeeAdvances = await getEmployeeAdvances(employeeId);
-    return employeeAdvances
-        .where((a) => !a.isPaidOff)
-        .fold<double>(0, (sum, a) => sum + a.amount);
-  }
-
-  Future<void> addSalaryAdvance(SalaryAdvance advance) async {
-    final advances = await _getAllSalaryAdvances();
-    advances.add(advance);
-    await _saveSalaryAdvances(advances);
-  }
-
-  Future<void> updateSalaryAdvance(SalaryAdvance updated) async {
-    final advances = await _getAllSalaryAdvances();
-    final index = advances.indexWhere((a) => a.id == updated.id);
-    if (index != -1) {
-      advances[index] = updated;
-      await _saveSalaryAdvances(advances);
-    }
-  }
-
-  Future<void> markAdvanceAsPaid(String advanceId, String salaryId) async {
-    final advances = await _getAllSalaryAdvances();
-    final index = advances.indexWhere((a) => a.id == advanceId);
-    if (index != -1) {
-      advances[index] = advances[index].copyWith(
-        isPaidOff: true,
-        paidOffDate: DateTime.now(),
-        salaryId: salaryId,
-      );
-      await _saveSalaryAdvances(advances);
-    }
-  }
-
-  Future<void> deleteSalaryAdvance(String id) async {
-    final advances = await _getAllSalaryAdvances();
-    advances.removeWhere((a) => a.id == id);
-    await _saveSalaryAdvances(advances);
-  }
-
-  Future<List<SalaryAdvance>> _getAllSalaryAdvances() async {
-    try {
-      final file = await _getSalaryAdvancesFile();
-      if (!await file.exists()) return [];
-
-      final content = await file.readAsString();
-      if (content.trim().isEmpty) return [];
-
-      final dynamic decoded = jsonDecode(content);
-      if (decoded is! List) return [];
-
-      final List<dynamic> data = decoded;
-      return data.map((m) => SalaryAdvance.fromMap(m)).toList();
-    } catch (e) {
-      debugPrint('Error loading salary advances: $e');
-      return [];
-    }
-  }
-
-  Future<File> _getSalaryAdvancesFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/salary_advances.json');
-  }
-
-  Future<void> _saveSalaryAdvances(List<SalaryAdvance> advances) async {
-    final file = await _getSalaryAdvancesFile();
-    final data = advances.map((a) => a.toMap()).toList();
-    await file.writeAsString(jsonEncode(data));
-  }
 
   // ==================== INVENTORY - PAPER STOCK ====================
 
@@ -1314,21 +1088,13 @@ class DatabaseController extends GetxController {
     await _saveExpenseTypes(types);
   }
 
-  Future<void> saveEmployees(List<Employee> employees) async {
-    await _saveEmployees(employees);
-  }
 
-  Future<void> saveSalaries(List<Salary> salaries) async {
-    await _saveSalaries(salaries);
-  }
 
   Future<void> saveUrgentOrders(List<UrgentOrder> orders) async {
     await _saveUrgentOrders(orders);
   }
 
-  Future<void> saveSalaryAdvances(List<SalaryAdvance> advances) async {
-    await _saveSalaryAdvances(advances);
-  }
+
 
   Future<void> savePaperStock(List<PaperStock> stock) async {
     await _savePaperStock(stock);
