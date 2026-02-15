@@ -11,6 +11,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/employee.dart';
+import 'package:store_management/models/expense.dart';
+import 'package:store_management/models/invoice.dart';
+import 'package:store_management/models/purchase.dart';
 import 'package:store_management/models/salary_transaction.dart';
 import 'package:store_management/ui/employees/employee_report_page.dart';
 

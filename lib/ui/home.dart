@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/services/version_check_service.dart';
+import 'package:store_management/ui/expense_add.dart';
 import 'package:store_management/ui/employees/employees_page.dart';
 import 'package:store_management/ui/expenses_page.dart';
 import 'package:store_management/ui/purchases_page.dart';
