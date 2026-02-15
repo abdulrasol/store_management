@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -102,37 +104,37 @@ class BackupService {
       // Purchases
       if (data['purchases'] != null) {
         final purchases = (data['purchases'] as List).map<Purchase>((m) => Purchase.fromMap(m)).toList();
-        await dbController._savePurchases(purchases);
+        await dbController.savePurchases(purchases);
       }
 
       // Purchase Categories
       if (data['purchase_categories'] != null) {
         final categories = (data['purchase_categories'] as List).map<PurchaseCategory>((m) => PurchaseCategory.fromMap(m)).toList();
-        await dbController._savePurchaseCategories(categories);
+        await dbController.savePurchaseCategories(categories);
       }
 
       // Expense Types
       if (data['expense_types'] != null) {
         final types = (data['expense_types'] as List).map<ExpenseType>((m) => ExpenseType.fromMap(m)).toList();
-        await dbController._saveExpenseTypes(types);
+        await dbController.saveExpenseTypes(types);
       }
 
       // Employees
       if (data['employees'] != null) {
         final employees = (data['employees'] as List).map<Employee>((m) => Employee.fromMap(m)).toList();
-        await dbController._saveEmployees(employees);
+        await dbController.saveEmployees(employees);
       }
 
       // Salaries
       if (data['salaries'] != null) {
         final salaries = (data['salaries'] as List).map<Salary>((m) => Salary.fromMap(m)).toList();
-        await dbController._saveSalaries(salaries);
+        await dbController.saveSalaries(salaries);
       }
 
       // Urgent Orders
       if (data['urgent_orders'] != null) {
         final orders = (data['urgent_orders'] as List).map<UrgentOrder>((m) => UrgentOrder.fromMap(m)).toList();
-        await dbController._saveUrgentOrders(orders);
+        await dbController.saveUrgentOrders(orders);
       }
 
       Get.snackbar('نجاح', 'تمت استعادة JSON بنجاح. أعد تحميل البيانات');

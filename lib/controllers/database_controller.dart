@@ -1163,4 +1163,29 @@ class DatabaseController extends GetxController {
     final data = orders.map((o) => o.toMap()).toList();
     await file.writeAsString(jsonEncode(data));
   }
-}
+
+  /// Public wrappers for backup service
+  Future<void> savePurchases(List<dynamic> purchases) async {
+    await _savePurchases(purchases.cast<Purchase>());
+  }
+
+  Future<void> savePurchaseCategories(List<dynamic> categories) async {
+    await _savePurchaseCategories(categories.cast<PurchaseCategory>());
+  }
+
+  Future<void> saveExpenseTypes(List<dynamic> types) async {
+    await _saveExpenseTypes(types.cast<ExpenseType>());
+  }
+
+  Future<void> saveEmployees(List<dynamic> employees) async {
+    await _saveEmployees(employees.cast<Employee>());
+  }
+
+  Future<void> saveSalaries(List<dynamic> salaries) async {
+    await _saveSalaries(salaries.cast<Salary>());
+  }
+
+  Future<void> saveUrgentOrders(List<dynamic> orders) async {
+    await _saveUrgentOrders(orders.cast<UrgentOrder>());
+  }
+
