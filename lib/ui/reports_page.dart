@@ -10,10 +10,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
-import 'package:store_management/models/expense.dart';
-import 'package:store_management/models/purchase.dart';
-import 'package:store_management/models/salary.dart';
-import 'package:store_management/models/invoice.dart';
+import 'package:store_management/models/employee.dart';
+import 'package:store_management/models/salary_transaction.dart';
+import 'package:store_management/ui/employees/employee_report_page.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
@@ -46,10 +45,13 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
   List<Salary> filteredSalaries = [];
   List<Invoice> filteredSales = [];
 
+  List<Employee> employees = [];
+  Employee? selectedEmployeeReport;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     loadData();
   }
 
@@ -82,17 +84,13 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
     }).toList();
     totalExpenses = filteredExpenses.fold(0, (sum, item) => sum + item.amount);
 
-    // 4. Salaries
-    // Note: Salaries are usually monthly. We verify if the month is within range.
-    final allSalaries = await databaseController.getSalaries();
-    filteredSalaries = allSalaries.where((s) {
-      return s.month.isAfter(start.subtract(const Duration(days: 1))) && 
-             s.month.isBefore(end.add(const Duration(days: 1)));
-    }).toList();
-    totalSalaries = filteredSalaries.fold(0, (sum, item) => sum + item.totalSalary);
-
-    // Net Profit
-    netProfit = totalSales - totalPurchases - totalExpenses - totalSalaries;
+    // 4. Employees & Salaries
+    employees = await databaseController.getEmployees();
+    // filteredSalaries logic removed as old Salary model is gone
+    // We now use transactions
+    
+    // Net Profit (Simplified for now without old salaries)
+    netProfit = totalSales - totalPurchases - totalExpenses; // - totalSalaries (calculated differently now)
 
     setState(() => isLoading = false);
   }
@@ -107,7 +105,8 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
           tabs: [
             Tab(text: 'الملخص'.tr),
             Tab(text: 'المصروفات والمشتريات'.tr),
-            Tab(text: 'المبيعات والرواتب'.tr),
+            Tab(text: 'المبيعات'.tr),
+            Tab(text: 'تقارير الموظفين'.tr),
           ],
         ),
         actions: [
@@ -131,6 +130,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                 _buildSummaryTab(),
                 _buildExpensesPurchasesTab(),
                 _buildSalesSalariesTab(),
+                _buildEmployeesReportTab(),
               ],
             ),
     );
@@ -146,7 +146,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
           _buildSummaryCard('المبيعات'.tr, totalSales, Colors.green, Icons.attach_money),
           _buildSummaryCard('المشتريات'.tr, totalPurchases, Colors.blue, Icons.shopping_cart),
           _buildSummaryCard('المصروفات'.tr, totalExpenses, Colors.orange, Icons.money_off),
-          _buildSummaryCard('الرواتب'.tr, totalSalaries, Colors.purple, Icons.people),
+          // Salary summary removed from here as it's complex calculated
           const Divider(height: 30, thickness: 2),
           _buildSummaryCard(
             'صافي الربح'.tr, 
@@ -251,19 +251,35 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
         _buildStatRow('عدد الفواتير'.tr, filteredSales.length.toString()),
         _buildStatRow('متوسط قيمة الفاتورة'.tr, 
           filteredSales.isEmpty ? '0' : settingsController.currencyFormatter(totalSales / filteredSales.length)),
-        
-        const SizedBox(height: 20),
-        _buildSectionHeader('رواتب الموظفين'.tr),
-        ...filteredSalaries.map((s) => ListTile(
-          leading: const Icon(Icons.person, color: Colors.purple),
-          title: Text(s.employeeName),
-          subtitle: Text(DateFormat('MMMM yyyy').format(s.month)),
-          trailing: Text(
-            settingsController.currencyFormatter(s.totalSalary),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-        )),
       ],
+    );
+  }
+
+  Widget _buildEmployeesReportTab() {
+    if (employees.isEmpty) {
+      return Center(child: Text('لا يوجد موظفين'.tr));
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: employees.length,
+      itemBuilder: (context, index) {
+        final emp = employees[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.teal.withOpacity(0.1),
+              child: const Icon(Icons.person, color: Colors.teal),
+            ),
+            title: Text(emp.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(emp.jobTitle),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            onTap: () {
+              Get.to(() => EmployeeReportPage(employee: emp));
+            },
+          ),
+        );
+      },
     );
   }
 

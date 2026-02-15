@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:store_management/controllers/employees_controller.dart';
 import 'package:store_management/models/employee.dart';
 import 'package:store_management/models/salary_transaction.dart';
+import 'package:store_management/ui/employees/employee_report_page.dart';
 
 class EmployeesPage extends StatelessWidget {
   const EmployeesPage({super.key});
@@ -180,6 +181,8 @@ class EmployeesPage extends StatelessWidget {
       onSelected: (value) {
         if (value == 'transactions') {
           _showTransactionsDialog(context, controller, emp);
+        } else if (value == 'report') {
+          Get.to(() => EmployeeReportPage(employee: emp));
         } else if (value == 'edit') {
           _showEmployeeDialog(context, controller, emp);
         } else if (value == 'delete') {
@@ -204,6 +207,16 @@ class EmployeesPage extends StatelessWidget {
               const Icon(Icons.account_balance_wallet, color: Colors.orange, size: 18),
               const SizedBox(width: 8),
               Text('المعاملات المالية'.tr),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'report',
+          child: Row(
+            children: [
+              const Icon(Icons.picture_as_pdf, color: Colors.blueGrey, size: 18),
+              const SizedBox(width: 8),
+              Text('تقرير'.tr),
             ],
           ),
         ),
