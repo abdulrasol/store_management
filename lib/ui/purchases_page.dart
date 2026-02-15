@@ -264,7 +264,6 @@ class _PurchasesPageState extends State<PurchasesPage> {
 
   void _showPurchaseFormDialog({Purchase? purchase}) {
     final formKey = GlobalKey<FormState>();
-    final supplierController = TextEditingController(text: purchase?.supplierName);
     final receiptController = TextEditingController(text: purchase?.receiptNumber);
     final amountController = TextEditingController(text: purchase != null ? purchase.totalAmount.toString() : '');
     final notesController = TextEditingController(text: purchase?.notes);
@@ -272,6 +271,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
     DateTime selectedDate = purchase?.purchaseDate ?? DateTime.now();
     String paymentStatus = purchase?.paymentStatus ?? 'paid';
     String? categoryId = purchase?.categoryId;
+    String? selectedSupplier = purchase?.supplierName; // Holds the selected supplier name
 
     Get.dialog(
       AlertDialog(
@@ -284,34 +284,25 @@ class _PurchasesPageState extends State<PurchasesPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Amount (Most important)
-                  TextFormField(
-                    controller: amountController,
-                    style: const TextStyle(fontSize: 12),
-                    decoration: InputDecoration(
-                      labelText: 'المبلغ الإجمالي *'.tr,
-                      prefixIcon: const Icon(Icons.attach_money),
-                      border: const OutlineInputBorder(),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'مطلوب'.tr;
-                      if (double.tryParse(value) == null) return 'رقم غير صحيح'.tr;
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-
                   // Supplier
-                  TextFormField(
-                    controller: supplierController,
-                    style: const TextStyle(fontSize: 12),
+                  DropdownButtonFormField<String>(
+                    value: selectedSupplier,
+                    style: TextStyle(
+                      fontSize: 13, 
+                      fontWeight: FontWeight.bold, 
+                      color: Get.isDarkMode ? Colors.white : Colors.black
+                    ),
                     decoration: InputDecoration(
                       labelText: 'اسم المورد *'.tr,
                       prefixIcon: const Icon(Icons.person),
                       border: const OutlineInputBorder(),
                     ),
-                    validator: (value) => value?.isEmpty ?? true ? 'مطلوب'.tr : null,
+                    items: databaseController.suppliers.map((s) => DropdownMenuItem(
+                      value: s.name,
+                      child: Text(s.name),
+                    )).toList(),
+                    onChanged: (v) => selectedSupplier = v,
+                    validator: (value) => value == null || value.isEmpty ? 'مطلوب'.tr : null,
                   ),
                   const SizedBox(height: 12),
 
@@ -330,7 +321,11 @@ class _PurchasesPageState extends State<PurchasesPage> {
                   // Category
                   DropdownButtonFormField<String>(
                     value: categoryId,
-                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 13, 
+                      fontWeight: FontWeight.bold, 
+                      color: Get.isDarkMode ? Colors.white : Colors.black
+                    ),
                     decoration: InputDecoration(
                       labelText: 'الفئة'.tr,
                       prefixIcon: const Icon(Icons.category),
@@ -344,10 +339,32 @@ class _PurchasesPageState extends State<PurchasesPage> {
                   ),
                   const SizedBox(height: 12),
 
+                  // Amount (Below Category as requested)
+                  TextFormField(
+                    controller: amountController,
+                    style: const TextStyle(fontSize: 12),
+                    decoration: InputDecoration(
+                      labelText: 'المبلغ الإجمالي *'.tr,
+                      prefixIcon: const Icon(Icons.attach_money),
+                      border: const OutlineInputBorder(),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'مطلوب'.tr;
+                      if (double.tryParse(value) == null) return 'رقم غير صحيح'.tr;
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
                   // Payment Status
                   DropdownButtonFormField<String>(
                     value: paymentStatus,
-                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 13, 
+                      fontWeight: FontWeight.bold, 
+                      color: Get.isDarkMode ? Colors.white : Colors.black
+                    ),
                     decoration: InputDecoration(
                       labelText: 'حالة الدفع'.tr,
                       prefixIcon: const Icon(Icons.payment),
@@ -413,7 +430,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
                 
                 final newPurchase = Purchase(
                   id: purchase?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-                  supplierName: supplierController.text,
+                  supplierName: selectedSupplier!,
                   receiptNumber: receiptController.text,
                   purchaseDate: selectedDate,
                   amount: amount,

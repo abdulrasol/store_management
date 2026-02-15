@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:store_management/database/objectbox.dart';
@@ -796,13 +797,23 @@ class DatabaseController extends GetxController {
   // ==================== SALARIES ====================
 
   Future<List<Employee>> getEmployees() async {
-    final file = await _getEmployeesFile();
-    if (!await file.exists()) return [];
+    try {
+      final file = await _getEmployeesFile();
+      if (!await file.exists()) return [];
 
-    final content = await file.readAsString();
-    final List<dynamic> data = jsonDecode(content);
-    return data.map((m) => Employee.fromMap(m)).toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+      
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+      
+      final List<dynamic> data = decoded;
+      return data.map((m) => Employee.fromMap(m)).toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
+    } catch (e) {
+      debugPrint('Error loading employees: $e');
+      return [];
+    }
   }
 
   Future<void> addEmployee(Employee employee) async {
@@ -844,17 +855,16 @@ class DatabaseController extends GetxController {
   }
 
   Future<List<Salary>> getSalariesByMonth(DateTime month) async {
-    final file = await _getSalariesFile();
-    if (!await file.exists()) return [];
-
-    final content = await file.readAsString();
-    final List<dynamic> data = jsonDecode(content);
-    final salaries = data.map((m) => Salary.fromMap(m)).toList();
-
-    return salaries
-        .where((s) => s.month.year == month.year && s.month.month == month.month)
-        .toList()
-      ..sort((a, b) => a.employeeName.compareTo(b.employeeName));
+    try {
+      final salaries = await _getAllSalaries();
+      return salaries
+          .where((s) => s.month.year == month.year && s.month.month == month.month)
+          .toList()
+        ..sort((a, b) => a.employeeName.compareTo(b.employeeName));
+    } catch (e) {
+      debugPrint('Error loading salaries by month: $e');
+      return [];
+    }
   }
 
   Future<void> addSalary(Salary salary) async {
@@ -879,12 +889,22 @@ class DatabaseController extends GetxController {
   }
 
   Future<List<Salary>> _getAllSalaries() async {
-    final file = await _getSalariesFile();
-    if (!await file.exists()) return [];
+    try {
+      final file = await _getSalariesFile();
+      if (!await file.exists()) return [];
 
-    final content = await file.readAsString();
-    final List<dynamic> data = jsonDecode(content);
-    return data.map((m) => Salary.fromMap(m)).toList();
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+
+      final List<dynamic> data = decoded;
+      return data.map((m) => Salary.fromMap(m)).toList();
+    } catch (e) {
+      debugPrint('Error loading all salaries: $e');
+      return [];
+    }
   }
 
   Future<File> _getSalariesFile() async {
@@ -963,12 +983,22 @@ class DatabaseController extends GetxController {
   }
 
   Future<List<SalaryAdvance>> _getAllSalaryAdvances() async {
-    final file = await _getSalaryAdvancesFile();
-    if (!await file.exists()) return [];
+    try {
+      final file = await _getSalaryAdvancesFile();
+      if (!await file.exists()) return [];
 
-    final content = await file.readAsString();
-    final List<dynamic> data = jsonDecode(content);
-    return data.map((m) => SalaryAdvance.fromMap(m)).toList();
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+
+      final List<dynamic> data = decoded;
+      return data.map((m) => SalaryAdvance.fromMap(m)).toList();
+    } catch (e) {
+      debugPrint('Error loading salary advances: $e');
+      return [];
+    }
   }
 
   Future<File> _getSalaryAdvancesFile() async {
@@ -985,13 +1015,23 @@ class DatabaseController extends GetxController {
   // ==================== INVENTORY - PAPER STOCK ====================
 
   Future<List<PaperStock>> getPaperStock() async {
-    final file = await _getPaperStockFile();
-    if (!await file.exists()) return [];
+    try {
+      final file = await _getPaperStockFile();
+      if (!await file.exists()) return [];
 
-    final content = await file.readAsString();
-    final List<dynamic> data = jsonDecode(content);
-    return data.map((m) => PaperStock.fromMap(m)).toList()
-      ..sort((a, b) => a.displayName.compareTo(b.displayName));
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+
+      final List<dynamic> data = decoded;
+      return data.map((m) => PaperStock.fromMap(m)).toList()
+        ..sort((a, b) => a.displayName.compareTo(b.displayName));
+    } catch (e) {
+      debugPrint('Error loading paper stock: $e');
+      return [];
+    }
   }
 
   Future<void> addPaperStock(PaperStock paper) async {
