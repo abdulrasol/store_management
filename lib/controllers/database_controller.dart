@@ -718,6 +718,58 @@ class DatabaseController extends GetxController {
     await file.writeAsString(jsonEncode(data));
   }
 
+  // ==================== EXPENSE TYPES ====================
+
+  Future<List<ExpenseType>> getExpenseTypes() async {
+    final file = await _getExpenseTypesFile();
+    if (!await file.exists()) {
+      return [
+        ExpenseType(id: '1', name: 'فاتورة كهرباء'),
+        ExpenseType(id: '2', name: 'إيجار'),
+        ExpenseType(id: '3', name: 'وقود'),
+        ExpenseType(id: '4', name: 'صيانة'),
+        ExpenseType(id: '5', name: 'قطع غيار'),
+      ];
+    }
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => ExpenseType.fromMap(m)).toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+  }
+
+  Future<void> addExpenseType(ExpenseType type) async {
+    final types = await getExpenseTypes();
+    types.add(type);
+    await _saveExpenseTypes(types);
+  }
+
+  Future<void> updateExpenseType(ExpenseType updated) async {
+    final types = await getExpenseTypes();
+    final index = types.indexWhere((t) => t.id == updated.id);
+    if (index != -1) {
+      types[index] = updated;
+      await _saveExpenseTypes(types);
+    }
+  }
+
+  Future<void> deleteExpenseType(String id) async {
+    final types = await getExpenseTypes();
+    types.removeWhere((t) => t.id == id);
+    await _saveExpenseTypes(types);
+  }
+
+  Future<File> _getExpenseTypesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/expense_types.json');
+  }
+
+  Future<void> _saveExpenseTypes(List<ExpenseType> types) async {
+    final file = await _getExpenseTypesFile();
+    final data = types.map((t) => t.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
   // ==================== SALARIES ====================
 
   Future<List<Employee>> getEmployees() async {

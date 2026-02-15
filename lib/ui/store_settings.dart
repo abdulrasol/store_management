@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
+import 'package:store_management/models/expense.dart';
 import 'package:store_management/models/purchase.dart';
 import 'package:store_management/services/backup_service.dart';
 import 'package:store_management/utils/app_constants.dart';
@@ -508,6 +509,14 @@ class StoreSettingsState extends State<StoreSettings> {
                                 trailing: const Icon(Icons.arrow_forward_ios),
                                 onTap: () => _showPurchaseCategoriesDialog(),
                               ),
+                              const Divider(),
+                              ListTile(
+                                leading: const Icon(Icons.receipt_long, color: Colors.orange),
+                                title: Text('أنواع المصروفات'.tr),
+                                subtitle: Text('إدارة قائمة أنواع المصروفات'.tr),
+                                trailing: const Icon(Icons.arrow_forward_ios),
+                                onTap: () => _showExpenseTypesDialog(),
+                              ),
                             ],
                           ),
                         ),
@@ -557,6 +566,207 @@ class StoreSettingsState extends State<StoreSettings> {
       child: Text('English'),
     ),
   ];
+
+  // ==================== EXPENSE TYPES ====================
+
+  void _showExpenseTypesDialog() {
+    final DatabaseController databaseController = Get.find<DatabaseController>();
+
+    Get.dialog(
+      AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.receipt_long, color: Colors.orange),
+            const SizedBox(width: 8),
+            Text('أنواع المصروفات'.tr),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: FutureBuilder<List<ExpenseType>>(
+            future: databaseController.getExpenseTypes(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final types = snapshot.data!;
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _showAddExpenseTypeDialog(databaseController),
+                    icon: const Icon(Icons.add),
+                    label: Text('إضافة نوع جديد'.tr),
+                  ),
+                  const SizedBox(height: 16),
+                  types.isEmpty
+                      ? Text('لا توجد أنواع'.tr)
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: types.length,
+                          itemBuilder: (context, index) {
+                            final type = types[index];
+                            return ListTile(
+                              title: Text(type.name),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () => _showEditExpenseTypeDialog(
+                                      databaseController,
+                                      type,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => _deleteExpenseType(
+                                      databaseController,
+                                      type,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                ],
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('إغلاق'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddExpenseTypeDialog(DatabaseController controller) {
+    final TextEditingController nameController = TextEditingController();
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('إضافة نوع مصروف جديد'.tr),
+        content: TextField(
+          controller: nameController,
+          decoration: InputDecoration(
+            labelText: 'اسم النوع'.tr,
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('إلغاء'.tr),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.isNotEmpty) {
+                final type = ExpenseType(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: nameController.text,
+                );
+                await controller.addExpenseType(type);
+                Get.back();
+                _showExpenseTypesDialog();
+                Get.snackbar(
+                  'نجاح'.tr,
+                  'تم إضافة النوع بنجاح'.tr,
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
+              }
+            },
+            child: Text('حفظ'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditExpenseTypeDialog(DatabaseController controller, ExpenseType type) {
+    final TextEditingController nameController = TextEditingController(text: type.name);
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('تعديل نوع المصروف'.tr),
+        content: TextField(
+          controller: nameController,
+          decoration: InputDecoration(
+            labelText: 'اسم النوع'.tr,
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('إلغاء'.tr),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.isNotEmpty) {
+                final updated = ExpenseType(
+                  id: type.id,
+                  name: nameController.text,
+                );
+                await controller.updateExpenseType(updated);
+                Get.back();
+                _showExpenseTypesDialog();
+                Get.snackbar(
+                  'نجاح'.tr,
+                  'تم تحديث النوع بنجاح'.tr,
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
+              }
+            },
+            child: Text('حفظ'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteExpenseType(DatabaseController controller, ExpenseType type) async {
+    final confirm = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('تأكيد الحذف'.tr),
+        content: Text('هل أنت متأكد من حذف ${type.name}؟'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('إلغاء'.tr),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('حذف'.tr),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await controller.deleteExpenseType(type.id);
+      _showExpenseTypesDialog();
+      Get.snackbar(
+        'نجاح'.tr,
+        'تم حذف النوع بنجاح'.tr,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  // ==================== PURCHASE CATEGORIES ====================
 
   void _showPurchaseCategoriesDialog() {
     final DatabaseController databaseController = Get.find<DatabaseController>();

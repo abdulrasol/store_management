@@ -24,14 +24,22 @@ class _ExpenseAddState extends State<ExpenseAdd> {
   SettingsController settingsController = Get.find();
   DateTime? picker = DateTime.now();
   String selectedExpenseType = '';
+  List<String> expenseTypes = [];
+  bool _isLoading = true;
 
-  final List<String> expenseTypes = [
-    'Electricity Bill',
-    'Rent',
-    'Petrol',
-    'Maintenance',
-    'Spare Parts'
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadExpenseTypes();
+  }
+
+  Future<void> _loadExpenseTypes() async {
+    final types = await databaseController.getExpenseTypes();
+    setState(() {
+      expenseTypes = types.map((t) => t.name).toList();
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +47,9 @@ class _ExpenseAddState extends State<ExpenseAdd> {
       appBar: AppBar(
         title: Text('New Expense'.tr),
       ),
-      body: Form(
+      body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Form(
         key: formKey,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
