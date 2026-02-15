@@ -17,6 +17,7 @@ class _SalariesPageState extends State<SalariesPage>
   List<Employee> employees = [];
   List<Salary> salaries = [];
   List<Salary> filteredSalaries = [];
+  Map<String, double> employeeAdvances = {};
   bool isLoading = false;
   DateTime selectedMonth = DateTime.now();
   int currentTab = 0;
@@ -58,10 +59,17 @@ class _SalariesPageState extends State<SalariesPage>
     try {
       final empResult = await databaseController.getEmployees();
       final salResult = await databaseController.getSalariesByMonth(selectedMonth);
+      
+      Map<String, double> advances = {};
+      for (var emp in empResult) {
+        advances[emp.id] = await databaseController.getEmployeePendingAdvances(emp.id);
+      }
+      
       setState(() {
         employees = empResult;
         salaries = salResult;
         filteredSalaries = salResult;
+        employeeAdvances = advances;
         isLoading = false;
       });
     } catch (e) {
@@ -100,12 +108,18 @@ class _SalariesPageState extends State<SalariesPage>
           ],
         ),
         actions: [
-          if (currentTab == 1)
+          if (currentTab == 1) ...[
             IconButton(
               icon: const Icon(Icons.calendar_today),
               onPressed: _selectMonth,
               tooltip: 'اختيار الشهر'.tr,
             ),
+            IconButton(
+              icon: const Icon(Icons.account_balance_wallet),
+              onPressed: () => Get.to(() => const SalaryAdvancesPage()),
+              tooltip: 'السلف والقروض'.tr,
+            ),
+          ],
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: loadData,
@@ -183,6 +197,20 @@ class _SalariesPageState extends State<SalariesPage>
                 Text(employee.phone),
                 if (lastSalary != null)
                   Text('آخر راتب: ${currencyFormat.format(lastSalary.totalSalary)} (${_formatMonth(lastSalary.month)})'),
+                if (employeeAdvances[employee.id] != null && employeeAdvances[employee.id]! > 0)
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Text(
+                      'سلفة مستحقة: ${currencyFormat.format(employeeAdvances[employee.id]!)}',
+                      style: const TextStyle(fontSize: 11, color: Colors.orange),
+                    ),
+                  ),
               ],
             ),
             trailing: Row(

@@ -898,6 +898,90 @@ class DatabaseController extends GetxController {
     await file.writeAsString(jsonEncode(data));
   }
 
+  // ==================== SALARY ADVANCES ====================
+
+  Future<List<SalaryAdvance>> getSalaryAdvances() async {
+    return await _getAllSalaryAdvances();
+  }
+
+  Future<List<SalaryAdvance>> getPendingAdvances() async {
+    final all = await _getAllSalaryAdvances();
+    return all.where((a) => !a.isPaidOff).toList()
+      ..sort((a, b) => a.requestDate.compareTo(b.requestDate));
+  }
+
+  Future<List<SalaryAdvance>> getEmployeeAdvances(String employeeId) async {
+    final all = await _getAllSalaryAdvances();
+    return all.where((a) => a.employeeId == employeeId).toList()
+      ..sort((a, b) => b.requestDate.compareTo(a.requestDate));
+  }
+
+  Future<double> getTotalPendingAdvances() async {
+    final pending = await getPendingAdvances();
+    return pending.fold(0, (sum, a) => sum + a.amount);
+  }
+
+  Future<double> getEmployeePendingAdvances(String employeeId) async {
+    final employeeAdvances = await getEmployeeAdvances(employeeId);
+    return employeeAdvances
+        .where((a) => !a.isPaidOff)
+        .fold(0, (sum, a) => sum + a.amount);
+  }
+
+  Future<void> addSalaryAdvance(SalaryAdvance advance) async {
+    final advances = await _getAllSalaryAdvances();
+    advances.add(advance);
+    await _saveSalaryAdvances(advances);
+  }
+
+  Future<void> updateSalaryAdvance(SalaryAdvance updated) async {
+    final advances = await _getAllSalaryAdvances();
+    final index = advances.indexWhere((a) => a.id == updated.id);
+    if (index != -1) {
+      advances[index] = updated;
+      await _saveSalaryAdvances(advances);
+    }
+  }
+
+  Future<void> markAdvanceAsPaid(String advanceId, String salaryId) async {
+    final advances = await _getAllSalaryAdvances();
+    final index = advances.indexWhere((a) => a.id == advanceId);
+    if (index != -1) {
+      advances[index] = advances[index].copyWith(
+        isPaidOff: true,
+        paidOffDate: DateTime.now(),
+        salaryId: salaryId,
+      );
+      await _saveSalaryAdvances(advances);
+    }
+  }
+
+  Future<void> deleteSalaryAdvance(String id) async {
+    final advances = await _getAllSalaryAdvances();
+    advances.removeWhere((a) => a.id == id);
+    await _saveSalaryAdvances(advances);
+  }
+
+  Future<List<SalaryAdvance>> _getAllSalaryAdvances() async {
+    final file = await _getSalaryAdvancesFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => SalaryAdvance.fromMap(m)).toList();
+  }
+
+  Future<File> _getSalaryAdvancesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/salary_advances.json');
+  }
+
+  Future<void> _saveSalaryAdvances(List<SalaryAdvance> advances) async {
+    final file = await _getSalaryAdvancesFile();
+    final data = advances.map((a) => a.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
   // ==================== INVENTORY - PAPER STOCK ====================
 
   Future<List<PaperStock>> getPaperStock() async {
@@ -1201,5 +1285,8 @@ class DatabaseController extends GetxController {
   Future<void> saveUrgentOrders(List<UrgentOrder> orders) async {
     await _saveUrgentOrders(orders);
   }
-}
+
+  Future<void> saveSalaryAdvances(List<SalaryAdvance> advances) async {
+    await _saveSalaryAdvances(advances);
+  }
 

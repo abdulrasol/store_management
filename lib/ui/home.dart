@@ -10,6 +10,7 @@ import 'package:store_management/ui/expenses_page.dart';
 import 'package:store_management/ui/purchases_page.dart';
 import 'package:store_management/ui/reports_page.dart';
 import 'package:store_management/ui/salaries_page.dart';
+import 'package:store_management/ui/salary_advances_page.dart';
 import 'package:store_management/ui/store_settings.dart';
 import 'package:store_management/ui/suppliers_page.dart';
 import 'package:store_management/ui/about_page.dart';
@@ -828,6 +829,7 @@ class _HomeState extends State<Home> {
                 _drawerItem('Purchases'.tr, Icons.shopping_cart_outlined, () => Get.to(() => const PurchasesPage())),
                 _drawerItem('Expenses'.tr, Icons.receipt_long_outlined, () => Get.to(() => ExpensesPage())),
                 _drawerItem('Salaries'.tr, Icons.payments_outlined, () => Get.to(() => const SalariesPage())),
+                _drawerItem('السلف والقروض'.tr, Icons.account_balance_wallet_outlined, () => Get.to(() => const SalaryAdvancesPage())),
                 _drawerItem('Suppliers'.tr, Icons.local_shipping_outlined, () => Get.to(() => SupplierPage())),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4), child: Divider()),
                 _drawerItem('الطلبات المستعجلة'.tr, Icons.priority_high_rounded, () => Get.to(() => const UrgentOrdersPage())),

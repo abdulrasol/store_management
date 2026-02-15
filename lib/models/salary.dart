@@ -137,3 +137,89 @@ class Salary {
     );
   }
 }
+
+class SalaryAdvance {
+  final String id;
+  final String employeeId;
+  final String employeeName;
+  final double amount;
+  final String? reason;
+  final DateTime requestDate;
+  final bool isPaidOff;
+  final DateTime? paidOffDate;
+  final String? salaryId;
+  final DateTime createdAt;
+
+  SalaryAdvance({
+    required this.id,
+    required this.employeeId,
+    required this.employeeName,
+    required this.amount,
+    this.reason,
+    required this.requestDate,
+    this.isPaidOff = false,
+    this.paidOffDate,
+    this.salaryId,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'employeeId': employeeId,
+      'employeeName': employeeName,
+      'amount': amount,
+      'reason': reason,
+      'requestDate': requestDate.toIso8601String(),
+      'isPaidOff': isPaidOff,
+      'paidOffDate': paidOffDate?.toIso8601String(),
+      'salaryId': salaryId,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  factory SalaryAdvance.fromMap(Map<String, dynamic> map) {
+    return SalaryAdvance(
+      id: map['id'] ?? '',
+      employeeId: map['employeeId'] ?? '',
+      employeeName: map['employeeName'] ?? '',
+      amount: (map['amount'] ?? 0).toDouble(),
+      reason: map['reason'],
+      requestDate: DateTime.parse(map['requestDate']),
+      isPaidOff: map['isPaidOff'] ?? false,
+      paidOffDate: map['paidOffDate'] != null
+          ? DateTime.parse(map['paidOffDate'])
+          : null,
+      salaryId: map['salaryId'],
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'])
+          : DateTime.now(),
+    );
+  }
+
+  SalaryAdvance copyWith({
+    String? id,
+    String? employeeId,
+    String? employeeName,
+    double? amount,
+    String? reason,
+    DateTime? requestDate,
+    bool? isPaidOff,
+    DateTime? paidOffDate,
+    String? salaryId,
+    DateTime? createdAt,
+  }) {
+    return SalaryAdvance(
+      id: id ?? this.id,
+      employeeId: employeeId ?? this.employeeId,
+      employeeName: employeeName ?? this.employeeName,
+      amount: amount ?? this.amount,
+      reason: reason ?? this.reason,
+      requestDate: requestDate ?? this.requestDate,
+      isPaidOff: isPaidOff ?? this.isPaidOff,
+      paidOffDate: paidOffDate ?? this.paidOffDate,
+      salaryId: salaryId ?? this.salaryId,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+}
