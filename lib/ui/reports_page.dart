@@ -364,65 +364,83 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
   }
 
   Future<void> _generatePdf() async {
-    final pdf = pw.Document();
-    
-    // Load font
-    final fontData = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
-    final ttf = pw.Font.ttf(fontData);
-    final boldFontData = await rootBundle.load('assets/fonts/Cairo-Bold.ttf');
-    final ttfBold = pw.Font.ttf(boldFontData);
+    try {
+      final pdf = pw.Document();
+      
+      // Load font with fallback
+      pw.Font ttf;
+      pw.Font ttfBold;
+      
+      try {
+        final fontData = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
+        ttf = pw.Font.ttf(fontData);
+        final boldFontData = await rootBundle.load('assets/fonts/Cairo-Bold.ttf');
+        ttfBold = pw.Font.ttf(boldFontData);
+      } catch (e) {
+        // Fallback to standard font if assets fail (might not support Arabic well)
+        ttf = pw.Font.courier();
+        ttfBold = pw.Font.courierBold();
+      }
 
-    pdf.addPage(
-      pw.MultiPage(
-        theme: pw.ThemeData.withFont(base: ttf, bold: ttfBold),
-        textDirection: pw.TextDirection.rtl,
-        build: (context) => [
-          pw.Header(
-            level: 0,
-            child: pw.Center(child: pw.Text('التقرير المالي التفصيلي', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold))),
-          ),
-          pw.Paragraph(
-            text: 'الفترة: ${DateFormat('yyyy-MM-dd').format(dateRange.start)} إلى ${DateFormat('yyyy-MM-dd').format(dateRange.end)}',
-            style: const pw.TextStyle(fontSize: 14),
-          ),
-          pw.SizedBox(height: 20),
-          
-          // Summary Table
-          pw.Table.fromTextArray(
-            headers: ['البند', 'القيمة'],
-            data: [
-              ['المبيعات', settingsController.currencyFormatter(totalSales)],
-              ['المشتريات', settingsController.currencyFormatter(totalPurchases)],
-              ['المصروفات', settingsController.currencyFormatter(totalExpenses)],
-              ['الرواتب', settingsController.currencyFormatter(totalSalaries)],
-              ['صافي الربح', settingsController.currencyFormatter(netProfit)],
-            ],
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
-            headerDecoration: const pw.BoxDecoration(color: PdfColors.blue),
-            cellAlignment: pw.Alignment.centerRight,
-          ),
-          
-          pw.SizedBox(height: 20),
-          pw.Header(level: 1, text: 'تفاصيل المصروفات'),
-          pw.Table.fromTextArray(
-            headers: ['التاريخ', 'الوصف', 'المبلغ'],
-            data: filteredExpenses.map((e) => [
-              DateFormat('yyyy-MM-dd').format(e.date),
-              e.description,
-              settingsController.currencyFormatter(e.amount),
-            ]).toList(),
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            cellAlignment: pw.Alignment.centerRight,
-          ),
-        ],
-      ),
-    );
+      pdf.addPage(
+        pw.MultiPage(
+          theme: pw.ThemeData.withFont(base: ttf, bold: ttfBold),
+          textDirection: pw.TextDirection.rtl,
+          build: (context) => [
+            pw.Header(
+              level: 0,
+              child: pw.Center(child: pw.Text('التقرير المالي التفصيلي', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold))),
+            ),
+            pw.Paragraph(
+              text: 'الفترة: ${DateFormat('yyyy-MM-dd').format(dateRange.start)} إلى ${DateFormat('yyyy-MM-dd').format(dateRange.end)}',
+              style: const pw.TextStyle(fontSize: 14),
+            ),
+            pw.SizedBox(height: 20),
+            
+            // Summary Table
+            pw.Table.fromTextArray(
+              headers: ['البند', 'القيمة'],
+              data: [
+                ['المبيعات', settingsController.currencyFormatter(totalSales)],
+                ['المشتريات', settingsController.currencyFormatter(totalPurchases)],
+                ['المصروفات', settingsController.currencyFormatter(totalExpenses)],
+                ['الرواتب', settingsController.currencyFormatter(totalSalaries)],
+                ['صافي الربح', settingsController.currencyFormatter(netProfit)],
+              ],
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+              headerDecoration: const pw.BoxDecoration(color: PdfColors.blue),
+              cellAlignment: pw.Alignment.centerRight,
+            ),
+            
+            pw.SizedBox(height: 20),
+            pw.Header(level: 1, text: 'تفاصيل المصروفات'),
+            pw.Table.fromTextArray(
+              headers: ['التاريخ', 'الوصف', 'المبلغ'],
+              data: filteredExpenses.map((e) => [
+                DateFormat('yyyy-MM-dd').format(e.date),
+                e.description,
+                settingsController.currencyFormatter(e.amount),
+              ]).toList(),
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              cellAlignment: pw.Alignment.centerRight,
+            ),
+          ],
+        ),
+      );
 
-    final bytes = await pdf.save();
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/report_${DateTime.now().millisecondsSinceEpoch}.pdf');
-    await file.writeAsBytes(bytes);
-    
-    await Printing.sharePdf(bytes: bytes, filename: 'report.pdf');
+      final bytes = await pdf.save();
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/report_${DateTime.now().millisecondsSinceEpoch}.pdf');
+      await file.writeAsBytes(bytes);
+      
+      await Printing.sharePdf(bytes: bytes, filename: 'report.pdf');
+    } catch (e) {
+      Get.snackbar(
+        'خطأ'.tr,
+        'فشل تصدير التقرير: $e'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }
