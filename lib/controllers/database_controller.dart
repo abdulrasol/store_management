@@ -1290,20 +1290,22 @@ class DatabaseController extends GetxController {
     await _saveSalaryAdvances(advances);
   }
 
-  Future<void> savePurchases(List<Purchase> purchases) async {
-    await _savePurchases(purchases);
-  }
-
-  Future<void> savePurchaseCategories(List<PurchaseCategory> categories) async {
-    await _savePurchaseCategories(categories);
-  }
-
   Future<void> savePaperStock(List<PaperStock> stock) async {
     await _savePaperStock(stock);
   }
 
   Future<void> saveInkStock(List<InkStock> stock) async {
     await _saveInkStock(stock);
+  }
+
+  // Backup restore helper for ObjectBox entities
+  Future<void> saveExpenses(List<Expense> expensesList) async {
+    for (var e in expensesList) {
+      // Reset ID to let ObjectBox assign a new one
+      e.id = 0; 
+      objectBox.expenseBox.put(e);
+    }
+    loading(); // Refresh lists
   }
 }
 

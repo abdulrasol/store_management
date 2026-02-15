@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
@@ -62,10 +63,10 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
     // 1. Sales (Invoices)
     final allInvoices = databaseController.inovices;
     filteredSales = allInvoices.where((inv) {
-      final date = DateTime.parse(inv.date);
+      final date = DateTime.fromMillisecondsSinceEpoch(inv.date);
       return date.isAfter(start) && date.isBefore(end);
     }).toList();
-    totalSales = filteredSales.fold(0, (sum, item) => sum + item.total);
+    totalSales = filteredSales.fold(0, (sum, item) => sum + item.pricetoPay());
 
     // 2. Purchases
     final allPurchases = await databaseController.getPurchases();

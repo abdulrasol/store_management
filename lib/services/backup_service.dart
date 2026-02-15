@@ -28,7 +28,11 @@ class BackupService {
       },
       'purchases': (await _db.getPurchases()).map((e) => e.toMap()).toList(),
       'purchaseCategories': (await _db.getPurchaseCategories()).map((e) => e.toMap()).toList(),
-      'expenses': _db.expenses.map((e) => e.toMap()).toList(), // Assuming loaded in memory
+      'expenses': _db.expenses.map((e) => {
+        'description': e.description,
+        'amount': e.amount,
+        'date': e.date.toIso8601String(),
+      }).toList(),
       'expenseTypes': (await _db.getExpenseTypes()).map((e) => e.toMap()).toList(),
       'employees': (await _db.getEmployees()).map((e) => e.toMap()).toList(),
       'salaries': (await _db.getSalaries()).map((e) => e.toMap()).toList(),
@@ -158,7 +162,18 @@ class BackupService {
         await _db.saveSalaryAdvances(items);
       }
 
-      // 6. Expense Types
+      // 6. Expenses
+      if (data.containsKey('expenses')) {
+        final List<dynamic> list = data['expenses'];
+        final items = list.map((e) => Expense(
+          description: e['description'],
+          amount: (e['amount'] as num).toDouble(),
+          date: DateTime.parse(e['date']),
+        )).toList();
+        await _db.saveExpenses(items);
+      }
+
+      // 7. Expense Types
       if (data.containsKey('expenseTypes')) {
         final List<dynamic> list = data['expenseTypes'];
         final items = list.map((e) => ExpenseType.fromMap(e)).toList();
