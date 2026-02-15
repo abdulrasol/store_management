@@ -830,7 +830,7 @@ class DatabaseController extends GetxController {
 
   // Salaries
 
-  Future<List<Salary>> getSalariesByMonth(DateTime month) async {
+  Future<List<Salary>> getSalaries() async => await _getAllSalaries();\n\n  Future<List<Salary>> getSalariesByMonth(DateTime month) async {
     final file = await _getSalariesFile();
     if (!await file.exists()) return [];
 

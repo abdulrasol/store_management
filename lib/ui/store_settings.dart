@@ -517,6 +517,14 @@ class StoreSettingsState extends State<StoreSettings> {
                                 trailing: const Icon(Icons.arrow_forward_ios),
                                 onTap: () => _showExpenseTypesDialog(),
                               ),
+                              const Divider(),
+                              ListTile(
+                                leading: const Icon(Icons.backup, color: Colors.green),
+                                title: Text('نسخ احتياطي'.tr),
+                                subtitle: Text('إنشاء واستعادة نسخة احتياطية كاملة'.tr),
+                                trailing: const Icon(Icons.arrow_forward_ios),
+                                onTap: _showBackupDialog,
+                              ),
                             ],
                           ),
                         ),
@@ -568,6 +576,56 @@ class StoreSettingsState extends State<StoreSettings> {
   ];
 
   // ==================== EXPENSE TYPES ====================
+
+  void _showBackupDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.backup, color: Colors.green),
+            const SizedBox(width: 8),
+            Text('نسخ احتياطي واستعادة'.tr),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () async {
+                await BackupService().createBackup();
+                Get.back();
+              },
+              icon: const Icon(Icons.file_download, color: Colors.white),
+              label: Text('إنشاء نسخة احتياطية'.tr),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () async {
+                await BackupService().restoreBackup();
+                Get.back();
+              },
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              label: Text('استعادة نسخة احتياطية'.tr),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('إغلاق'.tr),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _showExpenseTypesDialog() {
     final DatabaseController databaseController = Get.find<DatabaseController>();

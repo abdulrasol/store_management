@@ -11,100 +11,129 @@ import 'package:store_management/controllers/database_controller.dart';
 class BackupService {
   final DatabaseController dbController = Get.find<DatabaseController>();
 
+  final List<String> jsonFiles = [
+    'purchases.json',
+    'purchase_categories.json',
+    'expense_types.json',
+    'employees.json',
+    'salaries.json',
+    'urgent_orders.json',
+  ];
+
   Future<void> createBackup() async {
     try {
-      // 1. Get DB Directory from the active store
-      final dbPath = dbController.objectBox.store.directoryPath;
-      debugPrint('Backup Debug: Store directory path: $dbPath');
-
-      final dbFile = File(p.join(dbPath, 'data.mdb'));
-
-      if (!await dbFile.exists()) {
-        Get.snackbar('Error', 'Database file not found at $dbPath');
-        return;
-      }
-
-      // 2. Create Temp Copy with new name
+      final appDocsDir = await getApplicationDocumentsDirectory();
       final tempDir = await getTemporaryDirectory();
-      final backupFileName = 'store_backup_${DateTime.now().toIso8601String().split('T')[0]}.mdb';
-      final backupPath = p.join(tempDir.path, backupFileName);
+      final timestamp = DateTime.now().toIso8601String().split('T')[0];
+      final jsonName = 'store_backup_$timestamp.json';
+      final jsonPath = p.join(tempDir.path, jsonName);
 
-      debugPrint('Backup Debug: Copying DB to $backupPath');
+      Map<String, dynamic> backupData = {
+        'timestamp': DateTime.now().toIso8601String(),
+      };
 
-      // Copying the file is sufficient (and safer than zipping seemingly)
-      await dbFile.copy(backupPath);
-      final backupFile = File(backupPath);
+      // Purchases
+      backupData['purchases'] = (await dbController.getPurchases()).map((p) => p.toMap()).toList();
 
-      final fileSize = await backupFile.length();
-      debugPrint('Backup Debug: Backup file created. Size: $fileSize bytes');
+      // Purchase Categories
+      backupData['purchase_categories'] = (await dbController.getPurchaseCategories()).map((c) => c.toMap()).toList();
 
-      // 3. Share
-      await Share.shareXFiles([XFile(backupPath)], text: 'Store Management Backup');
+      // Expense Types
+      backupData['expense_types'] = (await dbController.getExpenseTypes()).map((t) => t.toMap()).toList();
+
+      // Employees
+      backupData['employees'] = (await dbController.getEmployees()).map((e) => e.toMap()).toList();
+
+      // Salaries
+      backupData['salaries'] = (await dbController.getSalaries()).map((s) => s.toMap()).toList();
+
+      // Urgent Orders
+      backupData['urgent_orders'] = (await dbController.getUrgentOrders()).map((o) => o.toMap()).toList();
+
+      final jsonString = jsonEncode(backupData);
+      await File(jsonPath).writeAsString(jsonString);
+
+      await Share.shareXFiles([XFile(jsonPath)], text: 'Store Management JSON Backup');
+      Get.snackbar('نجاح', 'تم إنشاء JSON النسخة الاحتياطية بنجاح');
     } catch (e) {
-      Get.snackbar('Error', 'Backup failed: $e');
+      Get.snackbar('خطأ', 'فشل النسخ الاحتياطي: $e');
       debugPrint('Backup Error: $e');
     }
   }
-
   Future<void> restoreBackup() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['mdb', 'zip'],
+      allowedExtensions: ['json'],
     );
 
     if (result == null) return;
 
     File pickedFile = File(result.files.single.path!);
-    String extension = p.extension(pickedFile.path).toLowerCase();
 
-    // 2. Confirm Update
-    bool? confirm = await Get.dialog<bool>(AlertDialog(
-      title: const Text('Restore Backup'),
-      content: const Text('This will overwrite your current data. Are you sure? App will restart.'),
-      actions: [
-        TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
-        TextButton(onPressed: () => Get.back(result: true), child: const Text('Restore', style: TextStyle(color: Colors.red))),
-      ],
-    ));
+    // Confirm
+    bool? confirm = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('استعادة JSON'.tr),
+        content: Text('سيتم استبدال جميع بيانات JSON. هل أنت متأكد؟'.tr),
+        actions: [
+          TextButton(onPressed: () => Get.back(result: false), child: Text('إلغاء'.tr)),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('استعادة'.tr),
+          ),
+        ],
+      ),
+    );
 
     if (confirm != true) return;
 
     try {
-      // 3. Capture current DB path BEFORE closing
-      final dbPath = dbController.objectBox.store.directoryPath;
+      final content = await pickedFile.readAsString();
+      final data = jsonDecode(content) as Map<String, dynamic>;
 
-      // 4. Close DB
-      dbController.objectBox.store.close();
+      final appDocsDir = await getApplicationDocumentsDirectory();
 
-      // 5. Restore
-      if (extension == '.zip') {
-        final bytes = await pickedFile.readAsBytes();
-        final archive = ZipDecoder().decodeBytes(bytes);
-
-        for (final file in archive) {
-          final filename = file.name;
-          if (file.isFile && filename.endsWith('data.mdb')) {
-            final data = file.content as List<int>;
-            File(p.join(dbPath, 'data.mdb'))
-              ..createSync(recursive: true)
-              ..writeAsBytesSync(data);
-          }
-        }
-      } else {
-        // Assume .mdb file
-        debugPrint('Restore Debug: Copying mdb file to $dbPath/data.mdb');
-        await pickedFile.copy(p.join(dbPath, 'data.mdb'));
+      // Purchases
+      if (data['purchases'] != null) {
+        final purchases = (data['purchases'] as List).map<Purchase>((m) => Purchase.fromMap(m)).toList();
+        await dbController._savePurchases(purchases);
       }
 
-      // 6. Restart Helper
-      await Get.defaultDialog(
-        title: 'Success',
-        middleText: 'Backup restored successfully. Please restart the app.',
-        barrierDismissible: false,
-        confirm: ElevatedButton(onPressed: () => exit(0), child: const Text('Exit App')),
-      );
+      // Purchase Categories
+      if (data['purchase_categories'] != null) {
+        final categories = (data['purchase_categories'] as List).map<PurchaseCategory>((m) => PurchaseCategory.fromMap(m)).toList();
+        await dbController._savePurchaseCategories(categories);
+      }
+
+      // Expense Types
+      if (data['expense_types'] != null) {
+        final types = (data['expense_types'] as List).map<ExpenseType>((m) => ExpenseType.fromMap(m)).toList();
+        await dbController._saveExpenseTypes(types);
+      }
+
+      // Employees
+      if (data['employees'] != null) {
+        final employees = (data['employees'] as List).map<Employee>((m) => Employee.fromMap(m)).toList();
+        await dbController._saveEmployees(employees);
+      }
+
+      // Salaries
+      if (data['salaries'] != null) {
+        final salaries = (data['salaries'] as List).map<Salary>((m) => Salary.fromMap(m)).toList();
+        await dbController._saveSalaries(salaries);
+      }
+
+      // Urgent Orders
+      if (data['urgent_orders'] != null) {
+        final orders = (data['urgent_orders'] as List).map<UrgentOrder>((m) => UrgentOrder.fromMap(m)).toList();
+        await dbController._saveUrgentOrders(orders);
+      }
+
+      Get.snackbar('نجاح', 'تمت استعادة JSON بنجاح. أعد تحميل البيانات');
+      dbController.loading();
     } catch (e) {
-      Get.snackbar('Error', 'Restore failed: $e');
+      Get.snackbar('خطأ', 'فشل الاستعادة: $e');
       debugPrint('Restore Error: $e');
     }
   }
