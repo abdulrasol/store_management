@@ -77,26 +77,3 @@ jobs:
         with:
           name: Alrwah-arm64
           path: build/app/outputs/flutter-apk/Alrwah_v${{ env.APP_VERSION }}_arm64.apk
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Build ObjectBox
-        run: |
-          flutter pub run build_runner clean
-          flutter pub run build_runner build --delete-conflicting-outputs
-
-      - name: Update CocoaPods
-        run: |
-          cd ios
-          pod repo update
-          pod update ObjectBox --repo-update
-          pod install --repo-update
-
-      - name: Build iOS (no codesign)
-        run: flutter build ios --release --no-codesign
-
-      - name: Upload iOS Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-build
-          path: build/ios/iphoneos/Runner.app
