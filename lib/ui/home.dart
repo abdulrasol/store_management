@@ -5,16 +5,11 @@ import 'package:get/get.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/services/version_check_service.dart';
-import 'package:store_management/ui/dashboard_page.dart';
+import 'package:store_management/ui/expense_add.dart';
 import 'package:store_management/ui/expenses_page.dart';
-import 'package:store_management/ui/forms/invoice_form.dart';
-import 'package:store_management/ui/invoice_view.dart';
-import 'package:store_management/ui/invoices_page.dart';
-import 'package:store_management/ui/profits_page.dart';
 import 'package:store_management/ui/purchases_page.dart';
 import 'package:store_management/ui/reports_page.dart';
 import 'package:store_management/ui/salaries_page.dart';
-import 'package:store_management/ui/search_delegate.dart';
 import 'package:store_management/ui/store_settings.dart';
 import 'package:store_management/ui/suppliers_page.dart';
 import 'package:store_management/ui/about_page.dart';
@@ -34,6 +29,7 @@ class _HomeState extends State<Home> {
 
   final RxString _summaryPeriod = 'Month'.obs;
   final RxString _chartPeriod = 'Week'.obs;
+  final RxString _chartType = 'expenses'.obs;
 
   final Rx<double> _purchasesTotal = 0.0.obs;
   final Rx<double> _salariesTotal = 0.0.obs;
@@ -104,10 +100,7 @@ class _HomeState extends State<Home> {
               const Icon(Icons.warning_rounded, color: Colors.red, size: 28),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(fontSize: 16),
-                ),
+                child: Text(title, style: const TextStyle(fontSize: 16)),
               ),
             ],
           ),
@@ -156,24 +149,15 @@ class _HomeState extends State<Home> {
               const SizedBox(height: 24),
               _buildQuickActions(context),
               const SizedBox(height: 24),
-              _buildSalesChart(context),
+              _buildExpensesChart(context),
               const SizedBox(height: 24),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: _buildTopSellingItems(context)),
-                  const SizedBox(width: 16),
-                  Expanded(child: _buildLowStockAlerts(context)),
-                ],
-              ),
-              const SizedBox(height: 24),
-              _buildRecentInvoices(context),
+              _buildRecentExpenses(context),
               const SizedBox(height: 80),
             ],
           ),
         ),
       ),
-      floatingActionButton: _buildSpeedDial(),
+      floatingActionButton: _buildFAB(),
     );
   }
 
@@ -185,7 +169,7 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                settingsController.appName.value ?? 'Sales Management App'.tr,
+                settingsController.appName.value ?? 'Store Management'.tr,
                 style: TextStyle(fontFamily: 'Cairo', color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.bold),
               ),
               Text(
@@ -194,15 +178,7 @@ class _HomeState extends State<Home> {
               )
             ],
           )),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            showSearch(context: context, delegate: SearchDelegateHelper());
-          },
-        ),
-        const SizedBox(width: 8),
-      ],
+      actions: const [SizedBox(width: 8)],
     );
   }
 
@@ -216,9 +192,9 @@ class _HomeState extends State<Home> {
       child: Obx(
         () => Row(
           children: [
-            _chartToggleButton(context, 'Week', _summaryPeriod.value == 'Week', () => _summaryPeriod.value = 'Week'),
-            _chartToggleButton(context, 'Month', _summaryPeriod.value == 'Month', () => _summaryPeriod.value = 'Month'),
-            _chartToggleButton(context, 'Year', _summaryPeriod.value == 'Year', () => _summaryPeriod.value = 'Year'),
+            _toggleButton('Week', _summaryPeriod.value == 'Week', () => _summaryPeriod.value = 'Week'),
+            _toggleButton('Month', _summaryPeriod.value == 'Month', () => _summaryPeriod.value = 'Month'),
+            _toggleButton('Year', _summaryPeriod.value == 'Year', () => _summaryPeriod.value = 'Year'),
           ],
         ),
       ),
@@ -230,44 +206,26 @@ class _HomeState extends State<Home> {
 
     return Obx(() {
       final range = _getDateRange(_summaryPeriod.value);
-      final sales = databaseController.getSales(range.$1, range.$2);
       final expenses = databaseController.getExpenses(range.$1, range.$2);
-      final profit = databaseController.getNetRevenue(range.$1, range.$2);
       final purchases = _purchasesTotal.value;
       final salaries = _salariesTotal.value;
-      final debts = databaseController.customerDebt();
-
-      final totalOutgoing = expenses + purchases + salaries;
+      final totalSpending = expenses + purchases + salaries;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildMainCard(
             context,
-            title: 'Net Profit'.tr,
-            value: settingsController.currencyFormatter(profit),
+            title: 'Total Spending'.tr,
+            value: settingsController.currencyFormatter(totalSpending),
             icon: Icons.account_balance_wallet,
-            color: profit >= 0 ? Colors.green.shade700 : Colors.red.shade700,
-            gradient: profit >= 0
-                ? [Colors.green.shade600, Colors.green.shade800]
-                : [Colors.red.shade600, Colors.red.shade800],
+            gradient: [Colors.blue.shade700, Colors.blue.shade900],
           ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 12,
             runSpacing: 12,
             children: [
-              _statCard(
-                onTap: () => Get.to(() => InvoicesPage()),
-                title: 'Total Sales'.tr,
-                icon: Icons.point_of_sale,
-                color: Colors.teal,
-                value: Text(
-                  settingsController.currencyFormatter(sales),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                width: cardWidth,
-              ),
               _statCard(
                 onTap: () => Get.to(() => const PurchasesPage()),
                 title: 'Purchases'.tr,
@@ -301,33 +259,70 @@ class _HomeState extends State<Home> {
                 ),
                 width: cardWidth,
               ),
+              _statCard(
+                onTap: () => Get.to(() => SupplierPage()),
+                title: 'Debts'.tr,
+                icon: Icons.money_off,
+                color: Colors.red,
+                value: Text(
+                  settingsController.currencyFormatter(databaseController.customerDebt()),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                width: cardWidth,
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _miniStatCard(
-                  title: 'Total Outgoing'.tr,
-                  value: settingsController.currencyFormatter(totalOutgoing),
-                  icon: Icons.arrow_upward,
-                  color: Colors.red,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _miniStatCard(
-                  title: 'Debts'.tr,
-                  value: settingsController.currencyFormatter(debts),
-                  icon: Icons.money_off,
-                  color: Colors.amber.shade800,
-                ),
-              ),
-            ],
-          ),
+          _buildBreakdownBar(context, purchases, expenses, salaries, totalSpending),
         ],
       );
     });
+  }
+
+  Widget _buildBreakdownBar(BuildContext context, double purchases, double expenses, double salaries, double total) {
+    if (total == 0) return const SizedBox.shrink();
+    final pPct = purchases / total;
+    final ePct = expenses / total;
+    final sPct = salaries / total;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: SizedBox(
+            height: 8,
+            child: Row(
+              children: [
+                Expanded(flex: (pPct * 1000).round().clamp(1, 1000), child: Container(color: Colors.indigo)),
+                Expanded(flex: (ePct * 1000).round().clamp(1, 1000), child: Container(color: Colors.orange)),
+                Expanded(flex: (sPct * 1000).round().clamp(1, 1000), child: Container(color: Colors.purple)),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _legendDot(Colors.indigo, 'Purchases'.tr, '${(pPct * 100).toStringAsFixed(0)}%'),
+            _legendDot(Colors.orange, 'Expenses'.tr, '${(ePct * 100).toStringAsFixed(0)}%'),
+            _legendDot(Colors.purple, 'Salaries'.tr, '${(sPct * 100).toStringAsFixed(0)}%'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _legendDot(Color color, String label, String pct) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text('$label $pct', style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+      ],
+    );
   }
 
   Widget _buildMainCard(
@@ -335,35 +330,23 @@ class _HomeState extends State<Home> {
     required String title,
     required String value,
     required IconData icon,
-    required Color color,
     required List<Color> gradient,
   }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: gradient.first.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
+          BoxShadow(color: gradient.first.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: Colors.white, size: 28),
           ),
           const SizedBox(width: 16),
@@ -371,26 +354,12 @@ class _HomeState extends State<Home> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 4),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text(
-                    value,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -439,45 +408,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _miniStatCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Text(
-                    value,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildQuickActions(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,15 +416,6 @@ class _HomeState extends State<Home> {
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(
-              child: _quickActionButton(
-                icon: Icons.add_circle_outline,
-                label: 'New Sale'.tr,
-                color: Colors.teal,
-                onTap: () => Get.to(() => InvoiceForm()),
-              ),
-            ),
-            const SizedBox(width: 10),
             Expanded(
               child: _quickActionButton(
                 icon: Icons.shopping_cart_outlined,
@@ -506,10 +427,10 @@ class _HomeState extends State<Home> {
             const SizedBox(width: 10),
             Expanded(
               child: _quickActionButton(
-                icon: Icons.receipt_long_outlined,
-                label: 'Expenses'.tr,
+                icon: Icons.add_circle_outline,
+                label: 'New Expense'.tr,
                 color: Colors.orange,
-                onTap: () => Get.to(() => ExpensesPage()),
+                onTap: () => Get.to(() => const ExpenseAdd()),
               ),
             ),
             const SizedBox(width: 10),
@@ -519,6 +440,15 @@ class _HomeState extends State<Home> {
                 label: 'Salaries'.tr,
                 color: Colors.purple,
                 onTap: () => Get.to(() => const SalariesPage()),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _quickActionButton(
+                icon: Icons.local_shipping_outlined,
+                label: 'Suppliers'.tr,
+                color: Colors.teal,
+                onTap: () => Get.to(() => SupplierPage()),
               ),
             ),
           ],
@@ -560,7 +490,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildSalesChart(BuildContext context) {
+  Widget _buildExpensesChart(BuildContext context) {
     return Card(
       elevation: 0,
       color: Theme.of(context).cardColor,
@@ -572,25 +502,31 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '${_chartPeriod.value}ly Sales'.tr.replaceAll('Week ly', 'Weekly').replaceAll('Month ly', 'Monthly').replaceAll('Year ly', 'Yearly'),
+                  Expanded(
+                    child: Container(
+                      height: 32,
+                      decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                      child: Row(
+                        children: [
+                          _toggleButton('Expenses'.tr, _chartType.value == 'expenses', () => _chartType.value = 'expenses', compact: true),
+                          _toggleButton('Purchases'.tr, _chartType.value == 'purchases', () => _chartType.value = 'purchases', compact: true),
+                        ],
+                      ),
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     height: 32,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                     child: Row(
                       children: [
-                        _chartToggleButton(context, 'Week', _chartPeriod.value == 'Week', () => _chartPeriod.value = 'Week'),
-                        _chartToggleButton(context, 'Month', _chartPeriod.value == 'Month', () => _chartPeriod.value = 'Month'),
-                        _chartToggleButton(context, 'Year', _chartPeriod.value == 'Year', () => _chartPeriod.value = 'Year'),
+                        _toggleButton('Week', _chartPeriod.value == 'Week', () => _chartPeriod.value = 'Week', compact: true),
+                        _toggleButton('Month', _chartPeriod.value == 'Month', () => _chartPeriod.value = 'Month', compact: true),
+                        _toggleButton('Year', _chartPeriod.value == 'Year', () => _chartPeriod.value = 'Year', compact: true),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -598,17 +534,33 @@ class _HomeState extends State<Home> {
                 aspectRatio: 1.7,
                 child: Builder(builder: (context) {
                   Map<DateTime, double> dataMap;
-                  switch (_chartPeriod.value) {
-                    case 'Month':
-                      dataMap = databaseController.getMonthlySales();
-                      break;
-                    case 'Year':
-                      dataMap = databaseController.getYearlySales();
-                      break;
-                    case 'Week':
-                    default:
-                      dataMap = databaseController.getWeeklySales();
-                      break;
+
+                  if (_chartType.value == 'expenses') {
+                    switch (_chartPeriod.value) {
+                      case 'Month':
+                        dataMap = databaseController.getMonthlyExpenses();
+                        break;
+                      case 'Year':
+                        dataMap = databaseController.getYearlyExpenses();
+                        break;
+                      case 'Week':
+                      default:
+                        dataMap = databaseController.getWeeklyExpenses();
+                        break;
+                    }
+                  } else {
+                    switch (_chartPeriod.value) {
+                      case 'Month':
+                        dataMap = databaseController.getMonthlySales();
+                        break;
+                      case 'Year':
+                        dataMap = databaseController.getYearlySales();
+                        break;
+                      case 'Week':
+                      default:
+                        dataMap = databaseController.getWeeklySales();
+                        break;
+                    }
                   }
 
                   if (dataMap.isEmpty || dataMap.values.every((v) => v == 0)) {
@@ -616,6 +568,7 @@ class _HomeState extends State<Home> {
                   }
 
                   final keys = dataMap.keys.toList()..sort();
+                  final barColor = _chartType.value == 'expenses' ? Colors.orange : Colors.indigo;
 
                   return BarChart(
                     BarChartData(
@@ -635,22 +588,13 @@ class _HomeState extends State<Home> {
                             } else {
                               label = '${_getMonthName(date.month)} ${date.year}';
                             }
-
                             return BarTooltipItem(
                               '$label\n',
-                              const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
+                              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                               children: <TextSpan>[
                                 TextSpan(
-                                  text: rod.toY.toStringAsFixed(1),
-                                  style: const TextStyle(
-                                    color: Colors.yellow,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  text: settingsController.currencyFormatter(rod.toY),
+                                  style: const TextStyle(color: Colors.yellow, fontSize: 12, fontWeight: FontWeight.w500),
                                 ),
                               ],
                             );
@@ -665,10 +609,8 @@ class _HomeState extends State<Home> {
                             getTitlesWidget: (value, meta) {
                               int index = value.toInt();
                               if (index < 0 || index >= keys.length) return const SizedBox.shrink();
-
                               DateTime date = keys[index];
                               String text = '';
-
                               if (_chartPeriod.value == 'Week') {
                                 text = _getWeekdayName(date.weekday).substring(0, 3);
                               } else if (_chartPeriod.value == 'Month') {
@@ -680,16 +622,9 @@ class _HomeState extends State<Home> {
                               } else {
                                 text = _getMonthName(date.month).substring(0, 3);
                               }
-
                               return Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  text,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
+                                child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
                               );
                             },
                             reservedSize: 28,
@@ -707,7 +642,7 @@ class _HomeState extends State<Home> {
                           barRods: [
                             BarChartRodData(
                               toY: dataMap[keys[index]] ?? 0,
-                              color: _chartPeriod.value == 'Year' ? Colors.orange : (_chartPeriod.value == 'Month' ? Colors.indigo : Colors.teal),
+                              color: barColor,
                               width: _chartPeriod.value == 'Month' ? 6 : 12,
                               borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                             )
@@ -725,18 +660,100 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _chartToggleButton(BuildContext context, String text, bool isActive, VoidCallback onTap) {
+  Widget _buildRecentExpenses(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Recent Expenses'.tr, style: Theme.of(context).textTheme.titleLarge),
+            TextButton(onPressed: () => Get.to(() => ExpensesPage()), child: Text('See All'.tr)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Obx(() {
+          final recentExpenses = databaseController.expenses.toList()
+            ..sort((a, b) => b.date.compareTo(a.date));
+          final display = recentExpenses.take(5).toList();
+
+          if (display.isEmpty) {
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.receipt_long_outlined, size: 48, color: Colors.grey.shade300),
+                  const SizedBox(height: 8),
+                  Text('No expenses yet'.tr, style: TextStyle(color: Colors.grey.shade500)),
+                ],
+              ),
+            );
+          }
+
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: display.length,
+            separatorBuilder: (context, index) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              final expense = display[index];
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.orange.withValues(alpha: 0.1),
+                  child: const Icon(Icons.receipt_long, color: Colors.orange, size: 20),
+                ),
+                title: Text(
+                  expense.description.isNotEmpty ? expense.description : 'Expense'.tr,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(expense.getDate(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                trailing: Text(
+                  settingsController.currencyFormatter(expense.amount),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.orange),
+                ),
+              );
+            },
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildFAB() {
+    return FloatingActionButton.extended(
+      onPressed: () async {
+        await Get.to(() => const ExpenseAdd());
+        databaseController.loading();
+        _loadAsyncTotals();
+      },
+      backgroundColor: Colors.orange,
+      icon: const Icon(Icons.add),
+      label: Text('New Expense'.tr),
+    );
+  }
+
+  Widget _toggleButton(String text, bool isActive, VoidCallback onTap, {bool compact = false}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 12, vertical: 6),
         decoration: BoxDecoration(
           color: isActive ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           boxShadow: isActive ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)] : null,
         ),
-        child: Text(text.tr,
-            style: TextStyle(fontSize: 12, fontWeight: isActive ? FontWeight.bold : FontWeight.normal, color: isActive ? Colors.black : Colors.grey)),
+        child: Text(
+          text.tr,
+          style: TextStyle(fontSize: compact ? 11 : 12, fontWeight: isActive ? FontWeight.bold : FontWeight.normal, color: isActive ? Colors.black : Colors.grey),
+        ),
       ),
     );
   }
@@ -753,136 +770,6 @@ class _HomeState extends State<Home> {
     return months[month - 1];
   }
 
-  Widget _buildTopSellingItems(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Top Items'.tr,
-              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              final topItems = databaseController.getTopSellingItems();
-              if (topItems.isEmpty) {
-                return Text('No sales yet'.tr, style: const TextStyle(fontSize: 12, color: Colors.grey));
-              }
-              return Column(
-                children: topItems.take(3).map((item) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.circle, size: 8, color: Colors.teal),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(item['name'], overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12))),
-                        Text('${item['count']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLowStockAlerts(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Low Stock'.tr,
-              style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              final lowStockItems = databaseController.getLowStockItems();
-              if (lowStockItems.isEmpty) {
-                return Text('OK'.tr, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold));
-              }
-              return Column(
-                children: lowStockItems.take(3).map((item) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.warning, size: 8, color: Colors.orange),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(item.name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12))),
-                        Text('${item.quantity}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecentInvoices(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Recent Transactions'.tr, style: Theme.of(context).textTheme.titleLarge),
-            TextButton(onPressed: () => Get.to(() => InvoicesPage()), child: Text('See All'.tr))
-          ],
-        ),
-        const SizedBox(height: 8),
-        Obx(
-          () => ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: databaseController.inovices.length > 5 ? 5 : databaseController.inovices.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              var invoice = databaseController.inovices[index];
-              return ListTile(
-                onTap: () => Get.to(() => InvoiceView(invoice: invoice)),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.teal.withValues(alpha: 0.1),
-                  child: const Icon(Icons.receipt, color: Colors.teal),
-                ),
-                title: Text(invoice.customer.target!.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text(invoice.invoiceDate(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                trailing: Text(settingsController.currencyFormatter(invoice.pricetoPay()), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSpeedDial() {
-    return FloatingActionButton.extended(
-      onPressed: () {
-        Get.to(() => InvoiceForm());
-      },
-      backgroundColor: Colors.teal,
-      icon: const Icon(Icons.add),
-      label: Text('New Sale'.tr),
-    );
-  }
-
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -897,7 +784,7 @@ class _HomeState extends State<Home> {
               children: [
                 CircleAvatar(
                   radius: 35,
-                  backgroundColor: Colors.teal.withValues(alpha: 0.1),
+                  backgroundColor: Colors.blue.withValues(alpha: 0.1),
                   child: settingsController.logo.value != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(35),
@@ -920,19 +807,13 @@ class _HomeState extends State<Home> {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  settingsController.appName.value ?? 'Alrwah Management',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  settingsController.appName.value ?? 'Store Management',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Manage your store easily and efficiently'.tr,
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
@@ -942,41 +823,18 @@ class _HomeState extends State<Home> {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 10),
               children: [
-                _drawerItem('Home'.tr, Icons.store_outlined, () => Get.back()),
-                _drawerItem('Suppliers'.tr, Icons.local_shipping_outlined, () => Get.to(() => SupplierPage())),
-                _drawerItem('المشتريات', Icons.shopping_cart_outlined, () => Get.to(() => const PurchasesPage())),
+                _drawerItem('Home'.tr, Icons.home_outlined, () => Get.back()),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4), child: Divider()),
+                _drawerItem('Purchases'.tr, Icons.shopping_cart_outlined, () => Get.to(() => const PurchasesPage())),
                 _drawerItem('Expenses'.tr, Icons.receipt_long_outlined, () => Get.to(() => ExpensesPage())),
-                _drawerItem('الرواتب', Icons.payments_outlined, () => Get.to(() => const SalariesPage())),
+                _drawerItem('Salaries'.tr, Icons.payments_outlined, () => Get.to(() => const SalariesPage())),
+                _drawerItem('Suppliers'.tr, Icons.local_shipping_outlined, () => Get.to(() => SupplierPage())),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4), child: Divider()),
                 _drawerItem('الطلبات المستعجلة'.tr, Icons.priority_high_rounded, () => Get.to(() => const UrgentOrdersPage())),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Divider(),
-                ),
-                _drawerItem('التقارير', Icons.article_outlined, () => Get.to(() => const ReportsPage())),
-                _drawerItem('Full Analytics'.tr, Icons.insights_outlined, () => Get.to(() => const DashboardPage())),
+                _drawerItem('التقارير'.tr, Icons.article_outlined, () => Get.to(() => const ReportsPage())),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4), child: Divider()),
                 _drawerItem('App Settings'.tr, Icons.settings_outlined, () => Get.to(() => StoreSettings())),
                 _drawerItem('About'.tr, Icons.info_outline, () => Get.to(() => const AboutPage())),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Get.back();
-                      Get.defaultDialog(
-                          title: "Fix Database Checks".tr,
-                          middleText: "This will check all invoices and ensure debits are correctly recorded. Use this if Customer Balances look incorrect.".tr,
-                          textConfirm: "Run Fix".tr,
-                          confirmTextColor: Colors.white,
-                          onConfirm: () {
-                            databaseController.fixDatabaseTransactions();
-                            Get.back();
-                          },
-                          textCancel: "Cancel".tr,
-                          cancelTextColor: Colors.grey);
-                    },
-                    icon: Icon(Icons.build, size: 16),
-                    label: Text("Fix Data Errors".tr),
-                  ),
-                ),
               ],
             ),
           ),
@@ -988,10 +846,7 @@ class _HomeState extends State<Home> {
   Widget _drawerItem(String title, IconData icon, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: Colors.grey[700], size: 22),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w500),
-      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
       horizontalTitleGap: 12,
