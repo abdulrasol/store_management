@@ -834,6 +834,10 @@ class DatabaseController extends GetxController {
     return await _getAllSalaries();
   }
 
+  Future<List<Salary>> getSalariesByMonth(DateTime month) async {
+    final file = await _getSalariesFile();
+    if (!await file.exists()) return [];
+
     final content = await file.readAsString();
     final List<dynamic> data = jsonDecode(content);
     final salaries = data.map((m) => Salary.fromMap(m)).toList();
