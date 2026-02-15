@@ -9,7 +9,7 @@ jobs:
 
 # ================= ANDROID =================
   build-android:
-    name: Build Android APK
+    name: Build Android ARM64 APK
     runs-on: ubuntu-latest
 
     steps:
@@ -36,6 +36,14 @@ jobs:
           flutter pub run build_runner clean
           flutter pub run build_runner build --delete-conflicting-outputs
 
+      # استخراج الإصدار من pubspec.yaml
+      - name: Get App Version
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+
+      # إعداد Keystore
       - name: Setup Android keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -44,6 +52,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.keystore
+
           cat > android/key.properties <<EOF
           storeFile=release.keystore
           storePassword=$ANDROID_KEYSTORE_PASSWORD
@@ -51,31 +60,23 @@ jobs:
           keyAlias=$ANDROID_KEY_ALIAS
           EOF
 
-      - name: Build Android APK
-        run: flutter build apk --release
+      # بناء APK ARM64 فقط
+      - name: Build Android APK ARM64
+        run: flutter build apk --release --target-platform android-arm64
 
+      # إعادة تسمية APK باسم التطبيق + الإصدار
+      - name: Rename APK
+        run: |
+          APP_NAME="Alrwah"
+          mv build/app/outputs/flutter-apk/app-release.apk \
+          build/app/outputs/flutter-apk/${APP_NAME}_v${APP_VERSION}_arm64.apk
+
+      # رفع Artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-
-# ================= IOS =================
-  build-ios:
-    name: Build iOS
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.35.0'
-          channel: 'stable'
-
+          name: Alrwah-arm64
+          path: build/app/outputs/flutter-apk/Alrwah_v${{ env.APP_VERSION }}_arm64.apk
       - name: Get dependencies
         run: flutter pub get
 
