@@ -416,4 +416,8 @@ final Map<String, String> en = {
   'عمليات': 'Transactions',
   'السعر': 'Price',
   'الكمية': 'Quantity',
+  'الأساسي:': 'Base:',
+  'مكافأة:': 'Bonus:',
+  'خصومات:': 'Deductions:',
+  'لا توجد رواتب لهذا الشهر': 'No salaries for this month',
 };

@@ -226,6 +226,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
     final supplierNames = databaseController.suppliers.map((s) => s.name).toSet().toList()..sort();
     String? supplierName = supplierNames.isNotEmpty ? supplierNames.first : null;
     String receiptNumber = '';
+    final receiptNumberController = TextEditingController();
     DateTime purchaseDate = DateTime.now();
     String paymentStatus = 'paid';
     String notes = '';
@@ -278,14 +279,19 @@ class _PurchasesPageState extends State<PurchasesPage> {
 
                     // Receipt Number
                     TextFormField(
+                      controller: receiptNumberController,
                       decoration: InputDecoration(
                         labelText: 'رقم الفاتورة/الوصل *'.tr,
                         prefixIcon: const Icon(Icons.receipt),
                         border: const OutlineInputBorder(),
                       ),
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'مطلوب'.tr : null,
-                      onSaved: (value) => receiptNumber = value ?? '',
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'مطلوب'.tr;
+                        }
+                        return null;
+                      },
+                      onSaved: (value) => receiptNumber = value?.trim() ?? '',
                     ),
                     const SizedBox(height: 12),
 
@@ -514,7 +520,9 @@ class _PurchasesPageState extends State<PurchasesPage> {
           ),
           ElevatedButton(
             onPressed: () async {
-              if (formKey.currentState!.validate() && items.isNotEmpty) {
+              if (formKey.currentState!.validate() &&
+                  receiptNumberController.text.trim().isNotEmpty &&
+                  items.isNotEmpty) {
                 formKey.currentState!.save();
                 
                 final purchase = Purchase(

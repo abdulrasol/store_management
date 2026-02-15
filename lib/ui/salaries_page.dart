@@ -11,13 +11,15 @@ class SalariesPage extends StatefulWidget {
   State<SalariesPage> createState() => _SalariesPageState();
 }
 
-class _SalariesPageState extends State<SalariesPage> {
+class _SalariesPageState extends State<SalariesPage>
+    with SingleTickerProviderStateMixin {
   final DatabaseController databaseController = Get.find<DatabaseController>();
   List<Employee> employees = [];
   List<Salary> salaries = [];
   bool isLoading = false;
   DateTime selectedMonth = DateTime.now();
   int currentTab = 0;
+  late TabController _tabController;
 
   NumberFormat get currencyFormat {
     final localeCode = Get.locale?.languageCode == 'ar' ? 'ar_AE' : 'en_AE';
@@ -31,7 +33,19 @@ class _SalariesPageState extends State<SalariesPage> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() => currentTab = _tabController.index);
+      }
+    });
     loadData();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> loadData() async {
@@ -54,50 +68,48 @@ class _SalariesPageState extends State<SalariesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('الرواتب'.tr),
-          bottom: TabBar(
-            onTap: (index) => setState(() => currentTab = index),
-            tabs: [
-              Tab(icon: const Icon(Icons.people), text: 'الموظفين'.tr),
-              Tab(icon: const Icon(Icons.payments), text: 'الرواتب'.tr),
-            ],
-          ),
-          actions: [
-            if (currentTab == 1)
-              IconButton(
-                icon: const Icon(Icons.calendar_today),
-                onPressed: _selectMonth,
-                tooltip: 'اختيار الشهر'.tr,
-              ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('الرواتب'.tr),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(icon: const Icon(Icons.people), text: 'الموظفين'.tr),
+            Tab(icon: const Icon(Icons.payments), text: 'الرواتب'.tr),
+          ],
+        ),
+        actions: [
+          if (currentTab == 1)
             IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: loadData,
-              tooltip: 'تحديث'.tr,
+              icon: const Icon(Icons.calendar_today),
+              onPressed: _selectMonth,
+              tooltip: 'اختيار الشهر'.tr,
             ),
-          ],
-        ),
-        body: TabBarView(
-          children: [
-            _buildEmployeesTab(),
-            _buildSalariesTab(),
-          ],
-        ),
-        floatingActionButton: currentTab == 0
-            ? FloatingActionButton.extended(
-                onPressed: _showAddEmployeeDialog,
-                icon: const Icon(Icons.person_add),
-                label: Text('إضافة موظف'.tr),
-              )
-            : FloatingActionButton.extended(
-                onPressed: _showAddSalaryDialog,
-                icon: const Icon(Icons.add),
-                label: Text('إضافة راتب'.tr),
-              ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: loadData,
+            tooltip: 'تحديث'.tr,
+          ),
+        ],
       ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildEmployeesTab(),
+          _buildSalariesTab(),
+        ],
+      ),
+      floatingActionButton: currentTab == 0
+          ? FloatingActionButton.extended(
+              onPressed: _showAddEmployeeDialog,
+              icon: const Icon(Icons.person_add),
+              label: Text('إضافة موظف'.tr),
+            )
+          : FloatingActionButton.extended(
+              onPressed: _showAddSalaryDialog,
+              icon: const Icon(Icons.add),
+              label: Text('إضافة راتب'.tr),
+            ),
     );
   }
 

@@ -63,7 +63,6 @@ class _ExpenseAddState extends State<ExpenseAdd> {
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedExpenseType = newValue!;
-                          descControll.text = selectedExpenseType;
                         });
                       },
                       items: expenseTypes.map<DropdownMenuItem<String>>((String value) {
