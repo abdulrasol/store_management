@@ -1165,27 +1165,27 @@ class DatabaseController extends GetxController {
   }
 
   /// Public wrappers for backup service
-  Future<void> savePurchases(List<dynamic> purchases) async {
-    await _savePurchases(purchases.cast<Purchase>());
+  Future<void> savePurchases(List<Purchase> purchases) async {
+    await _savePurchases(purchases);
   }
 
-  Future<void> savePurchaseCategories(List<dynamic> categories) async {
-    await _savePurchaseCategories(categories.cast<PurchaseCategory>());
+  Future<void> savePurchaseCategories(List<PurchaseCategory> categories) async {
+    await _savePurchaseCategories(categories);
   }
 
-  Future<void> saveExpenseTypes(List<dynamic> types) async {
-    await _saveExpenseTypes(types.cast<ExpenseType>());
+  Future<void> saveExpenseTypes(List<ExpenseType> types) async {
+    await _saveExpenseTypes(types);
   }
 
-  Future<void> saveEmployees(List<dynamic> employees) async {
-    await _saveEmployees(employees.cast<Employee>());
+  Future<void> saveEmployees(List<Employee> employees) async {
+    await _saveEmployees(employees);
   }
 
-  Future<void> saveSalaries(List<dynamic> salaries) async {
-    await _saveSalaries(salaries.cast<Salary>());
+  Future<void> saveSalaries(List<Salary> salaries) async {
+    await _saveSalaries(salaries);
   }
 
-  Future<void> saveUrgentOrders(List<dynamic> orders) async {
-    await _saveUrgentOrders(orders.cast<UrgentOrder>());
+  Future<void> saveUrgentOrders(List<UrgentOrder> orders) async {
+    await _saveUrgentOrders(orders);
   }
 
