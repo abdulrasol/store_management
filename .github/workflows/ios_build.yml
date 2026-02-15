@@ -40,12 +40,18 @@ jobs:
           pod update ObjectBox --repo-update
           pod install --repo-update
 
-      - name: Build iOS (Debug)
+      - name: Build IPA (Unsigned)
         run: |
-          cd ios
-          xcodebuild clean build \
-            -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -destination 'generic/platform=iOS Simulator' \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO
+          mkdir -p build/ios/iphoneos
+          flutter build ios --release --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r Runner.ipa Payload
+          rm -rf Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-unsigned
+          path: build/ios/iphoneos/Runner.ipa
