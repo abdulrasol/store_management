@@ -13,6 +13,7 @@ import 'package:store_management/models/purchase.dart';
 import 'package:store_management/models/inventory.dart';
 import 'package:store_management/models/job_order.dart';
 import 'package:store_management/models/salary.dart';
+import 'package:store_management/models/urgent_order.dart';
 import 'package:store_management/models/transaction.dart';
 import 'package:store_management/models/voucher.dart';
 import 'package:store_management/objectbox.g.dart';
@@ -1049,6 +1050,50 @@ class DatabaseController extends GetxController {
 
   Future<void> _saveJobOrders(List<JobOrder> orders) async {
     final file = await _getJobOrdersFile();
+    final data = orders.map((o) => o.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // ==================== URGENT ORDERS ====================
+
+  Future<List<UrgentOrder>> getUrgentOrders() async {
+    final file = await _getUrgentOrdersFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => UrgentOrder.fromMap(m)).toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+  }
+
+  Future<void> addUrgentOrder(UrgentOrder order) async {
+    final orders = await getUrgentOrders();
+    orders.add(order);
+    await _saveUrgentOrders(orders);
+  }
+
+  Future<void> updateUrgentOrder(UrgentOrder updated) async {
+    final orders = await getUrgentOrders();
+    final index = orders.indexWhere((o) => o.id == updated.id);
+    if (index != -1) {
+      orders[index] = updated;
+      await _saveUrgentOrders(orders);
+    }
+  }
+
+  Future<void> deleteUrgentOrder(String id) async {
+    final orders = await getUrgentOrders();
+    orders.removeWhere((o) => o.id == id);
+    await _saveUrgentOrders(orders);
+  }
+
+  Future<File> _getUrgentOrdersFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/urgent_orders.json');
+  }
+
+  Future<void> _saveUrgentOrders(List<UrgentOrder> orders) async {
+    final file = await _getUrgentOrdersFile();
     final data = orders.map((o) => o.toMap()).toList();
     await file.writeAsString(jsonEncode(data));
   }

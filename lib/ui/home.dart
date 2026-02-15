@@ -18,6 +18,7 @@ import 'package:store_management/ui/search_delegate.dart';
 import 'package:store_management/ui/store_settings.dart';
 import 'package:store_management/ui/suppliers_page.dart';
 import 'package:store_management/ui/about_page.dart';
+import 'package:store_management/ui/urgent_orders_page.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -646,6 +647,7 @@ class _HomeState extends State<Home> {
                 _drawerItem('المشتريات', Icons.shopping_cart_outlined, () => Get.to(() => const PurchasesPage())),
                 _drawerItem('Expenses'.tr, Icons.receipt_long_outlined, () => Get.to(() => ExpensesPage())),
                 _drawerItem('الرواتب', Icons.payments_outlined, () => Get.to(() => const SalariesPage())),
+                _drawerItem('الطلبات المستعجلة'.tr, Icons.priority_high_rounded, () => Get.to(() => const UrgentOrdersPage())),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Divider(),
