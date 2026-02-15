@@ -62,9 +62,11 @@ class StoreSettingsState extends State<StoreSettings> {
   }
 
   Future<void> _saveSettings() async {
-    if (_formKey.currentState!.validate()) {
+    // if (_formKey.currentState!.validate()) { // Validation disabled for hidden fields
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('store_name', _storeNameController.text);
+      if (_storeNameController.text.isNotEmpty) {
+        await prefs.setString('store_name', _storeNameController.text);
+      }
       await prefs.setString('currency_name', _currencyNameController.text);
       await prefs.setString('currency_symbol', _currencySymbolController.text);
       await prefs.setString('invoice_terms', _invoiceTermsController.text);
@@ -77,7 +79,7 @@ class StoreSettingsState extends State<StoreSettings> {
       Get.appUpdate();
       if (!mounted) return;
       Navigator.of(context).pop(); // العودة إلى الشاشة السابقة بعد الحفظ
-    }
+    // }
   }
 
   @override
@@ -107,6 +109,7 @@ class StoreSettingsState extends State<StoreSettings> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      /*
                       // Logo
                       Container(
                         height: 150,
@@ -161,8 +164,10 @@ class StoreSettingsState extends State<StoreSettings> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 40),
+                      */
 
-                      // Store Name
+                      // Store Name - Removed
+                      /*
                       Card(
                         elevation: 3,
                         shape: RoundedRectangleBorder(
@@ -224,6 +229,7 @@ class StoreSettingsState extends State<StoreSettings> {
                           ),
                         ),
                       ),
+                      */
 
                       const SizedBox(height: 24),
 
