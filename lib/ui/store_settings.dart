@@ -1122,3 +1122,4 @@ class StoreSettingsState extends State<StoreSettings> {
     );
   }
 }
+}
