@@ -1194,4 +1194,5 @@ class DatabaseController extends GetxController {
   Future<void> saveUrgentOrders(List<UrgentOrder> orders) async {
     await _saveUrgentOrders(orders);
   }
+}
 
