@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/models/salary.dart';
+import 'package:store_management/ui/salary_advances_page.dart';
 
 class SalariesPage extends StatefulWidget {
   const SalariesPage({super.key});
