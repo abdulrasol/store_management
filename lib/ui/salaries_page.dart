@@ -16,10 +16,13 @@ class _SalariesPageState extends State<SalariesPage>
   final DatabaseController databaseController = Get.find<DatabaseController>();
   List<Employee> employees = [];
   List<Salary> salaries = [];
+  List<Salary> filteredSalaries = [];
   bool isLoading = false;
   DateTime selectedMonth = DateTime.now();
   int currentTab = 0;
   late TabController _tabController;
+
+  final TextEditingController _searchController = TextEditingController();
 
   NumberFormat get currencyFormat {
     final localeCode = Get.locale?.languageCode == 'ar' ? 'ar_AE' : 'en_AE';
@@ -40,11 +43,13 @@ class _SalariesPageState extends State<SalariesPage>
       }
     });
     loadData();
+    _searchController.addListener(_filterSalaries);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -56,6 +61,7 @@ class _SalariesPageState extends State<SalariesPage>
       setState(() {
         employees = empResult;
         salaries = salResult;
+        filteredSalaries = salResult;
         isLoading = false;
       });
     } catch (e) {
@@ -64,7 +70,22 @@ class _SalariesPageState extends State<SalariesPage>
     }
   }
 
-  double get totalSalaries => salaries.fold(0, (sum, s) => sum + s.totalSalary);
+  void _filterSalaries() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        filteredSalaries = salaries;
+      } else {
+        filteredSalaries = salaries
+            .where((s) =>
+                s.employeeName.toLowerCase().contains(query) ||
+                s.totalSalary.toString().contains(query))
+            .toList();
+      }
+    });
+  }
+
+  double get totalSalaries => filteredSalaries.fold(0, (sum, s) => sum + s.totalSalary);
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +148,7 @@ class _SalariesPageState extends State<SalariesPage>
             const SizedBox(height: 16),
             Text(
               'لا يوجد موظفين'.tr,
-              style: const TextStyle(fontSize: 18, color: Colors.grey),
+              style: const TextStyle(fontSize: 15, color: Colors.grey),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
@@ -144,6 +165,7 @@ class _SalariesPageState extends State<SalariesPage>
       itemCount: employees.length,
       itemBuilder: (context, index) {
         final employee = employees[index];
+        final lastSalary = _getLastSalaryForEmployee(employee.id);
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: ListTile(
@@ -155,7 +177,14 @@ class _SalariesPageState extends State<SalariesPage>
               employee.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(employee.phone),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(employee.phone),
+                if (lastSalary != null)
+                  Text('آخر راتب: ${currencyFormat.format(lastSalary.totalSalary)} (${_formatMonth(lastSalary.month)})'),
+              ],
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -174,6 +203,12 @@ class _SalariesPageState extends State<SalariesPage>
         );
       },
     );
+  }
+
+  Salary? _getLastSalaryForEmployee(String employeeId) {
+    final empSalaries = salaries.where((s) => s.employeeId == employeeId).toList()
+      ..sort((a, b) => b.month.compareTo(a.month));
+    return empSalaries.isNotEmpty ? empSalaries.first : null;
   }
 
   Widget _buildSalariesTab() {
@@ -198,6 +233,22 @@ class _SalariesPageState extends State<SalariesPage>
                 ),
               ),
             ],
+          ),
+        ),
+
+        // Search Bar
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'بحث عن راتب...'.tr,
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
           ),
         ),
 
@@ -229,7 +280,7 @@ class _SalariesPageState extends State<SalariesPage>
                   ),
                 ),
                 Text(
-                  '${salaries.length} ${'موظف'.tr}',
+                  '${filteredSalaries.length} ${'موظف'.tr}',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
@@ -241,7 +292,7 @@ class _SalariesPageState extends State<SalariesPage>
         Expanded(
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
-              : salaries.isEmpty
+              : filteredSalaries.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -250,9 +301,11 @@ class _SalariesPageState extends State<SalariesPage>
                               size: 64, color: Colors.grey),
                           const SizedBox(height: 16),
                           Text(
-                            'لا توجد رواتب لهذا الشهر'.tr,
+                            salaries.isEmpty
+                                ? 'لا توجد رواتب لهذا الشهر'.tr
+                                : 'لا توجد نتائج للبحث'.tr,
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 15,
                               color: Colors.grey,
                             ),
                           ),
@@ -260,9 +313,9 @@ class _SalariesPageState extends State<SalariesPage>
                       ),
                     )
                   : ListView.builder(
-                      itemCount: salaries.length,
+                      itemCount: filteredSalaries.length,
                       itemBuilder: (context, index) {
-                        final salary = salaries[index];
+                        final salary = filteredSalaries[index];
                         return _buildSalaryCard(salary);
                       },
                     ),
@@ -296,13 +349,50 @@ class _SalariesPageState extends State<SalariesPage>
                   style: const TextStyle(color: Colors.red)),
           ],
         ),
-        trailing: Text(
-          currencyFormat.format(salary.totalSalary),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: Colors.teal,
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              currencyFormat.format(salary.totalSalary),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Colors.teal,
+              ),
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _showEditSalaryDialog(salary);
+                } else if (value == 'delete') {
+                  _deleteSalary(salary);
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.edit, color: Colors.blue, size: 18),
+                      const SizedBox(width: 8),
+                      Text('تعديل'.tr),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete, color: Colors.red, size: 18),
+                      const SizedBox(width: 8),
+                      Text('حذف'.tr),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         onTap: () => _showSalaryDetails(salary),
       ),
@@ -322,7 +412,7 @@ class _SalariesPageState extends State<SalariesPage>
           children: [
             const Icon(Icons.person_add, color: Colors.teal),
             const SizedBox(width: 8),
-            Text('إضافة موظف جديد'.tr),
+            Text('إضافة موظف جديد'.tr, style: const TextStyle(fontSize: 15)),
           ],
         ),
         content: Form(
@@ -384,7 +474,7 @@ class _SalariesPageState extends State<SalariesPage>
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('إلغاء'.tr),
+            child: Text('إلغاء'.tr, style: const TextStyle(fontSize: 14)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -428,7 +518,7 @@ class _SalariesPageState extends State<SalariesPage>
           children: [
             const Icon(Icons.edit, color: Colors.teal),
             const SizedBox(width: 8),
-            Text('تعديل موظف'.tr),
+            Text('تعديل موظف'.tr, style: const TextStyle(fontSize: 15)),
           ],
         ),
         content: Form(
@@ -494,7 +584,7 @@ class _SalariesPageState extends State<SalariesPage>
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('إلغاء'.tr),
+            child: Text('إلغاء'.tr, style: const TextStyle(fontSize: 14)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -531,24 +621,50 @@ class _SalariesPageState extends State<SalariesPage>
           children: [
             const Icon(Icons.person, color: Colors.teal),
             const SizedBox(width: 8),
-            Text('بيانات الموظف'.tr),
+            Text('بيانات الموظف'.tr, style: const TextStyle(fontSize: 15)),
           ],
         ),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDetailRow('الاسم'.tr, employee.name),
-            _buildDetailRow('الهاتف'.tr, employee.phone),
-            if (employee.email != null)
-              _buildDetailRow('البريد الإلكتروني'.tr, employee.email!),
-            if (employee.notes != null)
-              _buildDetailRow('ملاحظات'.tr, employee.notes!),
-            _buildDetailRow(
-              'تاريخ الإضافة'.tr,
-              DateFormat('yyyy-MM-dd').format(employee.createdAt),
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDetailRow('الاسم'.tr, employee.name),
+              _buildDetailRow('الهاتف'.tr, employee.phone),
+              if (employee.email != null)
+                _buildDetailRow('البريد الإلكتروني'.tr, employee.email!),
+              if (employee.notes != null)
+                _buildDetailRow('ملاحظات'.tr, employee.notes!),
+              _buildDetailRow(
+                'تاريخ الإضافة'.tr,
+                DateFormat('yyyy-MM-dd').format(employee.createdAt),
+              ),
+              const SizedBox(height: 16),
+              final lastSalary = _getLastSalaryForEmployee(employee.id);
+              if (lastSalary != null)
+                Card(
+                  color: Colors.teal.shade50,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.payments, size: 18, color: Colors.teal),
+                            const SizedBox(width: 8),
+                            Text('آخر راتب مسجل'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        _buildDetailRow('الشهر'.tr, _formatMonth(lastSalary.month)),
+                        _buildDetailRow('الإجمالي'.tr, currencyFormat.format(lastSalary.totalSalary)),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -563,7 +679,7 @@ class _SalariesPageState extends State<SalariesPage>
   void _deleteEmployee(Employee employee) async {
     final confirm = await Get.dialog<bool>(
       AlertDialog(
-        title: Text('تأكيد الحذف'.tr),
+        title: Text('تأكيد الحذف'.tr, style: const TextStyle(fontSize: 15)),
         content: Text('هل أنت متأكد من حذف ${employee.name}؟'.tr),
         actions: [
           TextButton(
@@ -601,12 +717,23 @@ class _SalariesPageState extends State<SalariesPage>
       return;
     }
 
+    _showSalaryFormDialog();
+  }
+
+  void _showEditSalaryDialog(Salary salary) {
+    _showSalaryFormDialog(salary: salary);
+  }
+
+  void _showSalaryFormDialog({Salary? salary}) {
     final formKey = GlobalKey<FormState>();
-    Employee? selectedEmployee = employees.first;
-    double baseSalary = 0;
-    double bonus = 0;
-    double deductions = 0;
-    String notes = '';
+    Employee? selectedEmployee = employees.firstWhere(
+      (e) => e.id == salary?.employeeId,
+      orElse: () => employees.first,
+    );
+    double baseSalary = salary?.baseSalary ?? 0;
+    double bonus = salary?.bonus ?? 0;
+    double deductions = salary?.deductions ?? 0;
+    String notes = salary?.notes ?? '';
 
     Get.dialog(
       AlertDialog(
@@ -614,7 +741,8 @@ class _SalariesPageState extends State<SalariesPage>
           children: [
             const Icon(Icons.payments, color: Colors.teal),
             const SizedBox(width: 8),
-            Text('إضافة راتب'.tr),
+            Text(salary == null ? 'إضافة راتب'.tr : 'تعديل راتب'.tr,
+                style: const TextStyle(fontSize: 15)),
           ],
         ),
         content: StatefulBuilder(
@@ -628,6 +756,7 @@ class _SalariesPageState extends State<SalariesPage>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DropdownButtonFormField<Employee>(
+                      style: const TextStyle(fontSize: 12),
                       value: selectedEmployee,
                       decoration: InputDecoration(
                         labelText: 'الموظف *'.tr,
@@ -640,9 +769,11 @@ class _SalariesPageState extends State<SalariesPage>
                           child: Text(e.name),
                         );
                       }).toList(),
-                      onChanged: (value) {
-                        setDialogState(() => selectedEmployee = value);
-                      },
+                      onChanged: salary == null
+                          ? (value) {
+                              setDialogState(() => selectedEmployee = value);
+                            }
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -653,6 +784,7 @@ class _SalariesPageState extends State<SalariesPage>
                         border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
+                      initialValue: baseSalary > 0 ? baseSalary.toString() : null,
                       validator: (value) =>
                           value?.isEmpty ?? true ? 'مطلوب'.tr : null,
                       onChanged: (value) {
@@ -670,7 +802,7 @@ class _SalariesPageState extends State<SalariesPage>
                         border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
-                      initialValue: '0',
+                      initialValue: bonus > 0 ? bonus.toString() : '0',
                       onChanged: (value) {
                         setDialogState(() {
                           bonus = double.tryParse(value) ?? 0;
@@ -686,7 +818,7 @@ class _SalariesPageState extends State<SalariesPage>
                         border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
-                      initialValue: '0',
+                      initialValue: deductions > 0 ? deductions.toString() : '0',
                       onChanged: (value) {
                         setDialogState(() {
                           deductions = double.tryParse(value) ?? 0;
@@ -738,38 +870,92 @@ class _SalariesPageState extends State<SalariesPage>
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('إلغاء'.tr),
+            child: Text('إلغاء'.tr, style: const TextStyle(fontSize: 14)),
           ),
           ElevatedButton(
             onPressed: () async {
               if (formKey.currentState!.validate() && selectedEmployee != null) {
                 formKey.currentState!.save();
-                final salary = Salary(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  employeeId: selectedEmployee!.id,
-                  employeeName: selectedEmployee!.name,
-                  month: selectedMonth,
-                  baseSalary: baseSalary,
-                  bonus: bonus,
-                  deductions: deductions,
-                  notes: notes.isNotEmpty ? notes : null,
-                );
-                await databaseController.addSalary(salary);
-                Get.back();
-                loadData();
-                Get.snackbar(
-                  'نجاح'.tr,
-                  'تم إضافة الراتب بنجاح'.tr,
-                  backgroundColor: Colors.green,
-                  colorText: Colors.white,
-                );
+                
+                if (salary == null) {
+                  final newSalary = Salary(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    employeeId: selectedEmployee!.id,
+                    employeeName: selectedEmployee!.name,
+                    month: selectedMonth,
+                    baseSalary: baseSalary,
+                    bonus: bonus,
+                    deductions: deductions,
+                    notes: notes.isNotEmpty ? notes : null,
+                  );
+                  await databaseController.addSalary(newSalary);
+                  Get.back();
+                  loadData();
+                  Get.snackbar(
+                    'نجاح'.tr,
+                    'تم إضافة الراتب بنجاح'.tr,
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                  );
+                } else {
+                  final updatedSalary = salary.copyWith(
+                    employeeId: selectedEmployee!.id,
+                    employeeName: selectedEmployee!.name,
+                    baseSalary: baseSalary,
+                    bonus: bonus,
+                    deductions: deductions,
+                    notes: notes.isNotEmpty ? notes : null,
+                  );
+                  await databaseController.updateSalary(updatedSalary);
+                  Get.back();
+                  loadData();
+                  Get.snackbar(
+                    'نجاح'.tr,
+                    'تم تعديل الراتب بنجاح'.tr,
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                  );
+                }
               }
             },
-            child: Text('حفظ'.tr),
+            child: Text(salary == null ? 'حفظ'.tr : 'تحديث'.tr),
           ),
         ],
       ),
     );
+  }
+
+  void _deleteSalary(Salary salary) async {
+    final confirm = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('تأكيد الحذف'.tr, style: const TextStyle(fontSize: 15)),
+        content: Text(
+          'هل أنت متأكد من حذف راتب ${salary.employeeName}؟'.tr,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('إلغاء'.tr),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('حذف'.tr),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await databaseController.deleteSalary(salary.id);
+      loadData();
+      Get.snackbar(
+        'نجاح'.tr,
+        'تم حذف الراتب بنجاح'.tr,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    }
   }
 
   void _showSalaryDetails(Salary salary) {
@@ -779,7 +965,7 @@ class _SalariesPageState extends State<SalariesPage>
           children: [
             const Icon(Icons.payments, color: Colors.teal),
             const SizedBox(width: 8),
-            Text('تفاصيل الراتب'.tr),
+            Text('تفاصيل الراتب'.tr, style: const TextStyle(fontSize: 15)),
           ],
         ),
         content: Column(
@@ -787,10 +973,7 @@ class _SalariesPageState extends State<SalariesPage>
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildDetailRow('الموظف'.tr, salary.employeeName),
-            _buildDetailRow(
-              'الشهر'.tr,
-              _formatMonth(salary.month),
-            ),
+            _buildDetailRow('الشهر'.tr, _formatMonth(salary.month)),
             _buildDetailRow('الراتب الأساسي'.tr, currencyFormat.format(salary.baseSalary)),
             if (salary.bonus > 0)
               _buildDetailRow('المكافآت'.tr, '+${currencyFormat.format(salary.bonus)}'),
@@ -804,64 +987,25 @@ class _SalariesPageState extends State<SalariesPage>
                   'الإجمالي:'.tr,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 15,
                   ),
                 ),
                 Text(
                   currencyFormat.format(salary.totalSalary),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 14,
                     color: Colors.teal,
                   ),
                 ),
               ],
             ),
-            if (salary.notes != null) ...[
-              const SizedBox(height: 12),
-              _buildDetailRow('ملاحظات'.tr, salary.notes!),
-            ],
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () async {
-              final confirm = await Get.dialog<bool>(
-                AlertDialog(
-                  title: Text('تأكيد الحذف'.tr),
-                  content: Text('هل أنت متأكد من حذف هذا الراتب؟'.tr),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Get.back(result: false),
-                      child: Text('إلغاء'.tr),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => Get.back(result: true),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      child: Text('حذف'.tr),
-                    ),
-                  ],
-                ),
-              );
-
-              if (confirm == true) {
-                await databaseController.deleteSalary(salary.id);
-                Get.back();
-                loadData();
-                Get.snackbar(
-                  'نجاح'.tr,
-                  'تم حذف الراتب بنجاح'.tr,
-                  backgroundColor: Colors.green,
-                  colorText: Colors.white,
-                );
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('حذف'.tr),
-          ),
-          ElevatedButton(
             onPressed: () => Get.back(),
-            child: Text('إغلاق'.tr),
+            child: Text('إغلاق'.tr, style: const TextStyle(fontSize: 14)),
           ),
         ],
       ),
@@ -873,9 +1017,9 @@ class _SalariesPageState extends State<SalariesPage>
       context: context,
       initialDate: selectedMonth,
       firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      initialDatePickerMode: DatePickerMode.year,
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
+
     if (picked != null) {
       setState(() {
         selectedMonth = DateTime(picked.year, picked.month);
