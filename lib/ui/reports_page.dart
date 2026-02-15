@@ -422,7 +422,6 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
                 ['المبيعات', settingsController.currencyFormatter(totalSales)],
                 ['المشتريات', settingsController.currencyFormatter(totalPurchases)],
                 ['المصروفات', settingsController.currencyFormatter(totalExpenses)],
-                ['الرواتب', settingsController.currencyFormatter(totalSalaries)],
                 ['صافي الربح', settingsController.currencyFormatter(netProfit)],
               ],
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),

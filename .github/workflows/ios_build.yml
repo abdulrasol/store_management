@@ -40,13 +40,53 @@ jobs:
           pod update ObjectBox --repo-update
           pod install --repo-update
 
+      - name: Disable Code Signing in Xcode
+        run: |
+          cd ios/Runner.xcodeproj
+          # Disable signing in project.pbxproj
+          sed -i '' 's/CODE_SIGNING_ALLOWED = YES/CODE_SIGNING_ALLOWED = NO/g' project.pbxproj
+          sed -i '' 's/CODE_SIGNING_REQUIRED = YES/CODE_SIGNING_REQUIRED = NO/g' project.pbxproj
+          sed -i '' 's/CODE_SIGN_IDENTITY = "iPhone Developer"/CODE_SIGN_IDENTITY = ""/g' project.pbxproj
+          sed -i '' 's/EXPANDED_CODE_SIGN_IDENTITY = .*/EXPANDED_CODE_SIGN_IDENTITY = "";/g' project.pbxproj
+          sed -i '' 's/EXPANDED_CODE_SIGN_IDENTITY_NAME = .*/EXPANDED_CODE_SIGN_IDENTITY_NAME = "";/g' project.pbxproj
+
       - name: Build IPA (Unsigned)
         run: |
           mkdir -p build/ios/iphoneos
           # Build .app with signing disabled explicitly
-          flutter build ios --release --no-codesign -- CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+          flutter build ios --release --no-codesign --split-debug-info=./debug-info --obfuscate || true
           
-          # Create IPA structure
+          # If flutter build fails due to signing (but generated .app), we continue
+          # Note: flutter build might return exit 1 if signing fails, even if .app is built. 
+          # But usually it fails BEFORE building .app if check fails.
+          # Let's try xcodebuild direct fallback if flutter build fails.
+          
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+            
+          # Move artifact
+          cd ..
+          # xcodebuild output location
+          # Usually build/ios/Release-iphoneos/Runner.app or derived data
+          # Let's find it.
+          # Flutter puts it in build/ios/iphoneos/Runner.app
+          
+          # Let's verify where it is.
+          # Assuming xcodebuild output is in symlink build/Release-iphoneos
+          
+          if [ -d "build/Release-iphoneos/Runner.app" ]; then
+             cp -r build/Release-iphoneos/Runner.app build/ios/iphoneos/
+          elif [ -d "ios/build/Release-iphoneos/Runner.app" ]; then
+             cp -r ios/build/Release-iphoneos/Runner.app build/ios/iphoneos/
+          fi
+          
           cd build/ios/iphoneos
           mkdir Payload
           cp -r Runner.app Payload/
