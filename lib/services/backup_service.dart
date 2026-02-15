@@ -7,6 +7,11 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/database_controller.dart';
+import 'package:store_management/models/purchase.dart';
+import 'package:store_management/models/expense.dart';
+import 'package:store_management/models/profits.dart';
+import 'package:store_management/models/salary.dart';
+import 'package:store_management/models/urgent_order.dart';
 
 class BackupService {
   final DatabaseController dbController = Get.find<DatabaseController>();
