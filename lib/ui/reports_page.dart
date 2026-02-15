@@ -37,12 +37,12 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
   double totalSales = 0;
   double totalPurchases = 0;
   double totalExpenses = 0;
-  double totalSalaries = 0;
+
   double netProfit = 0;
   
   List<Purchase> filteredPurchases = [];
   List<Expense> filteredExpenses = [];
-  List<Salary> filteredSalaries = [];
+
   List<Invoice> filteredSales = [];
 
   List<Employee> employees = [];
@@ -89,8 +89,8 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
     // filteredSalaries logic removed as old Salary model is gone
     // We now use transactions
     
-    // Net Profit (Simplified for now without old salaries)
-    netProfit = totalSales - totalPurchases - totalExpenses; // - totalSalaries (calculated differently now)
+    // Net Profit
+    netProfit = totalSales - totalPurchases - totalExpenses;
 
     setState(() => isLoading = false);
   }
@@ -146,7 +146,6 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
           _buildSummaryCard('المبيعات'.tr, totalSales, Colors.green, Icons.attach_money),
           _buildSummaryCard('المشتريات'.tr, totalPurchases, Colors.blue, Icons.shopping_cart),
           _buildSummaryCard('المصروفات'.tr, totalExpenses, Colors.orange, Icons.money_off),
-          // Salary summary removed from here as it's complex calculated
           const Divider(height: 30, thickness: 2),
           _buildSummaryCard(
             'صافي الربح'.tr, 

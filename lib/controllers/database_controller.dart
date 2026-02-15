@@ -15,7 +15,7 @@ import 'package:store_management/models/profits.dart';
 import 'package:store_management/models/purchase.dart';
 import 'package:store_management/models/inventory.dart';
 import 'package:store_management/models/job_order.dart';
-import 'package:store_management/models/salary.dart';
+
 import 'package:store_management/models/urgent_order.dart';
 import 'package:store_management/models/transaction.dart';
 import 'package:store_management/models/voucher.dart';

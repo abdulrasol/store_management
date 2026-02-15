@@ -413,7 +413,7 @@ class _HomeState extends State<Home> {
                 icon: Icons.add_circle_outline,
                 label: 'New Expense'.tr,
                 color: Colors.orange,
-                onTap: () => Get.to(() => const ExpenseAdd()),
+                onTap: () => Get.to(() => ExpenseAdd()),
               ),
             ),
             const SizedBox(width: 10),
@@ -705,7 +705,7 @@ class _HomeState extends State<Home> {
   Widget _buildFAB() {
     return FloatingActionButton.extended(
       onPressed: () async {
-        await Get.to(() => const ExpenseAdd());
+        await Get.to(() => ExpenseAdd());
         databaseController.loading();
         _loadAsyncTotals();
       },
