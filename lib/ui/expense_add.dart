@@ -88,6 +88,7 @@ class _ExpenseAddState extends State<ExpenseAdd> {
               verSpace,
               TextFormField(
                 controller: amountControll,
+                style: const TextStyle(fontSize: 12),
                 decoration: inputDecoration.copyWith(
                   hintText: 'Expense Amount'.tr,
                 ),
@@ -113,7 +114,7 @@ class _ExpenseAddState extends State<ExpenseAdd> {
                 scrollPhysics: AlwaysScrollableScrollPhysics(),
 
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   height: 1.5,
                 ),
               ),

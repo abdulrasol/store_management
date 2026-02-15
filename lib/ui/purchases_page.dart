@@ -489,7 +489,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
                           currencyFormat.format(currentTotal),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                            fontSize: 14,
                             color: Colors.blue,
                           ),
                         ),
@@ -589,7 +589,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
               const Divider(),
               Text(
                 'الأصناف المشتراة'.tr,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(height: 8),
               ...purchase.items.map((item) => Card(
@@ -613,14 +613,14 @@ class _PurchasesPageState extends State<PurchasesPage> {
                     'الإجمالي الكلي'.tr,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 15,
                     ),
                   ),
                   Text(
                     currencyFormat.format(purchase.totalAmount),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 14,
                       color: Colors.blue,
                     ),
                   ),

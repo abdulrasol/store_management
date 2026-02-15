@@ -233,7 +233,7 @@ class _HomeState extends State<Home> {
                 color: Colors.indigo,
                 value: Text(
                   settingsController.currencyFormatter(purchases),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 width: cardWidth,
               ),
@@ -244,7 +244,7 @@ class _HomeState extends State<Home> {
                 color: Colors.orange,
                 value: Text(
                   settingsController.currencyFormatter(expenses),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 width: cardWidth,
               ),
@@ -255,7 +255,7 @@ class _HomeState extends State<Home> {
                 color: Colors.purple,
                 value: Text(
                   settingsController.currencyFormatter(salaries),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 width: cardWidth,
               ),
@@ -266,7 +266,7 @@ class _HomeState extends State<Home> {
                 color: Colors.red,
                 value: Text(
                   settingsController.currencyFormatter(databaseController.customerDebt()),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 width: cardWidth,
               ),
@@ -354,12 +354,12 @@ class _HomeState extends State<Home> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontWeight: FontWeight.w500)),
+                Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 15, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 4),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
+                  child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
