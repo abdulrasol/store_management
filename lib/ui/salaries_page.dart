@@ -752,7 +752,7 @@ class _SalariesPageState extends State<SalariesPage>
     _showSalaryFormDialog(salary: salary);
   }
 
-  void _showSalaryFormDialog({Salary? salary}) {
+  void _showSalaryFormDialog({Salary? salary}) async {
     final formKey = GlobalKey<FormState>();
     Employee? selectedEmployee = employees.firstWhere(
       (e) => e.id == salary?.employeeId,
@@ -760,8 +760,15 @@ class _SalariesPageState extends State<SalariesPage>
     );
     double baseSalary = salary?.baseSalary ?? 0;
     double bonus = salary?.bonus ?? 0;
-    double deductions = salary?.deductions ?? 0;
+    double manualDeductions = salary?.deductions ?? 0;
     String notes = salary?.notes ?? '';
+    
+    List<SalaryAdvance> pendingAdvances = [];
+    if (salary == null) {
+      pendingAdvances = await databaseController.getEmployeeAdvances(selectedEmployee.id);
+      pendingAdvances = pendingAdvances.where((a) => !a.isPaidOff).toList();
+    }
+    double advanceDeductions = pendingAdvances.fold(0, (sum, a) => sum + a.amount);
 
     Get.dialog(
       AlertDialog(
@@ -775,7 +782,7 @@ class _SalariesPageState extends State<SalariesPage>
         ),
         content: StatefulBuilder(
           builder: (context, setDialogState) {
-            double total = baseSalary + bonus - deductions;
+            double total = baseSalary + bonus - manualDeductions - advanceDeductions;
 
             return Form(
               key: formKey,
@@ -841,18 +848,76 @@ class _SalariesPageState extends State<SalariesPage>
                     TextFormField(
                       style: const TextStyle(fontSize: 12),
                       decoration: InputDecoration(
-                        labelText: 'خصومات'.tr,
+                        labelText: 'خصومات يدوية'.tr,
                         prefixIcon: const Icon(Icons.remove_circle, color: Colors.red),
                         border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
-                      initialValue: deductions > 0 ? deductions.toString() : '0',
+                      initialValue: manualDeductions > 0 ? manualDeductions.toString() : '0',
                       onChanged: (value) {
                         setDialogState(() {
-                          deductions = double.tryParse(value) ?? 0;
+                          manualDeductions = double.tryParse(value) ?? 0;
                         });
                       },
                     ),
+                    // Pending Advances Section (only for new salaries)
+                    if (salary == null && pendingAdvances.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.orange.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.account_balance_wallet, size: 18, color: Colors.orange),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'السلف المستحقة (سيتم خصمها)'.tr,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ...pendingAdvances.map((advance) => Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${advance.reason ?? 'بدون سبب'} (${DateFormat('yyyy-MM-dd').format(advance.requestDate)})',
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                  Text(
+                                    currencyFormat.format(advance.amount),
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            )),
+                            const Divider(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('إجمالي الخصم (سلف)'.tr),
+                                Text(
+                                  currencyFormat.format(advanceDeductions),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     TextFormField(
                       style: const TextStyle(fontSize: 12),
@@ -913,10 +978,15 @@ class _SalariesPageState extends State<SalariesPage>
                     month: selectedMonth,
                     baseSalary: baseSalary,
                     bonus: bonus,
-                    deductions: deductions,
+                    deductions: manualDeductions + advanceDeductions,
                     notes: notes.isNotEmpty ? notes : null,
                   );
                   await databaseController.addSalary(newSalary);
+                  
+                  // Mark all pending advances as paid
+                  for (var advance in pendingAdvances) {
+                    await databaseController.markAdvanceAsPaid(advance.id, newSalary.id);
+                  }
                   Get.back();
                   loadData();
                   Get.snackbar(
@@ -931,7 +1001,7 @@ class _SalariesPageState extends State<SalariesPage>
                     employeeName: selectedEmployee!.name,
                     baseSalary: baseSalary,
                     bonus: bonus,
-                    deductions: deductions,
+                    deductions: manualDeductions,
                     notes: notes.isNotEmpty ? notes : null,
                   );
                   await databaseController.updateSalary(updatedSalary);
