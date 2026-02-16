@@ -7,15 +7,15 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/database_controller.dart';
 import 'package:store_management/controllers/settings_controller.dart';
 import 'package:store_management/models/employee.dart';
 import 'package:store_management/models/expense.dart';
 import 'package:store_management/models/invoice.dart';
 import 'package:store_management/models/purchase.dart';
-import 'package:store_management/models/salary_transaction.dart';
-import 'package:store_management/ui/employees/employee_report_page.dart';
+import 'package:store_management/ui/reports/purchase_report_page.dart';
+import 'package:store_management/ui/reports/expense_report_page.dart';
+import 'package:store_management/ui/reports/employees_report_page.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
@@ -24,43 +24,43 @@ class ReportsPage extends StatefulWidget {
   State<ReportsPage> createState() => _ReportsPageState();
 }
 
-class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStateMixin {
+class _ReportsPageState extends State<ReportsPage> {
   final DatabaseController databaseController = Get.find<DatabaseController>();
   final SettingsController settingsController = Get.find<SettingsController>();
-  
-  late TabController _tabController;
+
   DateTimeRange dateRange = DateTimeRange(
     start: DateTime.now().subtract(const Duration(days: 30)),
     end: DateTime.now(),
   );
 
   bool isLoading = false;
-  
+
   // Data
   double totalSales = 0;
   double totalPurchases = 0;
   double totalExpenses = 0;
-
   double netProfit = 0;
-  
+
   List<Purchase> filteredPurchases = [];
   List<Expense> filteredExpenses = [];
-
   List<Invoice> filteredSales = [];
-
   List<Employee> employees = [];
-  Employee? selectedEmployeeReport;
+
+  int totalInvoices = 0;
+  int totalPurchasesCount = 0;
+  int totalExpensesCount = 0;
+  double avgPurchaseValue = 0;
+  double avgExpenseValue = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
     loadData();
   }
 
   Future<void> loadData() async {
     setState(() => isLoading = true);
-    
+
     // Filter dates (inclusive)
     final start = DateTime(dateRange.start.year, dateRange.start.month, dateRange.start.day);
     final end = DateTime(dateRange.end.year, dateRange.end.month, dateRange.end.day, 23, 59, 59);
@@ -72,6 +72,7 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
       return date.isAfter(start) && date.isBefore(end);
     }).toList();
     totalSales = filteredSales.fold(0, (sum, item) => sum + item.pricetoPay());
+    totalInvoices = filteredSales.length;
 
     // 2. Purchases
     final allPurchases = await databaseController.getPurchases();
@@ -79,6 +80,8 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
       return p.purchaseDate.isAfter(start) && p.purchaseDate.isBefore(end);
     }).toList();
     totalPurchases = filteredPurchases.fold(0, (sum, item) => sum + item.totalAmount);
+    totalPurchasesCount = filteredPurchases.length;
+    avgPurchaseValue = totalPurchasesCount > 0 ? totalPurchases / totalPurchasesCount : 0;
 
     // 3. Expenses
     final allExpenses = databaseController.expenses;
@@ -86,12 +89,12 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
       return e.date.isAfter(start) && e.date.isBefore(end);
     }).toList();
     totalExpenses = filteredExpenses.fold(0, (sum, item) => sum + item.amount);
+    totalExpensesCount = filteredExpenses.length;
+    avgExpenseValue = totalExpensesCount > 0 ? totalExpenses / totalExpensesCount : 0;
 
-    // 4. Employees & Salaries
+    // 4. Employees
     employees = await databaseController.getEmployees();
-    // filteredSalaries logic removed as old Salary model is gone
-    // We now use transactions
-    
+
     // Net Profit
     netProfit = totalSales - totalPurchases - totalExpenses;
 
@@ -102,242 +105,290 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('التقارير المالية'.tr),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'الملخص'.tr),
-            Tab(text: 'المصروفات والمشتريات'.tr),
-            Tab(text: 'المبيعات'.tr),
-            Tab(text: 'تقارير الموظفين'.tr),
-          ],
-        ),
+        title: Text('reports'.tr),
+        centerTitle: true,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_month),
+            icon: const Icon(Icons.calendar_month_outlined),
             onPressed: _pickDateRange,
-            tooltip: 'تحديد الفترة'.tr,
+            tooltip: 'select_period'.tr,
           ),
           IconButton(
-            icon: const Icon(Icons.picture_as_pdf),
+            icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: _generatePdf,
-            tooltip: 'تصدير PDF'.tr,
+            tooltip: 'export_pdf'.tr,
           ),
         ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildSummaryTab(),
-                _buildExpensesPurchasesTab(),
-                _buildSalesSalariesTab(),
-                _buildEmployeesReportTab(),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildSummaryTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          _buildDateHeader(),
-          const SizedBox(height: 20),
-          _buildSummaryCard('المبيعات'.tr, totalSales, Colors.green, Icons.attach_money),
-          _buildSummaryCard('المشتريات'.tr, totalPurchases, Colors.blue, Icons.shopping_cart),
-          _buildSummaryCard('المصروفات'.tr, totalExpenses, Colors.orange, Icons.money_off),
-          const Divider(height: 30, thickness: 2),
-          _buildSummaryCard(
-            'صافي الربح'.tr, 
-            netProfit, 
-            netProfit >= 0 ? Colors.teal : Colors.red, 
-            netProfit >= 0 ? Icons.trending_up : Icons.trending_down,
-            isLarge: true
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpensesPurchasesTab() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _buildSectionHeader('توزيع المصروفات'.tr),
-        if (filteredExpenses.isEmpty)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Text('لا توجد بيانات'.tr, style: const TextStyle(color: Colors.grey)),
-            ),
-          )
-        else
-          ..._buildExpensesList(),
-          
-        const SizedBox(height: 20),
-        const Divider(),
-        const SizedBox(height: 10),
-        
-        _buildSectionHeader('آخر المشتريات'.tr),
-        ...filteredPurchases.take(10).map((p) => ListTile(
-          leading: const Icon(Icons.shopping_bag, color: Colors.blue),
-          title: Text(p.supplierName ?? 'بدون مورد'.tr), 
-          subtitle: Text(DateFormat('yyyy-MM-dd').format(p.purchaseDate)),
-          trailing: Text(
-            settingsController.currencyFormatter(p.totalAmount),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-        )),
-      ],
-    );
-  }
-
-  List<Widget> _buildExpensesList() {
-    // Group expenses by description/type
-    Map<String, double> grouped = {};
-    for (var e in filteredExpenses) {
-      grouped[e.description] = (grouped[e.description] ?? 0) + e.amount;
-    }
-    
-    // Sort by amount descending
-    var sortedEntries = grouped.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    double total = grouped.values.fold(0, (sum, val) => sum + val);
-
-    return sortedEntries.map((entry) {
-      double percentage = total == 0 ? 0 : (entry.value / total);
-      return Column(
-        children: [
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.orange.withOpacity(0.2),
-              child: const Icon(Icons.money_off, color: Colors.orange, size: 18),
-            ),
-            title: Text(entry.key),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  settingsController.currencyFormatter(entry.value),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+          : RefreshIndicator(
+              onRefresh: loadData,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    _buildDateHeader(),
+                    const SizedBox(height: 16),
+                    _buildSummaryCardsRow(),
+                    const SizedBox(height: 12),
+                    _buildSecondaryCardsRow(),
+                    const SizedBox(height: 16),
+                    _buildQuickReportButtons(),
+                    const SizedBox(height: 20),
+                    _buildExpensesDistribution(),
+                    const SizedBox(height: 20),
+                    _buildRecentActivity(),
+                  ],
                 ),
-                Text(
-                  '${(percentage * 100).toStringAsFixed(1)}%',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
+              ),
             ),
-          ),
-          LinearProgressIndicator(
-            value: percentage,
-            backgroundColor: Colors.grey.shade200,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade400),
-          ),
-          const SizedBox(height: 8),
-        ],
-      );
-    }).toList();
-  }
-
-  Widget _buildSalesSalariesTab() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _buildSectionHeader('أداء المبيعات'.tr),
-        // Add chart or list here
-        _buildStatRow('عدد الفواتير'.tr, filteredSales.length.toString()),
-        _buildStatRow('متوسط قيمة الفاتورة'.tr, 
-          filteredSales.isEmpty ? '0' : settingsController.currencyFormatter(totalSales / filteredSales.length)),
-      ],
-    );
-  }
-
-  Widget _buildEmployeesReportTab() {
-    if (employees.isEmpty) {
-      return Center(child: Text('لا يوجد موظفين'.tr));
-    }
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: employees.length,
-      itemBuilder: (context, index) {
-        final emp = employees[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.teal.withOpacity(0.1),
-              child: const Icon(Icons.person, color: Colors.teal),
-            ),
-            title: Text(emp.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(emp.jobTitle),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-            onTap: () {
-              Get.to(() => EmployeeReportPage(employee: emp));
-            },
-          ),
-        );
-      },
     );
   }
 
   Widget _buildDateHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade100, Colors.purple.shade100],
+          begin: AlignmentDirectional.centerStart,
+          end: AlignmentDirectional.centerEnd,
+        ),
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.date_range, color: Colors.grey),
+          Icon(Icons.date_range, color: Colors.blue.shade700, size: 18),
           const SizedBox(width: 8),
           Text(
             '${DateFormat('dd/MM/yyyy').format(dateRange.start)} - ${DateFormat('dd/MM/yyyy').format(dateRange.end)}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              color: Colors.blue.shade800,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard(String title, double amount, Color color, IconData icon, {bool isLarge = false}) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+  Widget _buildSummaryCardsRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildCompactSummaryCard(
+            'purchases'.tr,
+            totalPurchases,
+            Colors.blue,
+            Icons.shopping_cart,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildCompactSummaryCard(
+            'expenses'.tr,
+            totalExpenses,
+            Colors.orange,
+            Icons.money_off,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSecondaryCardsRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildCompactSummaryCard(
+            'net_profit'.tr,
+            netProfit,
+            netProfit >= 0 ? Colors.teal : Colors.red,
+            netProfit >= 0 ? Icons.account_balance : Icons.warning,
+            isHighlighted: true,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildCompactSummaryCard(
+            'summary'.tr,
+            totalPurchasesCount + totalExpensesCount.toDouble(),
+            Colors.purple,
+            Icons.summarize,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCompactSummaryCard(String title, double amount, Color color, IconData icon, {bool isHighlighted = false}) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: isHighlighted
+            ? LinearGradient(
+                colors: [color.withOpacity(0.15), color.withOpacity(0.05)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: isHighlighted ? null : color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: isHighlighted
+            ? Border.all(color: color.withOpacity(0.3), width: 1)
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: color, size: 16),
               ),
-              child: Icon(icon, color: color, size: isLarge ? 32 : 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                  Text(
-                    settingsController.currencyFormatter(amount),
-                    style: TextStyle(
-                      fontSize: isLarge ? 24 : 18,
-                      fontWeight: FontWeight.bold,
-                      color: isLarge ? color : Colors.black87,
-                    ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            settingsController.currencyFormatter(amount),
+            style: TextStyle(
+              fontSize: isHighlighted ? 18 : 14,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickReportButtons() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          child: Text(
+            'detailed_reports'.tr,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _buildReportButton(
+                'purchases_report'.tr,
+                Icons.shopping_cart_outlined,
+                Colors.blue,
+                () => Get.to(() => PurchaseReportPage(dateRange: dateRange)),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildReportButton(
+                'expenses_report'.tr,
+                Icons.receipt_long_outlined,
+                Colors.orange,
+                () => Get.to(() => ExpenseReportPage(dateRange: dateRange)),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _buildReportButton(
+                'employees_report'.tr,
+                Icons.people_outline,
+                Colors.teal,
+                () => Get.to(() => EmployeesReportPage(dateRange: dateRange)),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildReportButton(
+                'full_report'.tr,
+                Icons.summarize_outlined,
+                Colors.purple,
+                _generatePdf,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReportButton(String title, IconData icon, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w600,
+                fontSize: 11,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -345,24 +396,173 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  Widget _buildExpensesDistribution() {
+    if (filteredExpenses.isEmpty) return const SizedBox.shrink();
+
+    Map<String, double> grouped = {};
+    for (var e in filteredExpenses) {
+      grouped[e.description] = (grouped[e.description] ?? 0) + e.amount;
+    }
+
+    var sortedEntries = grouped.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    double total = grouped.values.fold(0, (sum, val) => sum + val);
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.pie_chart_outline, color: Colors.orange.shade600, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'expenses_distribution'.tr,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...sortedEntries.take(4).map((entry) {
+              double percentage = total == 0 ? 0 : (entry.value / total);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.key,
+                            style: const TextStyle(fontSize: 11),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          '${(percentage * 100).toStringAsFixed(0)}%',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: percentage,
+                        backgroundColor: Colors.grey.shade100,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade400),
+                        minHeight: 4,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            if (sortedEntries.length > 4)
+              Center(
+                child: TextButton(
+                  onPressed: () => Get.to(() => ExpenseReportPage(dateRange: dateRange)),
+                  child: Text(
+                    'view_all'.tr,
+                    style: TextStyle(fontSize: 11, color: Colors.orange.shade700),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatRow(String label, String value) {
+  Widget _buildRecentActivity() {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.access_time, color: Colors.blue.shade600, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'summary'.tr,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildStatItem(Icons.shopping_bag_outlined, 'purchases_count'.tr, totalPurchasesCount.toString(), Colors.blue),
+            _buildStatItem(Icons.shopping_bag_outlined, 'purchases_count'.tr, totalPurchasesCount.toString(), Colors.green),
+            _buildStatItem(Icons.receipt_long_outlined, 'expenses_count'.tr, totalExpensesCount.toString(), Colors.orange),
+            _buildStatItem(Icons.trending_up, 'avg_purchase'.tr, settingsController.currencyFormatter(avgPurchaseValue), Colors.purple),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(IconData icon, String label, String value, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 14)),
-          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, color: color, size: 14),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -374,6 +574,16 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
       initialDateRange: dateRange,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.blue,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() => dateRange = picked);
@@ -384,18 +594,16 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
   Future<void> _generatePdf() async {
     try {
       final pdf = pw.Document();
-      
-      // Load font with fallback
+
       pw.Font ttf;
       pw.Font ttfBold;
-      
+
       try {
         final fontData = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
         ttf = pw.Font.ttf(fontData);
         final boldFontData = await rootBundle.load('assets/fonts/Cairo-Bold.ttf');
         ttfBold = pw.Font.ttf(boldFontData);
       } catch (e) {
-        // Fallback to standard font if assets fail (might not support Arabic well)
         ttf = pw.Font.courier();
         ttfBold = pw.Font.courierBold();
       }
@@ -407,40 +615,48 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
           build: (context) => [
             pw.Header(
               level: 0,
-              child: pw.Center(child: pw.Text('التقرير المالي التفصيلي', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold))),
-            ),
-            pw.Paragraph(
-              text: 'الفترة: ${DateFormat('yyyy-MM-dd').format(dateRange.start)} إلى ${DateFormat('yyyy-MM-dd').format(dateRange.end)}',
-              style: const pw.TextStyle(fontSize: 14),
+              child: pw.Center(
+                child: pw.Column(
+                  children: [
+                    pw.Text('financial_report'.tr, style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(height: 8),
+                    pw.Text(
+                      '${'period'.tr}: ${DateFormat('dd/MM/yyyy').format(dateRange.start)} - ${DateFormat('dd/MM/yyyy').format(dateRange.end)}',
+                      style: pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
+                    ),
+                  ],
+                ),
+              ),
             ),
             pw.SizedBox(height: 20),
-            
-            // Summary Table
             pw.Table.fromTextArray(
-              headers: ['البند', 'القيمة'],
+              headers: ['item'.tr, 'value'.tr, 'count'.tr],
               data: [
-                ['المبيعات', settingsController.currencyFormatter(totalSales)],
-                ['المشتريات', settingsController.currencyFormatter(totalPurchases)],
-                ['المصروفات', settingsController.currencyFormatter(totalExpenses)],
-                ['صافي الربح', settingsController.currencyFormatter(netProfit)],
+                ['sales'.tr, settingsController.currencyFormatter(totalSales), totalInvoices.toString()],
+                ['purchases'.tr, settingsController.currencyFormatter(totalPurchases), totalPurchasesCount.toString()],
+                ['expenses'.tr, settingsController.currencyFormatter(totalExpenses), totalExpensesCount.toString()],
+                ['net_profit'.tr, settingsController.currencyFormatter(netProfit), ''],
               ],
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
-              headerDecoration: const pw.BoxDecoration(color: PdfColors.blue),
+              headerDecoration: const pw.BoxDecoration(color: PdfColors.blue700),
               cellAlignment: pw.Alignment.centerRight,
+              cellStyle: const pw.TextStyle(fontSize: 10),
             ),
-            
             pw.SizedBox(height: 20),
-            pw.Header(level: 1, text: 'تفاصيل المصروفات'),
-            pw.Table.fromTextArray(
-              headers: ['التاريخ', 'الوصف', 'المبلغ'],
-              data: filteredExpenses.map((e) => [
-                DateFormat('yyyy-MM-dd').format(e.date),
-                e.description,
-                settingsController.currencyFormatter(e.amount),
-              ]).toList(),
-              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              cellAlignment: pw.Alignment.centerRight,
-            ),
+            if (filteredExpenses.isNotEmpty) ...[
+              pw.Header(level: 1, text: 'expenses_details'.tr),
+              pw.Table.fromTextArray(
+                headers: ['date'.tr, 'description'.tr, 'amount'.tr],
+                data: filteredExpenses.take(20).map((e) => [
+                  DateFormat('dd/MM/yyyy').format(e.date),
+                  e.description,
+                  settingsController.currencyFormatter(e.amount),
+                ]).toList(),
+                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                cellAlignment: pw.Alignment.centerRight,
+                cellStyle: const pw.TextStyle(fontSize: 9),
+              ),
+            ],
           ],
         ),
       );
@@ -449,12 +665,12 @@ class _ReportsPageState extends State<ReportsPage> with SingleTickerProviderStat
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/report_${DateTime.now().millisecondsSinceEpoch}.pdf');
       await file.writeAsBytes(bytes);
-      
-      await Printing.sharePdf(bytes: bytes, filename: 'report.pdf');
+
+      await Printing.sharePdf(bytes: bytes, filename: 'financial_report.pdf');
     } catch (e) {
       Get.snackbar(
-        'خطأ'.tr,
-        'فشل تصدير التقرير: $e'.tr,
+        'error'.tr,
+        '${'export_error'.tr}: $e',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
