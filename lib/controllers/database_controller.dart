@@ -1,11 +1,22 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:store_management/database/objectbox.dart';
 import 'package:store_management/models/customer.dart';
+import 'package:store_management/models/employee.dart';
+import 'package:store_management/models/salary_transaction.dart';
 import 'package:store_management/models/expense.dart';
 import 'package:store_management/models/invoice.dart';
 import 'package:store_management/models/invoice_item.dart';
 import 'package:store_management/models/item.dart';
 import 'package:store_management/models/profits.dart';
+import 'package:store_management/models/purchase.dart';
+import 'package:store_management/models/inventory.dart';
+import 'package:store_management/models/job_order.dart';
+
+import 'package:store_management/models/urgent_order.dart';
 import 'package:store_management/models/transaction.dart';
 import 'package:store_management/models/voucher.dart';
 import 'package:store_management/objectbox.g.dart';
@@ -602,4 +613,623 @@ class DatabaseController extends GetxController {
       Get.snackbar("Info", "Database is already clean.");
     }
   }
+
+  // ==================== PURCHASES & SALARIES TOTALS ====================
+
+  Future<double> getPurchasesTotal(DateTime start, DateTime end) async {
+    final purchases = await getPurchases(startDate: start, endDate: end);
+    double total = 0.0;
+    for (var p in purchases) {
+      total += p.totalAmount;
+    }
+    return total;
+  }
+
+
+
+  // ==================== PURCHASES ====================
+
+  Future<List<Purchase>> getPurchases({DateTime? startDate, DateTime? endDate}) async {
+    final file = await _getPurchasesFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    final purchases = data.map((m) => Purchase.fromMap(m)).toList();
+
+    if (startDate != null) {
+      purchases.retainWhere((p) =>
+          p.purchaseDate.isAfter(startDate.subtract(const Duration(days: 1))));
+    }
+    if (endDate != null) {
+      purchases.retainWhere(
+          (p) => p.purchaseDate.isBefore(endDate.add(const Duration(days: 1))));
+    }
+
+    return purchases..sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
+  }
+
+  Future<void> addPurchase(Purchase purchase) async {
+    final purchases = await getPurchases();
+    purchases.add(purchase);
+    await _savePurchases(purchases);
+  }
+
+  Future<void> updatePurchase(Purchase updated) async {
+    final purchases = await getPurchases();
+    final index = purchases.indexWhere((p) => p.id == updated.id);
+    if (index != -1) {
+      purchases[index] = updated;
+      await _savePurchases(purchases);
+    }
+  }
+
+  Future<void> deletePurchase(String id) async {
+    final purchases = await getPurchases();
+    purchases.removeWhere((p) => p.id == id);
+    await _savePurchases(purchases);
+  }
+
+  Future<File> _getPurchasesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/purchases.json');
+  }
+
+  Future<void> _savePurchases(List<Purchase> purchases) async {
+    final file = await _getPurchasesFile();
+    final data = purchases.map((p) => p.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // ==================== PURCHASE CATEGORIES ====================
+
+  Future<List<PurchaseCategory>> getPurchaseCategories() async {
+    final file = await _getPurchaseCategoriesFile();
+    if (!await file.exists()) {
+      // Return default categories
+      return [
+        PurchaseCategory(id: '1', name: 'ورق طباعة'),
+        PurchaseCategory(id: '2', name: 'حبر'),
+        PurchaseCategory(id: '3', name: 'قطع غيار آلات'),
+        PurchaseCategory(id: '4', name: 'مواد خام'),
+        PurchaseCategory(id: '5', name: 'تغليف'),
+      ];
+    }
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => PurchaseCategory.fromMap(m)).toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+  }
+
+  Future<void> addPurchaseCategory(PurchaseCategory category) async {
+    final categories = await getPurchaseCategories();
+    categories.add(category);
+    await _savePurchaseCategories(categories);
+  }
+
+  Future<void> updatePurchaseCategory(PurchaseCategory updated) async {
+    final categories = await getPurchaseCategories();
+    final index = categories.indexWhere((c) => c.id == updated.id);
+    if (index != -1) {
+      categories[index] = updated;
+      await _savePurchaseCategories(categories);
+    }
+  }
+
+  Future<void> deletePurchaseCategory(String id) async {
+    final categories = await getPurchaseCategories();
+    categories.removeWhere((c) => c.id == id);
+    await _savePurchaseCategories(categories);
+  }
+
+  Future<File> _getPurchaseCategoriesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/purchase_categories.json');
+  }
+
+  Future<void> _savePurchaseCategories(List<PurchaseCategory> categories) async {
+    final file = await _getPurchaseCategoriesFile();
+    final data = categories.map((c) => c.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // ==================== EXPENSE TYPES ====================
+
+  Future<List<ExpenseType>> getExpenseTypes() async {
+    final file = await _getExpenseTypesFile();
+    if (!await file.exists()) {
+      return [
+        ExpenseType(id: '1', name: 'فاتورة كهرباء'),
+        ExpenseType(id: '2', name: 'إيجار'),
+        ExpenseType(id: '3', name: 'وقود'),
+        ExpenseType(id: '4', name: 'صيانة'),
+        ExpenseType(id: '5', name: 'قطع غيار'),
+      ];
+    }
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => ExpenseType.fromMap(m)).toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+  }
+
+  Future<void> addExpenseType(ExpenseType type) async {
+    final types = await getExpenseTypes();
+    types.add(type);
+    await _saveExpenseTypes(types);
+  }
+
+  Future<void> updateExpenseType(ExpenseType updated) async {
+    final types = await getExpenseTypes();
+    final index = types.indexWhere((t) => t.id == updated.id);
+    if (index != -1) {
+      types[index] = updated;
+      await _saveExpenseTypes(types);
+    }
+  }
+
+  Future<void> deleteExpenseType(String id) async {
+    final types = await getExpenseTypes();
+    types.removeWhere((t) => t.id == id);
+    await _saveExpenseTypes(types);
+  }
+
+  Future<File> _getExpenseTypesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/expense_types.json');
+  }
+
+  Future<void> _saveExpenseTypes(List<ExpenseType> types) async {
+    final file = await _getExpenseTypesFile();
+    final data = types.map((t) => t.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+
+
+
+  // ==================== EMPLOYEES ====================
+
+  Future<List<Employee>> getEmployees() async {
+    try {
+      final file = await _getEmployeesFile();
+      if (!await file.exists()) return [];
+
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+
+      final List<dynamic> data = decoded;
+      return data.map((m) => Employee.fromMap(m)).toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
+    } catch (e) {
+      debugPrint('Error loading employees: $e');
+      return [];
+    }
+  }
+
+  Future<void> addEmployee(Employee employee) async {
+    final employees = await getEmployees();
+    employees.add(employee);
+    await _saveEmployees(employees);
+  }
+
+  Future<void> updateEmployee(Employee updated) async {
+    final employees = await getEmployees();
+    final index = employees.indexWhere((e) => e.id == updated.id);
+    if (index != -1) {
+      employees[index] = updated;
+      await _saveEmployees(employees);
+    }
+  }
+
+  Future<void> deleteEmployee(String id) async {
+    final employees = await getEmployees();
+    employees.removeWhere((e) => e.id == id);
+    await _saveEmployees(employees);
+  }
+
+  Future<File> _getEmployeesFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/employees.json');
+  }
+
+  Future<void> _saveEmployees(List<Employee> employees) async {
+    final file = await _getEmployeesFile();
+    final data = employees.map((e) => e.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // Backup wrapper
+  Future<void> saveEmployees(List<Employee> employees) async {
+    await _saveEmployees(employees);
+  }
+
+
+  // ==================== SALARY TRANSACTIONS (WITHDRAW/DEDUCT) ====================
+
+  Future<List<SalaryTransaction>> getSalaryTransactions() async {
+    try {
+      final file = await _getSalaryTransactionsFile();
+      if (!await file.exists()) return [];
+
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+
+      final List<dynamic> data = decoded;
+      return data.map((m) => SalaryTransaction.fromMap(m)).toList()
+        ..sort((a, b) => b.date.compareTo(a.date));
+    } catch (e) {
+      debugPrint('Error loading salary transactions: $e');
+      return [];
+    }
+  }
+
+  Future<List<SalaryTransaction>> getEmployeeTransactions(String employeeId) async {
+    final all = await getSalaryTransactions();
+    return all.where((t) => t.employeeId == employeeId).toList();
+  }
+
+  Future<void> addSalaryTransaction(SalaryTransaction transaction) async {
+    final transactions = await getSalaryTransactions();
+    transactions.add(transaction);
+    await _saveSalaryTransactions(transactions);
+  }
+
+  Future<void> deleteSalaryTransaction(String id) async {
+    final transactions = await getSalaryTransactions();
+    transactions.removeWhere((t) => t.id == id);
+    await _saveSalaryTransactions(transactions);
+  }
+
+  Future<File> _getSalaryTransactionsFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/salary_transactions.json');
+  }
+
+  Future<void> _saveSalaryTransactions(List<SalaryTransaction> transactions) async {
+    final file = await _getSalaryTransactionsFile();
+    final data = transactions.map((t) => t.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // Backup wrapper
+  Future<void> saveSalaryTransactions(List<SalaryTransaction> transactions) async {
+    await _saveSalaryTransactions(transactions);
+  }
+
+  // ==================== INVENTORY - PAPER STOCK ====================
+
+  Future<List<PaperStock>> getPaperStock() async {
+    try {
+      final file = await _getPaperStockFile();
+      if (!await file.exists()) return [];
+
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return [];
+
+      final dynamic decoded = jsonDecode(content);
+      if (decoded is! List) return [];
+
+      final List<dynamic> data = decoded;
+      return data.map((m) => PaperStock.fromMap(m)).toList()
+        ..sort((a, b) => a.displayName.compareTo(b.displayName));
+    } catch (e) {
+      debugPrint('Error loading paper stock: $e');
+      return [];
+    }
+  }
+
+  Future<void> addPaperStock(PaperStock paper) async {
+    final papers = await getPaperStock();
+    papers.add(paper);
+    await _savePaperStock(papers);
+  }
+
+  Future<void> updatePaperStock(PaperStock updated) async {
+    final papers = await getPaperStock();
+    final index = papers.indexWhere((p) => p.id == updated.id);
+    if (index != -1) {
+      papers[index] = updated;
+      await _savePaperStock(papers);
+    }
+  }
+
+  Future<void> deletePaperStock(String id) async {
+    final papers = await getPaperStock();
+    papers.removeWhere((p) => p.id == id);
+    await _savePaperStock(papers);
+  }
+
+  Future<File> _getPaperStockFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/paper_stock.json');
+  }
+
+  Future<void> _savePaperStock(List<PaperStock> papers) async {
+    final file = await _getPaperStockFile();
+    final data = papers.map((p) => p.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // ==================== INVENTORY - INK STOCK ====================
+
+  Future<List<InkStock>> getInkStock() async {
+    final file = await _getInkStockFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => InkStock.fromMap(m)).toList()
+      ..sort((a, b) => a.displayName.compareTo(b.displayName));
+  }
+
+  Future<void> addInkStock(InkStock ink) async {
+    final inks = await getInkStock();
+    inks.add(ink);
+    await _saveInkStock(inks);
+  }
+
+  Future<void> updateInkStock(InkStock updated) async {
+    final inks = await getInkStock();
+    final index = inks.indexWhere((i) => i.id == updated.id);
+    if (index != -1) {
+      inks[index] = updated;
+      await _saveInkStock(inks);
+    }
+  }
+
+  Future<void> deleteInkStock(String id) async {
+    final inks = await getInkStock();
+    inks.removeWhere((i) => i.id == id);
+    await _saveInkStock(inks);
+  }
+
+  Future<File> _getInkStockFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/ink_stock.json');
+  }
+
+  Future<void> _saveInkStock(List<InkStock> inks) async {
+    final file = await _getInkStockFile();
+    final data = inks.map((i) => i.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // ==================== INVENTORY - SPARE PARTS ====================
+
+  Future<List<SparePart>> getSpareParts() async {
+    final file = await _getSparePartsFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => SparePart.fromMap(m)).toList()
+      ..sort((a, b) => a.partName.compareTo(b.partName));
+  }
+
+  Future<void> addSparePart(SparePart part) async {
+    final parts = await getSpareParts();
+    parts.add(part);
+    await _saveSpareParts(parts);
+  }
+
+  Future<void> updateSparePart(SparePart updated) async {
+    final parts = await getSpareParts();
+    final index = parts.indexWhere((p) => p.id == updated.id);
+    if (index != -1) {
+      parts[index] = updated;
+      await _saveSpareParts(parts);
+    }
+  }
+
+  Future<void> deleteSparePart(String id) async {
+    final parts = await getSpareParts();
+    parts.removeWhere((p) => p.id == id);
+    await _saveSpareParts(parts);
+  }
+
+  Future<File> _getSparePartsFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/spare_parts.json');
+  }
+
+  Future<void> _saveSpareParts(List<SparePart> parts) async {
+    final file = await _getSparePartsFile();
+    final data = parts.map((p) => p.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // ==================== INVENTORY SUMMARY ====================
+
+  Future<InventorySummary> getInventorySummary() async {
+    final papers = await getPaperStock();
+    final inks = await getInkStock();
+    final parts = await getSpareParts();
+
+    return InventorySummary(
+      totalPaperValue: papers.fold(0, (sum, p) => sum + p.totalValue),
+      totalInkValue: inks.fold(0, (sum, i) => sum + i.totalValue),
+      totalSparePartsValue: parts.fold(0, (sum, p) => sum + p.totalValue),
+      lowStockPaperCount: papers.where((p) => p.isLowStock).length,
+      lowStockInkCount: inks.where((i) => i.isLowStock).length,
+      lowStockSparePartsCount: parts.where((p) => p.isLowStock).length,
+    );
+  }
+
+  // ==================== JOB ORDERS ====================
+
+  Future<List<JobOrder>> getJobOrders({
+    String? status,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    final file = await _getJobOrdersFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    var orders = data.map((m) => JobOrder.fromMap(m)).toList()
+      ..sort((a, b) => b.orderDate.compareTo(a.orderDate));
+
+    if (status != null) {
+      orders = orders.where((o) => o.status == status).toList();
+    }
+    if (startDate != null) {
+      orders = orders.where((o) => o.orderDate.isAfter(startDate)).toList();
+    }
+    if (endDate != null) {
+      orders = orders.where((o) => o.orderDate.isBefore(endDate.add(const Duration(days: 1)))).toList();
+    }
+
+    return orders;
+  }
+
+  Future<void> addJobOrder(JobOrder order) async {
+    final orders = await getJobOrders();
+    orders.add(order);
+    await _saveJobOrders(orders);
+  }
+
+  Future<void> updateJobOrder(JobOrder updated) async {
+    final orders = await getJobOrders();
+    final index = orders.indexWhere((o) => o.id == updated.id);
+    if (index != -1) {
+      orders[index] = updated.copyWith(updatedAt: DateTime.now());
+      await _saveJobOrders(orders);
+    }
+  }
+
+  Future<void> deleteJobOrder(String id) async {
+    final orders = await getJobOrders();
+    orders.removeWhere((o) => o.id == id);
+    await _saveJobOrders(orders);
+  }
+
+  Future<JobOrderSummary> getJobOrderSummary({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    final orders = await getJobOrders(startDate: startDate, endDate: endDate);
+
+    final totalRevenue = orders.fold(0.0, (sum, o) => sum + o.pricing.totalPrice);
+    final totalCosts = orders.fold(0.0, (sum, o) => sum + o.totalCost);
+    final totalProfit = totalRevenue - totalCosts;
+    final avgMargin = orders.isNotEmpty
+        ? orders.fold(0.0, (sum, o) => sum + o.profitMargin) / orders.length
+        : 0.0;
+
+    return JobOrderSummary(
+      totalOrders: orders.length,
+      pendingOrders: orders.where((o) => o.status == 'pending').length,
+      completedOrders: orders.where((o) => o.status == 'completed').length,
+      deliveredOrders: orders.where((o) => o.status == 'delivered').length,
+      totalRevenue: totalRevenue,
+      totalCosts: totalCosts,
+      totalProfit: totalProfit,
+      averageProfitMargin: avgMargin,
+      urgentOrders: orders.where((o) => o.priority == 'urgent').length,
+    );
+  }
+
+  Future<File> _getJobOrdersFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/job_orders.json');
+  }
+
+  Future<void> _saveJobOrders(List<JobOrder> orders) async {
+    final file = await _getJobOrdersFile();
+    final data = orders.map((o) => o.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  // ==================== URGENT ORDERS ====================
+
+  Future<List<UrgentOrder>> getUrgentOrders() async {
+    final file = await _getUrgentOrdersFile();
+    if (!await file.exists()) return [];
+
+    final content = await file.readAsString();
+    final List<dynamic> data = jsonDecode(content);
+    return data.map((m) => UrgentOrder.fromMap(m)).toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+  }
+
+  Future<void> addUrgentOrder(UrgentOrder order) async {
+    final orders = await getUrgentOrders();
+    orders.add(order);
+    await _saveUrgentOrders(orders);
+  }
+
+  Future<void> updateUrgentOrder(UrgentOrder updated) async {
+    final orders = await getUrgentOrders();
+    final index = orders.indexWhere((o) => o.id == updated.id);
+    if (index != -1) {
+      orders[index] = updated;
+      await _saveUrgentOrders(orders);
+    }
+  }
+
+  Future<void> deleteUrgentOrder(String id) async {
+    final orders = await getUrgentOrders();
+    orders.removeWhere((o) => o.id == id);
+    await _saveUrgentOrders(orders);
+  }
+
+  Future<File> _getUrgentOrdersFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/urgent_orders.json');
+  }
+
+  Future<void> _saveUrgentOrders(List<UrgentOrder> orders) async {
+    final file = await _getUrgentOrdersFile();
+    final data = orders.map((o) => o.toMap()).toList();
+    await file.writeAsString(jsonEncode(data));
+  }
+
+  /// Public wrappers for backup service
+  Future<void> savePurchases(List<Purchase> purchases) async {
+    await _savePurchases(purchases);
+  }
+
+  Future<void> savePurchaseCategories(List<PurchaseCategory> categories) async {
+    await _savePurchaseCategories(categories);
+  }
+
+  Future<void> saveExpenseTypes(List<ExpenseType> types) async {
+    await _saveExpenseTypes(types);
+  }
+
+
+
+  Future<void> saveUrgentOrders(List<UrgentOrder> orders) async {
+    await _saveUrgentOrders(orders);
+  }
+
+
+
+  Future<void> savePaperStock(List<PaperStock> stock) async {
+    await _savePaperStock(stock);
+  }
+
+  Future<void> saveInkStock(List<InkStock> stock) async {
+    await _saveInkStock(stock);
+  }
+
+  // Backup restore helper for ObjectBox entities
+  Future<void> saveExpenses(List<Expense> expensesList) async {
+    for (var e in expensesList) {
+      // Reset ID to let ObjectBox assign a new one
+      e.id = 0; 
+      objectBox.expenseBox.put(e);
+    }
+    loading(); // Refresh lists
+  }
 }
+

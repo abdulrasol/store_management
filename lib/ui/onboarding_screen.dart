@@ -18,8 +18,8 @@ class OnboardingScreen extends StatefulWidget {
 class OnboardingScreenState extends State<OnboardingScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _storeNameController = TextEditingController();
-  final TextEditingController _currencyNameController = TextEditingController();
-  final TextEditingController _currencySymbolController = TextEditingController();
+  final TextEditingController _currencyNameController = TextEditingController(text: 'UAE Dirham');
+  final TextEditingController _currencySymbolController = TextEditingController(text: 'AED');
   int decimalDigits = 0;
   String? logoString;
   bool appPolicyArgument = false;
@@ -144,62 +144,6 @@ class OnboardingScreenState extends State<OnboardingScreen> {
                                 DropdownMenuItem<String>(
                                   value: 'en',
                                   child: Text('English'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'fa',
-                                  child: Text('فارسى'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'tr',
-                                  child: Text('Türkçe'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'zh',
-                                  child: Text('简体中文'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'es',
-                                  child: Text('Español'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'fr',
-                                  child: Text('Français'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'de',
-                                  child: Text('Deutsch'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'ru',
-                                  child: Text('Русский'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'pt',
-                                  child: Text('Português'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'hi',
-                                  child: Text('हिन्दी'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'id',
-                                  child: Text('Indonesia'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'it',
-                                  child: Text('Italiano'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'th',
-                                  child: Text('ไทย'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'pl',
-                                  child: Text('Polski'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'ro',
-                                  child: Text('Română'),
                                 ),
                               ],
                               onChanged: (String? value) async {

@@ -19,3 +19,27 @@ class Expense {
     return '${s[0].substring(0, 10)}, ${s[1].substring(0, 5)}';
   }
 }
+
+class ExpenseType {
+  final String id;
+  final String name;
+
+  ExpenseType({
+    required this.id,
+    required this.name,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+    };
+  }
+
+  factory ExpenseType.fromMap(Map<String, dynamic> map) {
+    return ExpenseType(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+    );
+  }
+}

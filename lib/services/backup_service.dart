@@ -1,111 +1,209 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:path/path.dart' as p;
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:store_management/controllers/database_controller.dart';
+import 'package:store_management/controllers/settings_controller.dart';
+import 'package:store_management/models/customer.dart';
+import 'package:store_management/models/expense.dart';
+import 'package:store_management/models/inventory.dart';
+import 'package:store_management/models/invoice.dart';
+import 'package:store_management/models/purchase.dart';
+
+import 'package:store_management/models/urgent_order.dart';
 
 class BackupService {
-  final DatabaseController dbController = Get.find<DatabaseController>();
+  final DatabaseController _db = Get.find<DatabaseController>();
+
+  Future<Map<String, dynamic>> _collectAllData() async {
+    return {
+      'metadata': {
+        'version': '1.0',
+        'createdAt': DateTime.now().toIso8601String(),
+        'appName': 'Store Management',
+      },
+      'purchases': (await _db.getPurchases()).map((e) => e.toMap()).toList(),
+      'purchaseCategories': (await _db.getPurchaseCategories()).map((e) => e.toMap()).toList(),
+      'expenses': _db.expenses.map((e) => {
+        'description': e.description,
+        'amount': e.amount,
+        'date': e.date.toIso8601String(),
+      }).toList(),
+      'expenseTypes': (await _db.getExpenseTypes()).map((e) => e.toMap()).toList(),
+
+      'urgentOrders': await _db.getUrgentOrders().then((list) => list.map((e) => e.toMap()).toList()),
+      'paperStock': (await _db.getPaperStock()).map((e) => e.toMap()).toList(),
+      'inkStock': (await _db.getInkStock()).map((e) => e.toMap()).toList(),
+      // Add other models as needed (invoices, items, etc. if they are in JSON)
+    };
+  }
 
   Future<void> createBackup() async {
     try {
-      // 1. Get DB Directory from the active store
-      final dbPath = dbController.objectBox.store.directoryPath;
-      debugPrint('Backup Debug: Store directory path: $dbPath');
+      Get.dialog(
+        const Center(child: CircularProgressIndicator()),
+        barrierDismissible: false,
+      );
 
-      final dbFile = File(p.join(dbPath, 'data.mdb'));
+      final data = await _collectAllData();
+      final jsonString = jsonEncode(data);
+      
+      final dateStr = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+      final fileName = 'store_backup_$dateStr.json';
+      
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/$fileName');
+      await file.writeAsString(jsonString);
 
-      if (!await dbFile.exists()) {
-        Get.snackbar('Error', 'Database file not found at $dbPath');
-        return;
-      }
+      Get.back(); // Close loading
 
-      // 2. Create Temp Copy with new name
-      final tempDir = await getTemporaryDirectory();
-      final backupFileName = 'store_backup_${DateTime.now().toIso8601String().split('T')[0]}.mdb';
-      final backupPath = p.join(tempDir.path, backupFileName);
-
-      debugPrint('Backup Debug: Copying DB to $backupPath');
-
-      // Copying the file is sufficient (and safer than zipping seemingly)
-      await dbFile.copy(backupPath);
-      final backupFile = File(backupPath);
-
-      final fileSize = await backupFile.length();
-      debugPrint('Backup Debug: Backup file created. Size: $fileSize bytes');
-
-      // 3. Share
-      await Share.shareXFiles([XFile(backupPath)], text: 'Store Management Backup');
+      await Share.shareXFiles([XFile(file.path)], text: 'نسخة احتياطية - $dateStr');
+      
     } catch (e) {
-      Get.snackbar('Error', 'Backup failed: $e');
-      debugPrint('Backup Error: $e');
+      Get.back(); // Close loading if error
+      Get.snackbar(
+        'خطأ'.tr,
+        'فشل إنشاء النسخة الاحتياطية: $e'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
   Future<void> restoreBackup() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['mdb', 'zip'],
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = File(result.files.single.path!);
+      final content = await file.readAsString();
+      final Map<String, dynamic> data = jsonDecode(content);
+
+      Get.dialog(
+        AlertDialog(
+          title: Text('تأكيد الاستعادة'.tr),
+          content: Text('سيتم استبدال البيانات الحالية بالبيانات الموجودة في ملف النسخ الاحتياطي. هل أنت متأكد؟'.tr),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text('إلغاء'.tr),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Get.back();
+                _processRestore(data);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text('استعادة'.tr),
+            ),
+          ],
+        ),
+      );
+
+    } catch (e) {
+      Get.snackbar(
+        'خطأ'.tr,
+        'ملف غير صالح أو تالف'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> _processRestore(Map<String, dynamic> data) async {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
     );
 
-    if (result == null) return;
-
-    File pickedFile = File(result.files.single.path!);
-    String extension = p.extension(pickedFile.path).toLowerCase();
-
-    // 2. Confirm Update
-    bool? confirm = await Get.dialog<bool>(AlertDialog(
-      title: const Text('Restore Backup'),
-      content: const Text('This will overwrite your current data. Are you sure? App will restart.'),
-      actions: [
-        TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
-        TextButton(onPressed: () => Get.back(result: true), child: const Text('Restore', style: TextStyle(color: Colors.red))),
-      ],
-    ));
-
-    if (confirm != true) return;
-
     try {
-      // 3. Capture current DB path BEFORE closing
-      final dbPath = dbController.objectBox.store.directoryPath;
-
-      // 4. Close DB
-      dbController.objectBox.store.close();
-
-      // 5. Restore
-      if (extension == '.zip') {
-        final bytes = await pickedFile.readAsBytes();
-        final archive = ZipDecoder().decodeBytes(bytes);
-
-        for (final file in archive) {
-          final filename = file.name;
-          if (file.isFile && filename.endsWith('data.mdb')) {
-            final data = file.content as List<int>;
-            File(p.join(dbPath, 'data.mdb'))
-              ..createSync(recursive: true)
-              ..writeAsBytesSync(data);
-          }
-        }
-      } else {
-        // Assume .mdb file
-        debugPrint('Restore Debug: Copying mdb file to $dbPath/data.mdb');
-        await pickedFile.copy(p.join(dbPath, 'data.mdb'));
+      // 1. Purchases
+      if (data.containsKey('purchases')) {
+        final List<dynamic> list = data['purchases'];
+        final items = list.map((e) => Purchase.fromMap(e)).toList();
+        await _db.savePurchases(items);
       }
 
-      // 6. Restart Helper
-      await Get.defaultDialog(
-        title: 'Success',
-        middleText: 'Backup restored successfully. Please restart the app.',
-        barrierDismissible: false,
-        confirm: ElevatedButton(onPressed: () => exit(0), child: const Text('Exit App')),
+      // 2. Purchase Categories
+      if (data.containsKey('purchaseCategories')) {
+        final List<dynamic> list = data['purchaseCategories'];
+        final items = list.map((e) => PurchaseCategory.fromMap(e)).toList();
+        await _db.savePurchaseCategories(items);
+      }
+
+
+
+      // 6. Expenses
+      if (data.containsKey('expenses')) {
+        final List<dynamic> list = data['expenses'];
+        final items = list.map((e) => Expense(
+          description: e['description'],
+          amount: (e['amount'] as num).toDouble(),
+          date: DateTime.parse(e['date']),
+        )).toList();
+        await _db.saveExpenses(items);
+      }
+
+      // 7. Expense Types
+      if (data.containsKey('expenseTypes')) {
+        final List<dynamic> list = data['expenseTypes'];
+        final items = list.map((e) => ExpenseType.fromMap(e)).toList();
+        await _db.saveExpenseTypes(items);
+      }
+
+      // 7. Urgent Orders
+      if (data.containsKey('urgentOrders')) {
+        final List<dynamic> list = data['urgentOrders'];
+        final items = list.map((e) => UrgentOrder.fromMap(e)).toList();
+        await _db.saveUrgentOrders(items);
+      }
+      
+      // 8. Paper Stock
+      if (data.containsKey('paperStock')) {
+        final List<dynamic> list = data['paperStock'];
+        final items = list.map((e) => PaperStock.fromMap(e)).toList();
+        await _db.savePaperStock(items);
+      }
+      
+      // 9. Ink Stock
+      if (data.containsKey('inkStock')) {
+        final List<dynamic> list = data['inkStock'];
+        final items = list.map((e) => InkStock.fromMap(e)).toList();
+        await _db.saveInkStock(items);
+      }
+
+      // Note: ObjectBox data (Invoices, Items) handle separately if needed
+      // Currently focusing on JSON-based data as requested for "All in one JSON" models
+
+      Get.back(); // Close loading
+      
+      // Refresh Data
+      _db.loading(); 
+      Get.find<SettingsController>().update(); // Refresh UI if listening
+
+      Get.snackbar(
+        'نجاح'.tr,
+        'تم استعادة البيانات بنجاح'.tr,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
+
     } catch (e) {
-      Get.snackbar('Error', 'Restore failed: $e');
-      debugPrint('Restore Error: $e');
+      Get.back();
+      Get.snackbar(
+        'خطأ'.tr,
+        'فشل الاستعادة: $e'.tr,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 }

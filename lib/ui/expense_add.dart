@@ -23,6 +23,23 @@ class _ExpenseAddState extends State<ExpenseAdd> {
   DatabaseController databaseController = Get.find();
   SettingsController settingsController = Get.find();
   DateTime? picker = DateTime.now();
+  String selectedExpenseType = '';
+  List<String> expenseTypes = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExpenseTypes();
+  }
+
+  Future<void> _loadExpenseTypes() async {
+    final types = await databaseController.getExpenseTypes();
+    setState(() {
+      expenseTypes = types.map((t) => t.name).toList();
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +47,9 @@ class _ExpenseAddState extends State<ExpenseAdd> {
       appBar: AppBar(
         title: Text('New Expense'.tr),
       ),
-      body: Form(
+      body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Form(
         key: formKey,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -38,35 +57,38 @@ class _ExpenseAddState extends State<ExpenseAdd> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verSpace,
-
-              //   },
-              //   suggestionsCallback: (text) {
-              //     List<Customer> customers = [];
-              //     customers = [
-              //       ...databaseController.custormers,
-              //       ...databaseController.suppliers
-              //     ];
-              //     return customers.where((custormer) {
-              //       return custormer.name
-              //           .toLowerCase()
-              //           .contains(text.toLowerCase());
-              //     }).toList();
-              //   },
-              //   emptyBuilder: (context) {
-              //     return ListTile(
-              //       title: Text(
-              //           'no customer found click to add ${customerNameControll.text}'),
-              //       onTap: () async {
-              //         customer = await Get.to(() => CustomerAdd(),
-              //             arguments: customerNameControll.text);
-              //         customerNameControll.text = customer?.name ?? '';
-              //       },
-              //     );
-              //   },
-              // ),
-              // verSpace,
+              // قائمة أنواع المصروفات
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      hint: Text('Expense Type'.tr),
+                      value: selectedExpenseType.isEmpty ? null : selectedExpenseType,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedExpenseType = newValue!;
+                        });
+                      },
+                      items: expenseTypes.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value.tr),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+              verSpace,
               TextFormField(
                 controller: amountControll,
+                style: const TextStyle(fontSize: 12),
                 decoration: inputDecoration.copyWith(
                   hintText: 'Expense Amount'.tr,
                 ),
@@ -92,7 +114,7 @@ class _ExpenseAddState extends State<ExpenseAdd> {
                 scrollPhysics: AlwaysScrollableScrollPhysics(),
 
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   height: 1.5,
                 ),
               ),
