@@ -77,15 +77,15 @@ class _EmployeesReportPageState extends State<EmployeesReportPage> {
 
       double withdrawals = transactions
           .where((t) => t.type == 'withdraw')
-          .fold(0, (sum, t) => sum + t.amount);
+          .fold(0.0, (sum, t) => sum + t.amount);
 
       double bonuses = transactions
           .where((t) => t.type == 'bonus')
-          .fold(0, (sum, t) => sum + t.amount);
+          .fold(0.0, (sum, t) => sum + t.amount);
 
       double deductions = transactions
           .where((t) => t.type == 'deduction')
-          .fold(0, (sum, t) => sum + t.amount);
+          .fold(0.0, (sum, t) => sum + t.amount);
 
       double netSalary = employee.salary + bonuses - withdrawals - deductions;
       double remainingFromBase = employee.salary - withdrawals;

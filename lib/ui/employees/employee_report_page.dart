@@ -64,15 +64,15 @@ class _EmployeeReportPageState extends State<EmployeeReportPage> {
 
       totalWithdrawals = transactions
           .where((t) => t.type == 'withdraw')
-          .fold(0, (sum, t) => sum + t.amount);
+          .fold(0.0, (sum, t) => sum + t.amount);
 
       totalDeductions = transactions
           .where((t) => t.type == 'deduction')
-          .fold(0, (sum, t) => sum + t.amount);
+          .fold(0.0, (sum, t) => sum + t.amount);
 
       totalBonuses = transactions
           .where((t) => t.type == 'bonus')
-          .fold(0, (sum, t) => sum + t.amount);
+          .fold(0.0, (sum, t) => sum + t.amount);
 
       netSalary = totalSalary + totalBonuses - totalWithdrawals - totalDeductions;
       remainingFromBase = totalSalary - totalWithdrawals;

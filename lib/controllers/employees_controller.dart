@@ -47,13 +47,15 @@ class EmployeesController extends GetxController {
     }
   }
 
-  Future<void> addEmployee(Employee emp) async {
+  Future<bool> addEmployee(Employee emp) async {
     isLoading.value = true;
     try {
       await databaseController.addEmployee(emp);
       await loadEmployees();
+      return true;
     } catch (e) {
       Get.snackbar('Error'.tr, 'Failed to add employee'.tr);
+      return false;
     } finally {
       isLoading.value = false;
     }
@@ -88,15 +90,17 @@ class EmployeesController extends GetxController {
     }
   }
 
-  Future<void> addTransaction(SalaryTransaction transaction) async {
+  Future<bool> addTransaction(SalaryTransaction transaction) async {
     try {
       await databaseController.addSalaryTransaction(transaction);
       // Refresh transactions list if currently viewing that employee
       await loadEmployeeTransactions(transaction.employeeId);
       Get.back();
       Get.snackbar('Success'.tr, 'Transaction added successfully'.tr, backgroundColor: Colors.green, colorText: Colors.white);
+      return true;
     } catch (e) {
       Get.snackbar('Error'.tr, 'Failed to add transaction'.tr, backgroundColor: Colors.red, colorText: Colors.white);
+      return false;
     }
   }
 
