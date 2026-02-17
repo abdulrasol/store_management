@@ -6,6 +6,7 @@ final Map<String, String> ar = {
   'Transactions': 'المعاملات',
   'Expenses': 'المصروفات',
   'customers': 'العملاء',
+  'Employees': 'الموظفين',
   'Profits': 'الأرباح',
   'Suppliers': 'الموردين',
   'Vouchers': 'سندات القبض والصرف',
