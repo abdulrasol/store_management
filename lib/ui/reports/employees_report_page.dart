@@ -608,7 +608,7 @@ class _EmployeesReportPageState extends State<EmployeesReportPage> {
     final deductions = summary['deductions'] as double;
     final transactionCount = summary['transactionCount'] as int;
 
-    final progress = employee.salary > 0 ? withdrawals / employee.salary : 0;
+    final progress = employee.salary > 0 ? (withdrawals / employee.salary).toDouble() : 0.0;
 
     Color statusColor;
     IconData statusIcon;

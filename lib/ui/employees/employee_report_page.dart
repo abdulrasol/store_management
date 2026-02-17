@@ -81,7 +81,7 @@ class _EmployeeReportPageState extends State<EmployeeReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    final progress = totalSalary > 0 ? totalWithdrawals / totalSalary : 0;
+    final progress = totalSalary > 0 ? (totalWithdrawals / totalSalary).toDouble() : 0.0;
 
     return Scaffold(
       appBar: AppBar(
