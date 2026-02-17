@@ -18,6 +18,8 @@ final Map<String, String> ar = {
   'Items less 5 in stocks': 'منتجات أقل من 5 في المخزون',
   'Total Amount of Outstanding Debt': 'الديون المستحقة',
   'Debts': 'الديون',
+  'Supplier Debts': 'ديون الموردين',
+  'unpaid purchases': 'مشتريات غير مدفوعة',
   'Full Analytics': 'تحليلات شاملة',
   'Performance': 'الأداء',
   'Analytics Dashboard': 'لوحة التحليلات',

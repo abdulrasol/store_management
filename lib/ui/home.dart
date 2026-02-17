@@ -33,6 +33,8 @@ class _HomeState extends State<Home> {
   final RxString _chartType = 'expenses'.obs;
 
   final Rx<double> _purchasesTotal = 0.0.obs;
+  final Rx<double> _supplierDebtTotal = 0.0.obs;
+  final Rx<int> _unpaidPurchasesCount = 0.obs;
 
   @override
   void initState() {
@@ -49,6 +51,11 @@ class _HomeState extends State<Home> {
     final range = _getDateRange(_summaryPeriod.value);
     final pTotal = await databaseController.getPurchasesTotal(range.$1, range.$2);
     _purchasesTotal.value = pTotal;
+    final supplierDebt = await databaseController.getSupplierDebt();
+    final purchases = await databaseController.getPurchases();
+    final unpaidCount = purchases.where((p) => p.paymentStatus != 'paid').length;
+    _supplierDebtTotal.value = supplierDebt;
+    _unpaidPurchasesCount.value = unpaidCount;
   }
 
   (DateTime, DateTime) _getDateRange(String period) {
@@ -200,69 +207,82 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildFinancialOverview(BuildContext context) {
-    double cardWidth = MediaQuery.of(context).size.width / 2 - 24;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = constraints.maxWidth;
+        final isSmallScreen = screenWidth < 360;
+        final isTablet = screenWidth > 600;
+        final cardWidth = screenWidth / 2 - 12;
+        final fontSize = isSmallScreen ? 11.0 : 12.0;
+        final valueFontSize = isSmallScreen ? 13.0 : 14.0;
 
-    return Obx(() {
-      final range = _getDateRange(_summaryPeriod.value);
-      final expenses = databaseController.getExpenses(range.$1, range.$2);
-      final purchases = _purchasesTotal.value;
-      final totalSpending = expenses + purchases;
+        return Obx(() {
+          final range = _getDateRange(_summaryPeriod.value);
+          final expenses = databaseController.getExpenses(range.$1, range.$2);
+          final purchases = _purchasesTotal.value;
+          final totalSpending = expenses + purchases;
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildMainCard(
-            context,
-            title: 'Total Spending'.tr,
-            value: settingsController.currencyFormatter(totalSpending),
-            icon: Icons.account_balance_wallet,
-            gradient: [Colors.blue.shade700, Colors.blue.shade900],
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _statCard(
-                onTap: () => Get.to(() => const PurchasesPage()),
-                title: 'Purchases'.tr,
-                icon: Icons.shopping_cart,
-                color: Colors.indigo,
-                value: Text(
-                  settingsController.currencyFormatter(purchases),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                width: cardWidth,
+              _buildMainCard(
+                context,
+                title: 'Total Spending'.tr,
+                value: settingsController.currencyFormatter(totalSpending),
+                icon: Icons.account_balance_wallet,
+                gradient: [Colors.blue.shade700, Colors.blue.shade900],
               ),
-              _statCard(
-                onTap: () => Get.to(() => ExpensesPage()),
-                title: 'Expenses'.tr,
-                icon: Icons.receipt_long,
-                color: Colors.orange,
-                value: Text(
-                  settingsController.currencyFormatter(expenses),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                width: cardWidth,
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _statCard(
+                    onTap: () => Get.to(() => const PurchasesPage()),
+                    title: 'Purchases'.tr,
+                    icon: Icons.shopping_cart,
+                    color: Colors.indigo,
+                    value: Text(
+                      settingsController.currencyFormatter(purchases),
+                      style: TextStyle(fontSize: valueFontSize, fontWeight: FontWeight.bold),
+                    ),
+                    width: cardWidth,
+                  ),
+                  _statCard(
+                    onTap: () => Get.to(() => ExpensesPage()),
+                    title: 'Expenses'.tr,
+                    icon: Icons.receipt_long,
+                    color: Colors.orange,
+                    value: Text(
+                      settingsController.currencyFormatter(expenses),
+                      style: TextStyle(fontSize: valueFontSize, fontWeight: FontWeight.bold),
+                    ),
+                    width: cardWidth,
+                  ),
+                  _statCard(
+                    onTap: () => Get.to(() => const PurchasesPage()),
+                    title: 'Supplier Debts'.tr,
+                    icon: Icons.money_off,
+                    color: Colors.red,
+                    value: Text(
+                      settingsController.currencyFormatter(_supplierDebtTotal.value),
+                      style: TextStyle(fontSize: valueFontSize, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      '${_unpaidPurchasesCount.value} unpaid purchases'.tr,
+                      style: TextStyle(fontSize: fontSize - 1, color: Colors.white70),
+                    ),
+                    width: cardWidth,
+                  ),
+                ],
               ),
-              _statCard(
-                onTap: () => Get.to(() => SupplierPage()),
-                title: 'Debts'.tr,
-                icon: Icons.money_off,
-                color: Colors.red,
-                value: Text(
-                  settingsController.currencyFormatter(databaseController.customerDebt()),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                width: cardWidth,
-              ),
+              const SizedBox(height: 12),
+              _buildBreakdownBar(context, purchases, expenses, totalSpending),
             ],
-          ),
-          const SizedBox(height: 12),
-          _buildBreakdownBar(context, purchases, expenses, totalSpending),
-        ],
-      );
-    });
+          );
+        });
+      },
+    );
   }
 
   Widget _buildBreakdownBar(BuildContext context, double purchases, double expenses, double total) {
@@ -358,6 +378,7 @@ class _HomeState extends State<Home> {
     required Color color,
     required Widget value,
     required double width,
+    Widget? subtitle,
     void Function()? onTap,
   }) {
     return InkWell(
@@ -385,6 +406,10 @@ class _HomeState extends State<Home> {
             Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12)),
             const SizedBox(height: 4),
             value,
+            if (subtitle != null) ...[
+              const SizedBox(height: 2),
+              subtitle,
+            ],
           ],
         ),
       ),

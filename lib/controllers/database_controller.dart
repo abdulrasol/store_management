@@ -670,6 +670,18 @@ class DatabaseController extends GetxController {
     await _savePurchases(purchases);
   }
 
+  Future<double> getUnpaidPurchasesTotal() async {
+    final purchases = await getPurchases();
+    final unpaidPurchases = purchases.where((p) => p.paymentStatus != 'paid').toList();
+    return unpaidPurchases.fold<double>(0, (sum, p) => sum + p.totalAmount);
+  }
+
+  Future<double> getSupplierDebt() async {
+    final customerDebt = customerDebt();
+    final unpaidPurchases = await getUnpaidPurchasesTotal();
+    return customerDebt + unpaidPurchases;
+  }
+
   Future<File> _getPurchasesFile() async {
     final dir = await getApplicationDocumentsDirectory();
     return File('${dir.path}/purchases.json');

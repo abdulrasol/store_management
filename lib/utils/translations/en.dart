@@ -38,6 +38,8 @@ final Map<String, String> en = {
   'Items less 5 in stocks': 'Items Less Than 5 in Stock',
   'Total Amount of Outstanding Debt': 'Debts',
   'Debts': 'Debts',
+  'Supplier Debts': 'Supplier Debts',
+  'unpaid purchases': 'unpaid purchases',
   'Full Analytics': 'Full Analytics',
   'Performance': 'Performance',
   'Analytics Dashboard': 'Analytics Dashboard',
