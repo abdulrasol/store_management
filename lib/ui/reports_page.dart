@@ -632,10 +632,9 @@ class _ReportsPageState extends State<ReportsPage> {
             pw.Table.fromTextArray(
               headers: ['item'.tr, 'value'.tr, 'count'.tr],
               data: [
-                ['sales'.tr, settingsController.currencyFormatter(totalSales), totalInvoices.toString()],
                 ['purchases'.tr, settingsController.currencyFormatter(totalPurchases), totalPurchasesCount.toString()],
                 ['expenses'.tr, settingsController.currencyFormatter(totalExpenses), totalExpensesCount.toString()],
-                ['net_profit'.tr, settingsController.currencyFormatter(netProfit), ''],
+                ['total'.tr, settingsController.currencyFormatter(totalPurchases + totalExpenses), (totalPurchasesCount + totalExpensesCount).toString()],
               ],
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
               headerDecoration: const pw.BoxDecoration(color: PdfColors.blue700),
