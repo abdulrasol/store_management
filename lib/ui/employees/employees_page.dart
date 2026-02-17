@@ -7,7 +7,6 @@ import 'package:store_management/models/employee.dart';
 import 'package:store_management/models/salary_transaction.dart';
 import 'package:store_management/ui/employees/employee_report_page.dart';
 import 'package:store_management/ui/reports/employees_report_page.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class EmployeesPage extends StatefulWidget {
   const EmployeesPage({super.key});
