@@ -281,7 +281,7 @@ class _EmployeesReportPageState extends State<EmployeesReportPage> {
 
   Widget _buildWithdrawalsStatusCard() {
     final remaining = totalBaseSalaries - totalWithdrawals;
-    final progress = totalBaseSalaries > 0 ? totalWithdrawals / totalBaseSalaries : 0;
+    final progress = totalBaseSalaries > 0 ? (totalWithdrawals / totalBaseSalaries).toDouble() : 0.0;
 
     return Card(
       elevation: 0,
