@@ -490,6 +490,12 @@ final Map<String, String> ar = {
   'unpaid': 'غير مسددة',
   'request_date': 'تاريخ الطلب',
   // ===== Backup & Restore =====
+  'invoice_to': 'فاتورة إلى',
+  'purchase_receipt': 'إيصال شراء',
+  'receipt_number': 'رقم الإيصال',
+  'app_lang': 'لغة التطبيق',
+  'app_theme': 'سمة التطبيق',
+  'select_date': 'اختر التاريخ',
   'data_management': 'إدارة البيانات',
   'backup_restore': 'النسخ الاحتياطي والاستعادة',
   'save_restore_app_data': 'حفظ واستعادة بيانات التطبيق',

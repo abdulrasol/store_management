@@ -120,7 +120,7 @@ class OnboardingScreenState extends State<OnboardingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'App Language'.tr,
+                              'app_lang'.tr,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -130,7 +130,7 @@ class OnboardingScreenState extends State<OnboardingScreen> {
                             DropdownButtonFormField<String>(
                               initialValue: Get.locale?.languageCode ?? 'en',
                               decoration: InputDecoration(
-                                labelText: 'App Language'.tr,
+                                labelText: 'app_lang'.tr,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),

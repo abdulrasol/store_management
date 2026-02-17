@@ -344,7 +344,7 @@ class StoreSettingsState extends State<StoreSettings> {
                               DropdownButtonFormField<ThemeMode>(
                                 initialValue: Get.isDarkMode ? ThemeMode.dark : ThemeMode.light,
                                 decoration: InputDecoration(
-                                  labelText: 'App Theme'.tr,
+                                  labelText: 'app_theme'.tr,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -375,7 +375,7 @@ class StoreSettingsState extends State<StoreSettings> {
                               DropdownButtonFormField<String>(
                                 initialValue: Get.locale?.languageCode ?? '',
                                 decoration: InputDecoration(
-                                  labelText: 'App Language'.tr,
+                                  labelText: 'app_lang'.tr,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -510,7 +510,7 @@ class StoreSettingsState extends State<StoreSettings> {
                               const SizedBox(height: 16),
                               ListTile(
                                 leading: const Icon(Icons.category, color: Colors.blue),
-                                title: Text('فئات المشتريات'.tr),
+                                title: Text('purchase_categories'.tr),
                                 subtitle: Text('إدارة قائمة فئات المشتريات'.tr),
                                 trailing: const Icon(Icons.arrow_forward_ios),
                                 onTap: () => _showPurchaseCategoriesDialog(),
@@ -518,7 +518,7 @@ class StoreSettingsState extends State<StoreSettings> {
                               const Divider(),
                               ListTile(
                                 leading: const Icon(Icons.receipt_long, color: Colors.orange),
-                                title: Text('أنواع المصروفات'.tr),
+                                title: Text('expense_types'.tr),
                                 subtitle: Text('إدارة قائمة أنواع المصروفات'.tr),
                                 trailing: const Icon(Icons.arrow_forward_ios),
                                 onTap: () => _showExpenseTypesDialog(),
@@ -558,21 +558,21 @@ class StoreSettingsState extends State<StoreSettings> {
                               const SizedBox(height: 16),
                               ListTile(
                                 leading: const Icon(Icons.category, color: Colors.blue),
-                                title: Text('فئات المشتريات'.tr),
+                                title: Text('purchase_categories'.tr),
                                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                                 onTap: _showPurchaseCategoriesDialog,
                               ),
                               const Divider(),
                               ListTile(
                                 leading: const Icon(Icons.money_off, color: Colors.orange),
-                                title: Text('أنواع المصروفات'.tr),
+                                title: Text('expense_types'.tr),
                                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                                 onTap: _showExpenseTypesDialog,
                               ),
                               const Divider(),
                               ListTile(
                                 leading: const Icon(Icons.backup, color: Colors.green),
-                                title: Text('النسخ الاحتياطي والاستعادة'.tr),
+                                title: Text('backup_restore'.tr),
                                 subtitle: Text('حفظ واستعادة بيانات التطبيق'.tr),
                                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                                 onTap: _showBackupDialog,
