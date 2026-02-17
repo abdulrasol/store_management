@@ -60,6 +60,8 @@ class _EditItemState extends State<EditItem> {
                   label: Text('Buy Price'.tr),
                 ),
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 validator: Validatorless.multiple([
                   Validatorless.required('required'.tr),
                   Validatorless.number('number'.tr),
@@ -72,6 +74,8 @@ class _EditItemState extends State<EditItem> {
                   label: Text('Sell Price'.tr),
                 ),
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 validator: Validatorless.multiple([
                   Validatorless.required('required'.tr),
                   Validatorless.number('number'.tr),
@@ -84,6 +88,8 @@ class _EditItemState extends State<EditItem> {
                   label: Text('quantity'.tr),
                 ),
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 validator: Validatorless.multiple([
                   Validatorless.required('required'.tr),
                   Validatorless.number('number'.tr),

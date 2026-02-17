@@ -260,6 +260,8 @@ class _UrgentOrdersPageState extends State<UrgentOrdersPage> {
                         border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'مطلوب'.tr;

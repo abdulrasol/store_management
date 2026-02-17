@@ -93,6 +93,7 @@ class _ExpenseAddState extends State<ExpenseAdd> {
                   hintText: 'Expense Amount'.tr,
                 ),
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 validator: Validatorless.multiple([
                   Validatorless.required('required'.tr),
                   Validatorless.number('number'.tr),

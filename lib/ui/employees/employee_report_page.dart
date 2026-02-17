@@ -879,6 +879,8 @@ class _EmployeeReportPageState extends State<EmployeeReportPage> {
               TextField(
                 controller: amountCtrl,
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 style: const TextStyle(fontSize: 16),
                 decoration: InputDecoration(
                   labelText: 'amount'.tr,
@@ -1062,9 +1064,9 @@ class _EmployeeReportPageState extends State<EmployeeReportPage> {
                 ['deductions'.tr, settingsController.currencyFormatter(totalDeductions)],
                 ['net_salary'.tr, settingsController.currencyFormatter(netSalary)],
               ],
-              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+              headerStyle: pw.TextStyle(font: ttfBold, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
               headerDecoration: const pw.BoxDecoration(color: PdfColors.teal),
-              cellAlignment: pw.Alignment.centerRight,
+              cellAlignment: pw.Alignment.center,
             ),
 
             pw.SizedBox(height: 20),
@@ -1085,9 +1087,9 @@ class _EmployeeReportPageState extends State<EmployeeReportPage> {
                   t.notes ?? '',
                 ];
               }).toList(),
-              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              cellAlignment: pw.Alignment.centerRight,
-              cellStyle: const pw.TextStyle(fontSize: 9),
+              headerStyle: pw.TextStyle(font: ttfBold, fontWeight: pw.FontWeight.bold),
+              cellAlignment: pw.Alignment.center,
+              cellStyle: pw.TextStyle(font: ttfBold, fontSize: 14),
             ),
           ],
         ),

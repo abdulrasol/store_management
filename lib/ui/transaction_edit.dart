@@ -75,6 +75,8 @@ class _TransactionEditState extends State<TransactionEdit> {
                   label: Text('amount'.tr),
                 ),
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 validator: Validatorless.multiple([
                   Validatorless.required('required'.tr),
                   Validatorless.number('number'.tr),

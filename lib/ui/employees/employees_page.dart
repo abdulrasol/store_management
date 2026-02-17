@@ -628,8 +628,8 @@ class _EmployeesPageState extends State<EmployeesPage> {
               TextField(
                 controller: amountCtrl,
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 autofocus: true,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
                   labelText: 'amount'.tr,
                   prefixIcon: Icon(Icons.attach_money, color: color),
@@ -758,10 +758,13 @@ class _EmployeesPageState extends State<EmployeesPage> {
   }
 
   Widget _buildTextField(TextEditingController ctrl, String label, IconData icon, {TextInputType type = TextInputType.text}) {
+    final isNumber = type == TextInputType.number || type == TextInputType.phone;
     return TextFormField(
       controller: ctrl,
       keyboardType: type,
-      style: const TextStyle(fontSize: 14),
+      style: isNumber 
+        ? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
+        : const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: Colors.teal),

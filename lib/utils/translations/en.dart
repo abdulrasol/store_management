@@ -388,6 +388,8 @@ final Map<String, String> en = {
   'هل أنت متأكد من حذف هذا الراتب؟': 'Are you sure you want to delete this salary?',
 
   // ===== Reports Module =====
+  'Urgent Orders': 'Urgent Orders',
+  'Reports': 'Reports',
   'التقارير': 'Reports',
   'الملخص': 'Summary',
   'المبيعات': 'Sales',
@@ -471,6 +473,7 @@ final Map<String, String> en = {
   'السلف المستحقة': 'Pending Advances',
   'لا توجد رواتب لهذا الشهر': 'No salaries for this month',
   'الطلبات المستعجلة': 'Urgent Orders',
+  'Urgent Orders': 'Urgent Orders',
   'إظهار المكتملة': 'Show Completed',
   'لا توجد طلبات مستعجلة': 'No urgent orders',
   'لا توجد طلبات': 'No orders',
