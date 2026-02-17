@@ -34,7 +34,6 @@ class _HomeState extends State<Home> {
 
   final Rx<double> _purchasesTotal = 0.0.obs;
 
-
   @override
   void initState() {
     super.initState();
@@ -417,7 +416,6 @@ class _HomeState extends State<Home> {
                 onTap: () => Get.to(() => ExpenseAdd()),
               ),
             ),
-            const SizedBox(width: 10),
             const SizedBox(width: 10),
             Expanded(
               child: _quickActionButton(

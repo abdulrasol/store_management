@@ -130,7 +130,6 @@ class _InvoiceViewState extends State<InvoiceView> {
                 ),
               ),
             verSpace,
-            verSpace,
           ],
         ),
       ),
@@ -156,7 +155,6 @@ class _InvoiceViewState extends State<InvoiceView> {
             TextField(
               controller: amountController,
               keyboardType: TextInputType.number,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               decoration: InputDecoration(labelText: "Amount".tr),
             ),

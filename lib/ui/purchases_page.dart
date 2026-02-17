@@ -309,7 +309,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
                   // Receipt Number
                   TextFormField(
                     controller: receiptController,
-                    style: const TextStyle(fontSize: 12),
+                    
                     decoration: InputDecoration(
                       labelText: 'رقم الفاتورة'.tr,
                       prefixIcon: const Icon(Icons.receipt),
@@ -342,13 +342,14 @@ class _PurchasesPageState extends State<PurchasesPage> {
                   // Amount (Below Category as requested)
                   TextFormField(
                     controller: amountController,
-                    style: const TextStyle(fontSize: 12),
+                    
                     decoration: InputDecoration(
                       labelText: 'المبلغ الإجمالي *'.tr,
                       prefixIcon: const Icon(Icons.attach_money),
                       border: const OutlineInputBorder(),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'مطلوب'.tr;
                       if (double.tryParse(value) == null) return 'رقم غير صحيح'.tr;
@@ -408,7 +409,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
                   // Notes
                   TextFormField(
                     controller: notesController,
-                    style: const TextStyle(fontSize: 12),
+                    
                     decoration: InputDecoration(
                       labelText: 'ملاحظات'.tr,
                       prefixIcon: const Icon(Icons.note),

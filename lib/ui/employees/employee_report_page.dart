@@ -880,7 +880,6 @@ class _EmployeeReportPageState extends State<EmployeeReportPage> {
                 controller: amountCtrl,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 style: const TextStyle(fontSize: 16),
                 decoration: InputDecoration(
                   labelText: 'amount'.tr,

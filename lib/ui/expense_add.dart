@@ -88,7 +88,6 @@ class _ExpenseAddState extends State<ExpenseAdd> {
               verSpace,
               TextFormField(
                 controller: amountControll,
-                style: const TextStyle(fontSize: 12),
                 decoration: inputDecoration.copyWith(
                   hintText: 'Expense Amount'.tr,
                 ),

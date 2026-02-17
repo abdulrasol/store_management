@@ -170,7 +170,6 @@ class _InvoiceFormState extends State<InvoiceForm> {
                           },
                         ),
                       verSpace,
-                      verSpace,
                       Row(
                         children: [
                           Expanded(
