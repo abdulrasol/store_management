@@ -52,46 +52,52 @@ jobs:
 
       - name: Build IPA (Unsigned)
         run: |
+          # Clean build directories to avoid stale file issues
+          rm -rf build/ios
+          rm -rf ios/build
+          rm -rf ~/Library/Developer/Xcode/DerivedData
           mkdir -p build/ios/iphoneos
-          # Build .app with signing disabled explicitly
-          flutter build ios --release --no-codesign --split-debug-info=./debug-info --obfuscate || true
           
-          # If flutter build fails due to signing (but generated .app), we continue
-          # Note: flutter build might return exit 1 if signing fails, even if .app is built. 
-          # But usually it fails BEFORE building .app if check fails.
-          # Let's try xcodebuild direct fallback if flutter build fails.
-          
+          # Build iOS with explicit derived data path
           cd ios
+          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner
           xcodebuild -workspace Runner.xcworkspace \
             -scheme Runner \
             -configuration Release \
             -destination 'generic/platform=iOS' \
+            -derivedDataPath ../build/ios_derived_data \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
+            ONLY_ACTIVE_ARCH=NO \
             build
-            
+          
           # Move artifact
           cd ..
-          # xcodebuild output location
-          # Usually build/ios/Release-iphoneos/Runner.app or derived data
-          # Let's find it.
-          # Flutter puts it in build/ios/iphoneos/Runner.app
           
-          # Let's verify where it is.
-          # Assuming xcodebuild output is in symlink build/Release-iphoneos
-          
-          if [ -d "build/Release-iphoneos/Runner.app" ]; then
-             cp -r build/Release-iphoneos/Runner.app build/ios/iphoneos/
+          # Find the built app in derived data
+          BUILT_APP=$(find build/ios_derived_data -name "Runner.app" -type d | head -n 1)
+          if [ -n "$BUILT_APP" ]; then
+            echo "Found built app at: $BUILT_APP"
+            cp -r "$BUILT_APP" build/ios/iphoneos/
+          elif [ -d "build/Release-iphoneos/Runner.app" ]; then
+            cp -r build/Release-iphoneos/Runner.app build/ios/iphoneos/
           elif [ -d "ios/build/Release-iphoneos/Runner.app" ]; then
-             cp -r ios/build/Release-iphoneos/Runner.app build/ios/iphoneos/
+            cp -r ios/build/Release-iphoneos/Runner.app build/ios/iphoneos/
           fi
           
+          # Create IPA
           cd build/ios/iphoneos
-          mkdir Payload
-          cp -r Runner.app Payload/
-          zip -r Runner.ipa Payload
-          rm -rf Payload
+          if [ -d "Runner.app" ]; then
+            mkdir Payload
+            cp -r Runner.app Payload/
+            zip -r Runner.ipa Payload
+            rm -rf Payload
+            echo "IPA created successfully"
+          else
+            echo "Error: Runner.app not found"
+            exit 1
+          fi
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
