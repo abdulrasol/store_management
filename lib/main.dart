@@ -5,7 +5,6 @@ import 'package:store_management/ui/splash_screen.dart';
 import 'package:store_management/ui/home.dart';
 import 'package:store_management/utils/app_theme.dart';
 import 'package:store_management/utils/app_translations.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'dart:io';
 import 'controllers/settings_controller.dart';
 import 'ui/onboarding_screen.dart' show OnboardingScreen;

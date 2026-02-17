@@ -677,9 +677,9 @@ class DatabaseController extends GetxController {
   }
 
   Future<double> getSupplierDebt() async {
-    final customerDebt = customerDebt();
+    final customerDebtTotal = customerDebt();
     final unpaidPurchases = await getUnpaidPurchasesTotal();
-    return customerDebt + unpaidPurchases;
+    return customerDebtTotal + unpaidPurchases;
   }
 
   Future<File> _getPurchasesFile() async {

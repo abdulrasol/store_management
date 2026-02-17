@@ -41,7 +41,6 @@ class _HomeState extends State<Home> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       VersionCheckService().checkVersion(context);
-      _checkOverdueUrgentOrders();
       _loadAsyncTotals();
     });
     ever(_summaryPeriod, (_) => _loadAsyncTotals());
@@ -211,7 +210,6 @@ class _HomeState extends State<Home> {
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
         final isSmallScreen = screenWidth < 360;
-        final isTablet = screenWidth > 600;
         final cardWidth = screenWidth / 2 - 12;
         final fontSize = isSmallScreen ? 11.0 : 12.0;
         final valueFontSize = isSmallScreen ? 13.0 : 14.0;
