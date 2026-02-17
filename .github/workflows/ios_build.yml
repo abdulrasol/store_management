@@ -22,7 +22,10 @@ jobs:
           cache: true
 
       - name: Get Flutter dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          flutter pub run build_runner clean
+          flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Cache CocoaPods
         uses: actions/cache@v3
