@@ -177,8 +177,8 @@ class _InvoiceFormState extends State<InvoiceForm> {
                               controller: sellPriceController,
                               decoration: inputDecoration.copyWith(label: Text('Sell Price'.tr)),
                               keyboardType: TextInputType.numberWithOptions(decimal: true),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
                               validator: Validatorless.multiple([
                                 Validatorless.required('required'.tr),
                                 Validatorless.number('number'.tr),
@@ -191,8 +191,8 @@ class _InvoiceFormState extends State<InvoiceForm> {
                               controller: quantityController,
                               decoration: inputDecoration.copyWith(label: Text('quantity'.tr)),
                               keyboardType: TextInputType.numberWithOptions(decimal: true),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
                               validator: Validatorless.multiple([
                                 Validatorless.required('required'.tr),
                                 Validatorless.number('number'.tr),
@@ -206,8 +206,8 @@ class _InvoiceFormState extends State<InvoiceForm> {
                                 controller: costPriceController,
                                 decoration: inputDecoration.copyWith(label: Text('Buy Price'.tr)), // Or Cost
                                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
                                 validator: Validatorless.multiple([
                                   Validatorless.required('required'.tr),
                                   Validatorless.number('number'.tr),
