@@ -151,6 +151,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       ),
                       keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
                       validator: Validatorless.multiple([
                         Validatorless.required('required'.tr),
                         Validatorless.number('number'.tr),
@@ -165,6 +166,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       ),
                       keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
                       validator: Validatorless.multiple([
                         Validatorless.required('required'.tr),
                         Validatorless.number('number'.tr),
@@ -179,6 +181,7 @@ class _VoucherCreateState extends State<VoucherCreate> {
                       ),
                       keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
                       validator: Validatorless.multiple([
                         Validatorless.required('required'.tr),
                         Validatorless.number('number'.tr),

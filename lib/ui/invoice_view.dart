@@ -156,6 +156,7 @@ class _InvoiceViewState extends State<InvoiceView> {
               controller: amountController,
               keyboardType: TextInputType.number,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               decoration: InputDecoration(labelText: "Amount".tr),
             ),
           ],

@@ -350,6 +350,7 @@ class _PurchasesPageState extends State<PurchasesPage> {
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'مطلوب'.tr;
                       if (double.tryParse(value) == null) return 'رقم غير صحيح'.tr;

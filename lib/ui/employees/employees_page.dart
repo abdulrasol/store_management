@@ -765,6 +765,7 @@ class _EmployeesPageState extends State<EmployeesPage> {
       style: isNumber 
         ? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
         : const TextStyle(fontSize: 14),
+      textAlign: isNumber ? TextAlign.center : TextAlign.start,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: Colors.teal),
