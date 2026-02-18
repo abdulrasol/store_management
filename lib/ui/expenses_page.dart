@@ -84,7 +84,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
                       });
                     });
                   },
-                  label: Text('Select Date'.tr),
+                  label: Text('select_date'.tr),
                   icon: Icon(Icons.date_range_outlined),
                 )
               ],

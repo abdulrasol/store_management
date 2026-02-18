@@ -38,13 +38,14 @@ class _VoucherSaveState extends State<VoucherSave> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verSpace,
-              verSpace,
               TextFormField(
                 controller: payControll,
                 decoration: inputDecoration.copyWith(
                   label: Text('Payment Amount'.tr),
                 ),
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
                 validator: Validatorless.multiple([
                   Validatorless.required('required'.tr),
                   Validatorless.number('number'.tr),
@@ -103,7 +104,6 @@ class _VoucherSaveState extends State<VoucherSave> {
                               (element.buyPrice * element.quantity)))),
                 ],
               ),
-              verSpace,
               verSpace,
               Center(
                 child: ElevatedButton(

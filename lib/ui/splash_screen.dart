@@ -205,10 +205,14 @@ class SplashScreenState extends State<SplashScreen>
                                 fit: BoxFit.contain,
                               ),
                             )
-                          : Icon(
-                              Icons.point_of_sale_outlined,
-                              size: 80,
-                              color: Colors.blue.shade700,
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Image.asset(
+                                'assets/png/logo.png',
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.contain,
+                              ),
                             ))),
                 ),
               ),
@@ -219,7 +223,7 @@ class SplashScreenState extends State<SplashScreen>
               FadeTransition(
                 opacity: _animation,
                 child: Text(
-                  'Sales Management App'.tr,
+                  'Alrwah Management',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,

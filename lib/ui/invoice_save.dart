@@ -101,6 +101,8 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                   label: Text('Payment Amount'.tr),
                 ),
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
                 validator: Validatorless.multiple([
                   Validatorless.required('required'.tr),
                   Validatorless.number('number'.tr),
@@ -113,6 +115,8 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                   label: Text('discount'.tr),
                 ),
                 keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
                 validator: Validatorless.multiple([
                   Validatorless.required('required'.tr),
                   Validatorless.number('number'.tr),
@@ -183,7 +187,6 @@ class _InvoiceSaveState extends State<InvoiceSave> {
                       .currencyFormatter(widget.invoice.pricetoPay())),
                 ],
               ),
-              verSpace,
               verSpace,
               Center(
                 child: ElevatedButton(

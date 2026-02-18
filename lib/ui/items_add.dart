@@ -76,7 +76,6 @@ class _VoucherCreateState extends State<VoucherCreate> {
                           oldItem = item;
                           sellControll.text = oldItem!.sellPrice.toString();
                           buyControll.text = oldItem!.buyPrice.toString();
-                          buyControll.text = oldItem!.buyPrice.toString();
                           customerNameControll.text =
                               oldItem!.supplier.target?.name ?? '';
                           customer = oldItem?.supplier.target;
@@ -151,6 +150,8 @@ class _VoucherCreateState extends State<VoucherCreate> {
                         label: Text('Buy Price'.tr),
                       ),
                       keyboardType: TextInputType.number,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                       validator: Validatorless.multiple([
                         Validatorless.required('required'.tr),
                         Validatorless.number('number'.tr),
@@ -164,6 +165,8 @@ class _VoucherCreateState extends State<VoucherCreate> {
                         label: Text('Sell Price'.tr),
                       ),
                       keyboardType: TextInputType.number,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                       validator: Validatorless.multiple([
                         Validatorless.required('required'.tr),
                         Validatorless.number('number'.tr),
@@ -177,6 +180,8 @@ class _VoucherCreateState extends State<VoucherCreate> {
                         label: Text('quantity'.tr),
                       ),
                       keyboardType: TextInputType.number,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                       validator: Validatorless.multiple([
                         Validatorless.required('required'.tr),
                         Validatorless.number('number'.tr),

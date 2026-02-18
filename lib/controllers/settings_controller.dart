@@ -12,7 +12,7 @@ class SettingsController extends GetxController {
   Rx<String?> logo = Rx<String?>(null);
   Rx<String> invoiceTerms = Rx<String>('');
   Rx<String> invoiceFooter = Rx<String>('');
-  NumberFormat currencyFormat = NumberFormat.currency(locale: 'en', name: 'USD', symbol: '\$', decimalDigits: 0);
+  NumberFormat currencyFormat = NumberFormat.currency(locale: 'ar', name: 'AED', symbol: 'AED', decimalDigits: 0);
   Rx<ThemeMode> appTheme = Rx<ThemeMode>(ThemeMode.system);
   Rx<Locale> appLang = Rx<Locale>(Locale('en'));
   String countryCode = '';
@@ -79,10 +79,13 @@ class SettingsController extends GetxController {
 
   Future<void> updateSettings() async {
     if (prefs == null) return;
+    final langCode = prefs!.getString('languageCode') ?? 'en';
+    final isArabic = langCode == 'ar';
+    final symbol = prefs!.getString('currency_symbol') ?? (isArabic ? 'د.إ' : 'AED');
     currencyFormat = NumberFormat.currency(
-      locale: prefs!.getString('languageCode') ?? 'en',
-      name: prefs!.getString('currency_name') ?? 'USD',
-      symbol: prefs!.getString('currency_symbol') ?? '\$',
+      locale: langCode,
+      name: prefs!.getString('currency_name') ?? 'AED',
+      symbol: symbol,
       decimalDigits: prefs!.getInt('decimal_digits') ?? 0,
     );
     appName.value = prefs!.getString('store_name');
@@ -104,9 +107,11 @@ class SettingsController extends GetxController {
 
   String currencyFormatter(num number) {
     if (number < 0) {
-      return '- ${currencyFormat.format(number).split('-')[0]} ${currencyFormat.format(number).split('-')[1]}';
+      return '- ${currencyFormat.format(number.abs())}';
+    } else if (number >= 0) {
+      return currencyFormat.format(number);
+    } else {
+      return currencyFormat.format(number);
     }
-
-    return currencyFormat.format(number);
   }
 }
