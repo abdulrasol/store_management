@@ -153,8 +153,6 @@ class _HomeState extends State<Home> {
               const SizedBox(height: 24),
               _buildQuickActions(context),
               const SizedBox(height: 24),
-              _buildExpensesChart(context),
-              const SizedBox(height: 24),
               _buildRecentExpenses(context),
               const SizedBox(height: 80),
             ],
@@ -487,176 +485,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildExpensesChart(BuildContext context) {
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Obx(() {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 32,
-                      decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                      child: Row(
-                        children: [
-                          _toggleButton('Expenses'.tr, _chartType.value == 'expenses', () => _chartType.value = 'expenses', compact: true),
-                          _toggleButton('Purchases'.tr, _chartType.value == 'purchases', () => _chartType.value = 'purchases', compact: true),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    height: 32,
-                    decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                    child: Row(
-                      children: [
-                        _toggleButton('Week', _chartPeriod.value == 'Week', () => _chartPeriod.value = 'Week', compact: true),
-                        _toggleButton('Month', _chartPeriod.value == 'Month', () => _chartPeriod.value = 'Month', compact: true),
-                        _toggleButton('Year', _chartPeriod.value == 'Year', () => _chartPeriod.value = 'Year', compact: true),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              AspectRatio(
-                aspectRatio: 1.7,
-                child: Builder(builder: (context) {
-                  Map<DateTime, double> dataMap;
-
-                  if (_chartType.value == 'expenses') {
-                    switch (_chartPeriod.value) {
-                      case 'Month':
-                        dataMap = databaseController.getMonthlyExpenses();
-                        break;
-                      case 'Year':
-                        dataMap = databaseController.getYearlyExpenses();
-                        break;
-                      case 'Week':
-                      default:
-                        dataMap = databaseController.getWeeklyExpenses();
-                        break;
-                    }
-                  } else {
-                    switch (_chartPeriod.value) {
-                      case 'Month':
-                        dataMap = databaseController.getMonthlySales();
-                        break;
-                      case 'Year':
-                        dataMap = databaseController.getYearlySales();
-                        break;
-                      case 'Week':
-                      default:
-                        dataMap = databaseController.getWeeklySales();
-                        break;
-                    }
-                  }
-
-                  if (dataMap.isEmpty || dataMap.values.every((v) => v == 0)) {
-                    return Center(child: Text('No data available'.tr));
-                  }
-
-                  final keys = dataMap.keys.toList()..sort();
-                  final barColor = _chartType.value == 'expenses' ? Colors.orange : Colors.indigo;
-
-                  return BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: dataMap.values.isEmpty ? 100 : (dataMap.values.reduce((a, b) => a > b ? a : b) * 1.2),
-                      barTouchData: BarTouchData(
-                        enabled: true,
-                        touchTooltipData: BarTouchTooltipData(
-                          getTooltipColor: (_) => Colors.blueGrey,
-                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                            DateTime date = keys[group.x.toInt()];
-                            String label = '';
-                            if (_chartPeriod.value == 'Week') {
-                              label = _getWeekdayName(date.weekday);
-                            } else if (_chartPeriod.value == 'Month') {
-                              label = '${date.day}/${date.month}';
-                            } else {
-                              label = '${_getMonthName(date.month)} ${date.year}';
-                            }
-                            return BarTooltipItem(
-                              '$label\n',
-                              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: settingsController.currencyFormatter(rod.toY),
-                                  style: const TextStyle(color: Colors.yellow, fontSize: 12, fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      titlesData: FlTitlesData(
-                        show: true,
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, meta) {
-                              int index = value.toInt();
-                              if (index < 0 || index >= keys.length) return const SizedBox.shrink();
-                              DateTime date = keys[index];
-                              String text = '';
-                              if (_chartPeriod.value == 'Week') {
-                                text = _getWeekdayName(date.weekday).substring(0, 3);
-                              } else if (_chartPeriod.value == 'Month') {
-                                if (date.day % 5 == 0 || date.day == 1) {
-                                  text = '${date.day}';
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              } else {
-                                text = _getMonthName(date.month).substring(0, 3);
-                              }
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
-                              );
-                            },
-                            reservedSize: 28,
-                          ),
-                        ),
-                        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      ),
-                      gridData: const FlGridData(show: false),
-                      borderData: FlBorderData(show: false),
-                      barGroups: List.generate(keys.length, (index) {
-                        return BarChartGroupData(
-                          x: index,
-                          barRods: [
-                            BarChartRodData(
-                              toY: dataMap[keys[index]] ?? 0,
-                              color: barColor,
-                              width: _chartPeriod.value == 'Month' ? 6 : 12,
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                            )
-                          ],
-                        );
-                      }),
-                    ),
-                  );
-                }),
-              ),
-            ],
-          );
-        }),
-      ),
-    );
-  }
-
   Widget _buildRecentExpenses(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -753,18 +581,6 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
-  }
-
-  String _getWeekdayName(int weekday) {
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    if (weekday < 1 || weekday > 7) return '';
-    return days[weekday - 1];
-  }
-
-  String _getMonthName(int month) {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    if (month < 1 || month > 12) return '';
-    return months[month - 1];
   }
 
   Widget _buildDrawer(BuildContext context) {
