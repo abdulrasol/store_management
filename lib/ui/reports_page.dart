@@ -138,8 +138,6 @@ class _ReportsPageState extends State<ReportsPage> {
                     const SizedBox(height: 16),
                     _buildQuickReportButtons(),
                     const SizedBox(height: 20),
-                    _buildExpensesDistribution(),
-                    const SizedBox(height: 20),
                     _buildRecentActivity(),
                   ],
                 ),
@@ -390,102 +388,6 @@ class _ReportsPageState extends State<ReportsPage> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildExpensesDistribution() {
-    if (filteredExpenses.isEmpty) return const SizedBox.shrink();
-
-    Map<String, double> grouped = {};
-    for (var e in filteredExpenses) {
-      grouped[e.description] = (grouped[e.description] ?? 0) + e.amount;
-    }
-
-    var sortedEntries = grouped.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    double total = grouped.values.fold(0, (sum, val) => sum + val);
-
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.pie_chart_outline, color: Colors.orange.shade600, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  'expenses_distribution'.tr,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...sortedEntries.take(4).map((entry) {
-              double percentage = total == 0 ? 0 : (entry.value / total);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            entry.key,
-                            style: const TextStyle(fontSize: 11),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Text(
-                          '${(percentage * 100).toStringAsFixed(0)}%',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: percentage,
-                        backgroundColor: Colors.grey.shade100,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade400),
-                        minHeight: 4,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-            if (sortedEntries.length > 4)
-              Center(
-                child: TextButton(
-                  onPressed: () => Get.to(() => ExpenseReportPage(dateRange: dateRange)),
-                  child: Text(
-                    'view_all'.tr,
-                    style: TextStyle(fontSize: 11, color: Colors.orange.shade700),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
