@@ -245,6 +245,7 @@ final Map<String, String> en = {
   'Error restoring backup': 'Error restoring backup',
   'Please restart the app': 'Please restart the app to apply changes',
   'Sales': 'Sales',
+  'Purchases': 'Purchases',
   'All Time Sales': 'All Time Sales',
   'Week': 'Week',
   'All Time': 'All Time',
@@ -272,6 +273,9 @@ final Map<String, String> en = {
   'Update Now': 'Update Now',
   'Maybe Later': 'Maybe Later',
   'Recent Transactions': 'Recent Transactions',
+  'Recent Expenses': 'Recent Expenses',
+  'Total Spending': 'Total Spending',
+  'Total Purchases': 'Total Purchases',
 
   'Fix Database Checks': 'Fix Database Checks',
   'This will check all invoices and ensure debits are correctly recorded. Use this if Customer Balances look incorrect.':

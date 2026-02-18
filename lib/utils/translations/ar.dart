@@ -9,6 +9,8 @@ final Map<String, String> ar = {
   'Employees': 'الموظفين',
   'Profits': 'الأرباح',
   'Suppliers': 'الموردين',
+  'Purchases': 'المشتريات',
+  'Sales': 'المبيعات',
   'Vouchers': 'سندات القبض والصرف',
   'Total Sales': 'إجمالي المبيعات',
   'Last Month Sales': 'مبيعات الشهر الماضي',
@@ -247,6 +249,9 @@ final Map<String, String> ar = {
   'Update Now': 'تحديث الآن',
   'Maybe Later': 'ربما لاحقاً',
   'Recent Transactions': 'المعاملات الأخيرة',
+  'Recent Expenses': 'المصروفات الأخيرة',
+  'Total Spending': 'إجمالي الإنفاق',
+  'Total Purchases': 'إجمالي المشتريات',
 
   'Fix Database Checks': 'فحص وإصلاح قاعدة البيانات',
   'This will check all invoices and ensure debits are correctly recorded. Use this if Customer Balances look incorrect.':
