@@ -8,6 +8,7 @@ import 'package:store_management/models/invoice_item.dart';
 import 'package:store_management/models/item.dart';
 import 'package:store_management/ui/invoice_save.dart';
 import 'package:store_management/ui/invoice_save_update.dart';
+import 'package:store_management/ui/widgets/item_row.dart';
 import 'package:store_management/utils/app_constants.dart';
 import 'package:validatorless/validatorless.dart';
 
@@ -25,8 +26,8 @@ class _InvoiceFormState extends State<InvoiceForm> {
   // Controllers
   TextEditingController nameController = TextEditingController();
   TextEditingController quantityController = TextEditingController(text: '1');
-  TextEditingController sellPriceController = TextEditingController(text: '0');
-  TextEditingController costPriceController = TextEditingController(text: '0'); // New for Custom Items
+  TextEditingController sellPriceController = TextEditingController();
+  TextEditingController costPriceController = TextEditingController(); // New for Custom Items
 
   SettingsController settingsController = Get.find();
   DatabaseController databaseController = Get.find();
@@ -148,10 +149,7 @@ class _InvoiceFormState extends State<InvoiceForm> {
                               decoration: inputDecoration.copyWith(label: Text('item'.tr)),
                             );
                           },
-                          itemBuilder: (context, item) => ListTile(
-                            title: Text(item.name),
-                            subtitle: Text('${settingsController.currencyFormatter(item.sellPrice)}, ${item.quantity} ${'available'.tr}'),
-                          ),
+                          itemBuilder: (context, item) => ItemRow(item: item),
                           onSelected: (item) {
                             setState(() {
                               nameController.text = item.name;
@@ -358,7 +356,7 @@ class _InvoiceFormState extends State<InvoiceForm> {
       if (tempInvoiceItem != null) {
         // Updating
         // If we are updating the SAME item
-        if (tempInvoiceItem!.item.targetId == tempItem!.id) {
+        if (tempInvoiceItem!.item.target?.id == tempItem!.id) {
           // allow if new_qty <= stock + old_qty
           // actually stock in DB is already reduced if we are in Update Invoice mode?
           // Wait, `invoice_update` logic:
